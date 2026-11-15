@@ -693,8 +693,25 @@ function onMobileQuickSearchKey(event: KeyboardEvent): void {
     }
 }
 
+function closeBrandDropdown(): void {
+    const menu = maybeById('brandDropdownMenu');
+    const btn = maybeById('brandDropdownBtn');
+    if (menu) menu.classList.add('hidden');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+
+function toggleBrandDropdown(event?: Event): void {
+    event?.stopPropagation();
+    const menu = maybeById('brandDropdownMenu');
+    const btn = maybeById('brandDropdownBtn');
+    if (!menu || !btn) return;
+    const isHidden = menu.classList.toggle('hidden');
+    btn.setAttribute('aria-expanded', String(!isHidden));
+}
+
 function selectBrandFilter(brand: string): void {
     activeBrandFilter = brand;
+    closeBrandDropdown();
     renderBrandChips();
     renderDeviceDirectory();
 }
@@ -716,11 +733,22 @@ function selectDevice(brand: string, device: string): void {
 
 function renderBrandChips(): void {
     const wrap = byId('brandChips');
-    let html = `<button type="button" class="brand-chip ${activeBrandFilter === 'ALL' ? 'active' : ''}" onclick="selectBrandFilter('ALL')">Tümü</button>`;
+    const activeLabel = activeBrandFilter === 'ALL' ? 'Tüm Markalar' : activeBrandFilter;
+    let optionsHtml = `<button type="button" class="brand-dropdown-option ${activeBrandFilter === 'ALL' ? 'active' : ''}" role="option" aria-selected="${activeBrandFilter === 'ALL'}" onclick="selectBrandFilter('ALL')">Tüm Markalar</button>`;
     for (const cat of categories) {
-        html += `<button type="button" class="brand-chip ${activeBrandFilter === cat ? 'active' : ''}" data-brand="${escapeHtml(cat)}" onclick="selectBrandFilter(this.dataset.brand)">${escapeHtml(cat)}</button>`;
+        const isActive = activeBrandFilter === cat;
+        optionsHtml += `<button type="button" class="brand-dropdown-option ${isActive ? 'active' : ''}" role="option" aria-selected="${isActive}" data-brand="${escapeHtml(cat)}" onclick="selectBrandFilter(this.dataset.brand)">${escapeHtml(cat)}</button>`;
     }
-    wrap.innerHTML = html;
+    wrap.innerHTML = `
+    <div class="brand-dropdown-wrap">
+        <button type="button" class="brand-dropdown-trigger" id="brandDropdownBtn" onclick="toggleBrandDropdown(event)" aria-expanded="false" aria-controls="brandDropdownMenu">
+            <span>${escapeHtml(activeLabel)}</span>
+            <span class="brand-dropdown-caret" aria-hidden="true">▾</span>
+        </button>
+        <div class="brand-dropdown-menu hidden" id="brandDropdownMenu" role="listbox">
+            ${optionsHtml}
+        </div>
+    </div>`;
 }
 
 function renderDeviceDirectory(): void {
@@ -1880,6 +1908,7 @@ Object.assign(window, {
     takeManualBackupNow,
     toggleQuoteItem,
     toggleAdminToolsMenu,
+    toggleBrandDropdown,
     toggleTheme,
     triggerCsvFileSelect,
     updateQuickCalc
@@ -1889,6 +1918,10 @@ document.addEventListener('click', (e: MouseEvent) => {
     const toolsWrap = maybeById('adminToolsWrap');
     if (toolsWrap && !toolsWrap.contains(e.target as Node)) {
         closeAdminToolsMenu();
+    }
+    const brandWrap = maybeById('brandChips');
+    if (brandWrap && !brandWrap.contains(e.target as Node)) {
+        closeBrandDropdown();
     }
     const searchWrap = maybeById('mobileQuickSearch');
     const results = maybeById('mobileQuickSearchResults');
@@ -1908,6 +1941,7 @@ document.addEventListener('keydown', (e: KeyboardEvent) => {
         if (input) input.focus();
     } else if (e.key === 'Escape') {
         closeAdminToolsMenu();
+        closeBrandDropdown();
         closeAuthModal();
         closePasswordModal();
         closeBackupModal();
