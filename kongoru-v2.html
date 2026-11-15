@@ -50,8 +50,8 @@
             <div class="mobile-quick-search-box">
                 <span class="mobile-quick-search-icon" aria-hidden="true">🔍</span>
                 <input type="text" class="search-input mobile-quick-input" id="mobileDeviceSearchInput"
-                    placeholder="Hızlı telefon ara... (Örn: 15 Pro, S24)"
-                    oninput="onMobileQuickSearch()" onkeydown="onMobileQuickSearchKey(event)">
+                    placeholder="Model ara... (Örn: 13, 15 Pro, S24)"
+                    oninput="onMobileQuickSearch()" onfocus="onMobileQuickSearch()" onkeydown="onMobileQuickSearchKey(event)">
                 <button type="button" class="search-clear hidden" id="clearMobileSearchBtn"
                     onclick="clearMobileQuickSearch()" title="Aramayı temizle">×</button>
             </div>

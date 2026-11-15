@@ -643,7 +643,7 @@ function renderMobileQuickResults(query: string): void {
         return;
     }
 
-    wrap.innerHTML = matches.slice(0, 12).map((m) => `
+    wrap.innerHTML = matches.slice(0, 40).map((m) => `
         <button type="button" class="mobile-quick-item"
             data-brand="${escapeHtml(m.brand)}" data-device="${escapeHtml(m.device)}"
             onclick="selectMobileQuickResult(this.dataset.brand, this.dataset.device)">
