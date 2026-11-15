@@ -62,6 +62,8 @@ let pricesState: PricesStateMap = {};
 let isCustomerMode = true;
 let activeBrandFilter = 'ALL';
 let activeServiceFilter = 'ALL';
+let activeCatalogTab: 'brands' | 'devices' | 'groups' | 'qualities' = 'devices';
+let isCatalogViewOpen = false;
 let selectedBrand = '';
 let selectedDevice = '';
 let searchQuery = '';
@@ -98,15 +100,12 @@ function normalizeDevicesToMap(rawDevices: unknown): DevicesByBrand {
                 map[cat].push(entry.name);
             }
         }
-        for (const cat of Object.keys(map)) {
-            map[cat] = sortDevicesForBrand(cat, map[cat]);
-        }
         return map;
     }
     if (rawDevices && typeof rawDevices === 'object') {
         for (const [cat, list] of Object.entries(rawDevices as Record<string, unknown>)) {
             if (Array.isArray(list)) {
-                map[cat] = sortDevicesForBrand(cat, list.map((v) => String(v)));
+                map[cat] = list.map((v) => String(v));
             }
         }
     }
@@ -482,6 +481,8 @@ function applyModeUI(): void {
     if (!isCustomerMode) {
         selectedQuoteItems.clear();
         renderCustomerQuoteBar();
+    } else {
+        closeCatalogModal();
     }
 }
 
@@ -571,14 +572,36 @@ async function submitPasswordChange(event: Event): Promise<void> {
     showToast('Yönetici şifresi güncellendi.');
 }
 
+function switchCatalogTab(tab: 'brands' | 'devices' | 'groups' | 'qualities'): void {
+    activeCatalogTab = tab;
+    document.querySelectorAll<HTMLElement>('#catalogTabs .catalog-tab-btn').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.tab === tab);
+    });
+    document.querySelectorAll<HTMLElement>('.catalog-panel-wrap [data-catalog-panel]').forEach((panel) => {
+        panel.classList.toggle('hidden', panel.dataset.catalogPanel !== tab);
+    });
+}
+
 function openCatalogModal(): void {
     if (isCustomerMode) return;
+    isCatalogViewOpen = true;
     renderCatalogManager();
-    byId('catalogModal').classList.add('open');
+    switchCatalogTab(activeCatalogTab);
+    byId('deviceWorkbenchView').classList.add('hidden');
+    byId('adminFinanceStrip').classList.add('hidden');
+    byId('catalogInlineView').classList.remove('hidden');
+    if (window.innerWidth <= 1160) {
+        setMobilePane('stage');
+    }
+    const centerPane = document.querySelector<HTMLElement>('.pane-center');
+    if (centerPane) centerPane.scrollTop = 0;
 }
 
 function closeCatalogModal(): void {
-    byId('catalogModal').classList.remove('open');
+    isCatalogViewOpen = false;
+    byId('catalogInlineView').classList.add('hidden');
+    byId('deviceWorkbenchView').classList.remove('hidden');
+    byId('adminFinanceStrip').classList.toggle('hidden', isCustomerMode);
 }
 
 // --- Sol Panel Render & Filtreleme ---
@@ -607,6 +630,9 @@ function selectDevice(brand: string, device: string): void {
     }
     selectedBrand = brand;
     selectedDevice = device;
+    if (isCatalogViewOpen) {
+        closeCatalogModal();
+    }
     renderDeviceDirectory();
     renderCenterWorkbench();
     if (window.innerWidth <= 1160) {
@@ -639,15 +665,25 @@ function renderDeviceDirectory(): void {
         if (!list.length) continue;
 
         html += `<div class="device-group-label">${escapeHtml(brand)}</div>`;
-        for (const dev of list) {
+        const canReorder = !isCustomerMode && !q;
+        for (let idx = 0; idx < list.length; idx++) {
+            const dev = list[idx];
             const isActive = brand === selectedBrand && dev === selectedDevice;
+            const upDisabled = idx === 0 ? 'disabled' : '';
+            const downDisabled = idx === list.length - 1 ? 'disabled' : '';
+            const actionsHtml = canReorder
+                ? `<span class="device-item-actions">
+                    <button type="button" class="order-btn" title="Yukarı taşı" ${upDisabled} data-brand="${escapeHtml(brand)}" data-device="${escapeHtml(dev)}" onclick="onMoveDeviceClick(event, this.dataset.brand, this.dataset.device, -1)">↑</button>
+                    <button type="button" class="order-btn" title="Aşağı taşı" ${downDisabled} data-brand="${escapeHtml(brand)}" data-device="${escapeHtml(dev)}" onclick="onMoveDeviceClick(event, this.dataset.brand, this.dataset.device, 1)">↓</button>
+                   </span>`
+                : `<span class="device-item-check" aria-hidden="true">${isActive ? '✓' : ''}</span>`;
             html += `
-            <button type="button" class="device-item ${isActive ? 'active' : ''}"
+            <div class="device-item ${isActive ? 'active' : ''}" role="button" tabindex="0"
                 data-brand="${escapeHtml(brand)}" data-device="${escapeHtml(dev)}"
                 onclick="selectDevice(this.dataset.brand, this.dataset.device)">
                 <span class="device-item-name">${escapeHtml(dev)}</span>
-                <span class="device-item-check" aria-hidden="true">${isActive ? '✓' : ''}</span>
-            </button>`;
+                ${actionsHtml}
+            </div>`;
         }
     }
 
@@ -948,10 +984,12 @@ function updateQuickCalc(): void {
 
 // --- Katalog Yöneticisi İşlemleri ---
 function renderCatalogManager(): void {
-    byId('catManageList').innerHTML = categories.map((cat) => `
+    byId('catManageList').innerHTML = categories.map((cat, idx) => `
     <div class="catalog-item">
         <span>${escapeHtml(cat)}</span>
         <div class="catalog-item-actions">
+            <button type="button" class="order-btn" title="Yukarı taşı" ${idx === 0 ? 'disabled' : ''} data-brand="${escapeHtml(cat)}" onclick="moveBrand(this.dataset.brand, -1)">↑</button>
+            <button type="button" class="order-btn" title="Aşağı taşı" ${idx === categories.length - 1 ? 'disabled' : ''} data-brand="${escapeHtml(cat)}" onclick="moveBrand(this.dataset.brand, 1)">↓</button>
             <button type="button" class="btn btn-danger btn-sm" data-brand="${escapeHtml(cat)}" onclick="deleteBrand(this.dataset.brand)">Sil</button>
         </div>
     </div>`).join('');
@@ -962,10 +1000,15 @@ function renderCatalogManager(): void {
     if (categories.includes(prevDevBrand)) devBrandSel.value = prevDevBrand;
     const targetBrand = devBrandSel.value;
 
-    byId('deviceManageList').innerHTML = (devicesMap[targetBrand] || []).map((dev) => `
+    const brandDevices = devicesMap[targetBrand] || [];
+    byId('deviceManageList').innerHTML = brandDevices.map((dev, idx) => `
     <div class="catalog-item">
         <span>${escapeHtml(dev)}</span>
-        <button type="button" class="btn btn-danger btn-sm" data-brand="${escapeHtml(targetBrand)}" data-device="${escapeHtml(dev)}" onclick="deleteDevice(this.dataset.brand, this.dataset.device)">Sil</button>
+        <div class="catalog-item-actions">
+            <button type="button" class="order-btn" title="Yukarı taşı" ${idx === 0 ? 'disabled' : ''} data-brand="${escapeHtml(targetBrand)}" data-device="${escapeHtml(dev)}" onclick="moveDevice(this.dataset.brand, this.dataset.device, -1)">↑</button>
+            <button type="button" class="order-btn" title="Aşağı taşı" ${idx === brandDevices.length - 1 ? 'disabled' : ''} data-brand="${escapeHtml(targetBrand)}" data-device="${escapeHtml(dev)}" onclick="moveDevice(this.dataset.brand, this.dataset.device, 1)">↓</button>
+            <button type="button" class="btn btn-danger btn-sm" data-brand="${escapeHtml(targetBrand)}" data-device="${escapeHtml(dev)}" onclick="deleteDevice(this.dataset.brand, this.dataset.device)">Sil</button>
+        </div>
     </div>`).join('');
 
     const grpKeys = Object.keys(serviceGroups);
@@ -1019,9 +1062,8 @@ function addDevice(): void {
     if (!brand || !name) return;
     if (!devicesMap[brand]) devicesMap[brand] = [];
     if (!devicesMap[brand].includes(name)) {
-        devicesMap[brand].push(name);
+        devicesMap[brand].unshift(name);
     }
-    devicesMap[brand] = sortDevicesForBrand(brand, devicesMap[brand]);
     input.value = '';
     selectedBrand = brand;
     selectedDevice = name;
@@ -1029,7 +1071,45 @@ function addDevice(): void {
     void saveAllChanges({ silent: true });
     renderAll();
     renderCatalogManager();
-    showToast(`${name} eklendi (yeni nesilden eski nesile sıralandı).`);
+    showToast(`${name} eklendi.`);
+}
+
+function moveBrand(brand: string, delta: -1 | 1): void {
+    const idx = categories.indexOf(brand);
+    const nextIdx = idx + delta;
+    if (idx < 0 || nextIdx < 0 || nextIdx >= categories.length) return;
+    const copy = [...categories];
+    const [item] = copy.splice(idx, 1);
+    copy.splice(nextIdx, 0, item);
+    categories = copy;
+    persistLocalData();
+    scheduleAutoCloudSave();
+    renderBrandChips();
+    renderDeviceDirectory();
+    renderCatalogManager();
+}
+
+function moveDevice(brand: string, dev: string, delta: -1 | 1): void {
+    const list = devicesMap[brand];
+    if (!list) return;
+    const idx = list.indexOf(dev);
+    const nextIdx = idx + delta;
+    if (idx < 0 || nextIdx < 0 || nextIdx >= list.length) return;
+    const copy = [...list];
+    const [item] = copy.splice(idx, 1);
+    copy.splice(nextIdx, 0, item);
+    devicesMap[brand] = copy;
+    persistLocalData();
+    scheduleAutoCloudSave();
+    renderDeviceDirectory();
+    if (isCatalogViewOpen) {
+        renderCatalogManager();
+    }
+}
+
+function onMoveDeviceClick(event: Event, brand: string, dev: string, delta: -1 | 1): void {
+    event.stopPropagation();
+    moveDevice(brand, dev, delta);
 }
 
 function deleteDevice(brand: string, dev: string): void {
@@ -1783,7 +1863,10 @@ Object.assign(window, {
     downloadDailyBackup,
     handleCostTableInput,
     handleCsvFileRestore,
+    moveBrand,
+    moveDevice,
     onFinanceChange,
+    onMoveDeviceClick,
     onSearchInput,
     openAuthModal,
     openBackupModal,
@@ -1798,6 +1881,7 @@ Object.assign(window, {
     setMobilePane,
     submitAdminLogin,
     submitPasswordChange,
+    switchCatalogTab,
     switchToCustomerMode,
     syncFromCloud,
     takeManualBackupNow,
