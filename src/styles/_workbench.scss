@@ -401,6 +401,10 @@ body[data-mode="admin"] .customer-groups-grid {
         grid-column: span 2;
     }
 
+    .service-card-wide .service-card-head {
+        justify-content: center;
+    }
+
     .service-card-wide .quality-list {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
