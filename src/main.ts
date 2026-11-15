@@ -1135,7 +1135,10 @@ function renderCenterWorkbench(): void {
                 <div class="quality-tile admin-tile ${isSummarySelected ? 'summary-selected' : ''}" data-brand="${escapeHtml(selectedBrand)}" data-device="${escapeHtml(selectedDevice)}" data-group="${escapeHtml(grp)}" data-quality="${escapeHtml(qual)}" onclick="selectAdminTileSummary(this, event)">
                     <div class="admin-tile-head">
                         <span class="quality-name">${escapeHtml(qual)}</span>
-                        <span class="tile-save-state" data-out="savestate">✓ Kaydedildi</span>
+                        <div class="admin-tile-head-actions">
+                            <span class="tile-save-state" data-out="savestate">✓ Kaydedildi</span>
+                            <button type="button" class="tile-delete-btn" data-group="${escapeHtml(grp)}" data-quality="${escapeHtml(qual)}" onclick="onDeleteQualityClick(event, this)" title="Kaliteyi Sil" aria-label="Kaliteyi Sil">×</button>
+                        </div>
                     </div>
                     <div class="admin-tile-inputs">
                         <div class="admin-input-box">
@@ -1162,6 +1165,10 @@ function renderCenterWorkbench(): void {
 
         const order = renderedCardCount;
         renderedCardCount += 1;
+        const groupDeleteBtn = !isCustomerMode
+            ? `<button type="button" class="card-delete-btn" data-group="${escapeHtml(grp)}" onclick="onDeleteGroupClick(event, this)" title="Hizmeti Sil" aria-label="Hizmeti Sil">×</button>`
+            : '';
+
         renderedCards.push({
             rowsCount: renderedRowsCount,
             order,
@@ -1172,6 +1179,7 @@ function renderCenterWorkbench(): void {
                     <span class="service-icon-badge ${iconMeta.colorClass}" aria-hidden="true">${iconMeta.svg}</span>
                     <span class="service-card-title">${escapeHtml(grp)}</span>
                 </div>
+                ${groupDeleteBtn}
             </div>
             <div class="quality-list">${rowsHtml}</div>
         </article>`,
@@ -1402,6 +1410,48 @@ function addQualityFromQuickBar(): void {
     void saveAllChanges({ silent: true });
     renderAll();
     showToast(`${name} kalite sınıfı eklendi.`);
+}
+
+function removeGroup(groupName: string): void {
+    if (!groupName || !serviceGroups[groupName]) return;
+    if (!confirm(`"${groupName}" hizmetini ve altındaki tüm kaliteleri silmek istiyor musunuz?`)) return;
+    delete serviceGroups[groupName];
+    if (activeServiceFilter === groupName) activeServiceFilter = 'ALL';
+    if (selectedAdminSummary?.group === groupName) selectedAdminSummary = null;
+    persistLocalData();
+    void saveAllChanges({ silent: true });
+    renderAll();
+    showToast('Hizmet grubu silindi.');
+}
+
+function removeQualityFromGroup(groupName: string, qualityName: string): void {
+    if (!groupName || !qualityName || !serviceGroups[groupName]) return;
+    if (!confirm(`"${groupName}" altındaki "${qualityName}" silinsin mi?`)) return;
+    serviceGroups[groupName] = serviceGroups[groupName].filter((q) => q !== qualityName);
+    if (serviceGroups[groupName].length === 0) {
+        delete serviceGroups[groupName];
+        if (activeServiceFilter === groupName) activeServiceFilter = 'ALL';
+    }
+    if (selectedAdminSummary?.group === groupName && selectedAdminSummary?.quality === qualityName) {
+        selectedAdminSummary = null;
+    }
+    persistLocalData();
+    void saveAllChanges({ silent: true });
+    renderAll();
+    showToast('Kalite silindi.');
+}
+
+function onDeleteGroupClick(event: Event, btn: HTMLElement): void {
+    event.stopPropagation();
+    const groupName = btn.dataset.group || '';
+    removeGroup(groupName);
+}
+
+function onDeleteQualityClick(event: Event, btn: HTMLElement): void {
+    event.stopPropagation();
+    const groupName = btn.dataset.group || '';
+    const qualityName = btn.dataset.quality || '';
+    removeQualityFromGroup(groupName, qualityName);
 }
 
 // --- Günlük Değişiklik Odaklı CSV Yedekleme & Geri Yükleme ---
@@ -2076,6 +2126,8 @@ Object.assign(window, {
     handleCostTableInput,
     handleCsvFileRestore,
     moveDevice,
+    onDeleteGroupClick,
+    onDeleteQualityClick,
     onFinanceChange,
     onMobileQuickSearch,
     onMobileQuickSearchKey,
