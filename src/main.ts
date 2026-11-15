@@ -468,13 +468,11 @@ function toggleTheme(): void {
 
 function applyModeUI(): void {
     byId('headerAdminBtn').classList.toggle('hidden', !isCustomerMode);
-    byId('adminSaveGroup').classList.toggle('hidden', isCustomerMode);
     byId('adminSessionGroup').classList.toggle('hidden', isCustomerMode);
     byId('headerCustomerBtn').classList.toggle('hidden', isCustomerMode);
     byId('headerPassChangeBtn').classList.toggle('hidden', isCustomerMode);
     byId('openBackupBtn').classList.toggle('hidden', isCustomerMode);
     byId('openCatalogBtn').classList.toggle('hidden', isCustomerMode);
-    byId('saveAllBtn').classList.toggle('hidden', isCustomerMode);
     byId('adminFinanceStrip').classList.toggle('hidden', isCustomerMode);
     byId('adminBackupStrip').classList.toggle('hidden', isCustomerMode);
 

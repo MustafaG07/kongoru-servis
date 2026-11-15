@@ -68,6 +68,8 @@ async function runTests(): Promise<void> {
     assert.equal(v2Html.includes('<script type="module" src="./src/main.ts"></script>'), true, 'TS modül bağlantısı eksik');
     assert.equal(v2Html.includes('statPricedCount'), false, 'statPricedCount sayaç alanı kaldırılmış olmalı');
     assert.equal(v2Html.includes('Fiyatlı İşlem'), false, 'Fiyatlı İşlem başlığı kaldırılmış olmalı');
+    assert.equal(v2Html.includes('adminSaveGroup'), false, 'adminSaveGroup alanı kaldırılmış olmalı');
+    assert.equal(v2Html.includes('saveAllBtn'), false, 'saveAllBtn butonu kaldırılmış olmalı');
     assert.equal(v2Html.includes('mobile-switch-device-btn'), true, 'Mobil hızlı cihaz değiştir butonu eksik');
 
     const mainTs = readFileSync(join(ROOT, 'src/main.ts'), 'utf8');
