@@ -530,7 +530,7 @@ function openAuthModal(event?: Event): void {
 
     if (card && trigger) {
         const rect = trigger.getBoundingClientRect();
-        const cardWidth = Math.min(280, window.innerWidth - 24);
+        const cardWidth = card.offsetWidth || Math.min(280, window.innerWidth - 24);
         const top = Math.min(rect.bottom + 10, window.innerHeight - 220);
         const left = Math.min(Math.max(12, rect.right - cardWidth), window.innerWidth - cardWidth - 12);
         card.style.top = `${Math.max(12, top)}px`;
