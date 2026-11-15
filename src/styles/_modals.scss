@@ -293,6 +293,15 @@
         display: flex;
     }
 
+    .mobile-pane-btn {
+        min-height: 40px;
+        font-size: 0.86rem;
+    }
+
+    .mobile-switch-device-btn {
+        display: inline-flex;
+    }
+
     .workbench {
         grid-template-columns: 1fr;
     }
@@ -313,47 +322,326 @@
 
     #catalogModal .modal-card.wide {
         height: auto;
-        max-height: 90vh;
+        max-height: 92dvh;
     }
 
     #catalogModal .modal-body {
         overflow-y: auto;
+        padding: 14px;
     }
 
     .catalog-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+        flex: none;
+        height: auto;
+    }
+
+    .catalog-box {
+        height: auto;
+        max-height: 320px;
+    }
+
+    .catalog-list {
+        max-height: 200px;
+        min-height: 90px;
+        flex: none;
     }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 768px) {
+    .input,
+    .select,
+    .search-input,
+    .table-input {
+        font-size: 16px;
+        min-height: 40px;
+    }
+
     .topbar {
-        padding: 10px 14px;
-        gap: 10px;
+        padding: 10px 12px;
+        gap: 8px;
+    }
+
+    .topbar-left {
+        width: 100%;
+        justify-content: space-between;
+        gap: 8px;
     }
 
     .topbar-divider {
         display: none;
     }
 
+    .brand-title {
+        font-size: 0.96rem;
+    }
+
+    .brand-sub {
+        font-size: 0.75rem;
+        line-height: 1.25;
+    }
+
+    .topbar-actions {
+        width: 100%;
+        gap: 6px;
+    }
+
     .topbar-group {
+        width: 100%;
         padding-right: 0;
         border-right: none;
         flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .topbar-actions .btn,
+    .topbar-group .btn {
+        flex: 1 1 auto;
+        min-height: 36px;
+        font-size: 0.78rem;
+        padding: 6px 10px;
+    }
+
+    .search-kbd {
+        display: none;
+    }
+
+    .search-input {
+        padding-right: 38px;
+    }
+
+    .search-clear {
+        right: 10px;
+        width: 24px;
+        height: 24px;
+    }
+
+    .brand-chip {
+        padding: 6px 11px;
+        font-size: 0.78rem;
+    }
+
+    .device-item {
+        padding: 10px 12px;
+        font-size: 0.88rem;
     }
 
     .pane-center {
-        padding: 14px;
+        padding: 12px 12px 28px;
+        gap: 14px;
     }
 
-    .finance-fields,
-    .quick-calc-inline-row,
-    .quick-calc-inline-inputs,
-    .catalog-grid {
+    .finance-strip {
+        padding: 12px;
+    }
+
+    .finance-fields {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .finance-fields .field-col:last-child {
+        grid-column: 1 / -1;
+    }
+
+    .quick-calc-inline-row {
         grid-template-columns: 1fr;
+        gap: 10px;
     }
 
     .quick-calc-output {
         align-items: flex-start;
+        border-top: 1px solid var(--border);
+        padding-top: 8px;
+        width: 100%;
+    }
+
+    .calc-breakdown {
+        white-space: normal;
+        word-break: break-word;
+        font-size: 0.76rem;
+    }
+
+    .device-banner {
+        padding: 14px;
+        gap: 12px;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .device-banner-title {
+        font-size: 1.22rem;
+        line-height: 1.3;
+        word-break: break-word;
+    }
+
+    .device-banner-stats {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .stat-box {
+        flex: 1 1 auto;
+    }
+
+    .admin-save-box {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .db-save-status {
+        white-space: normal;
+        font-size: 0.78rem;
+    }
+
+    .service-pills {
+        gap: 6px;
+    }
+
+    .service-pill {
+        flex: 1 1 calc(50% - 6px);
+        text-align: center;
+        justify-content: center;
+        padding: 8px 10px;
+        font-size: 0.8rem;
+    }
+
+    .customer-groups-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .quality-tile {
+        padding: 10px 12px;
+        gap: 10px;
+    }
+
+    .quality-name {
+        font-size: 0.9rem;
+        line-height: 1.35;
+    }
+
+    .price-badge {
+        font-size: 0.86rem;
+        padding: 5px 10px;
+    }
+
+    .admin-tile-inputs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .admin-tile-inputs .admin-input-box:last-child {
+        grid-column: 1 / -1;
+    }
+
+    .admin-input-box label {
+        font-size: 0.74rem;
+    }
+
+    .admin-input-box .table-input {
+        height: 38px;
+    }
+
+    .admin-tile-inputs .price-badge {
+        height: 38px;
+        font-size: 0.9rem;
+    }
+
+    .admin-tile-breakdown {
+        font-size: 0.75rem;
+        line-height: 1.4;
+        word-break: break-word;
+    }
+
+    .status-footer {
+        padding: 8px 12px;
+        gap: 8px;
+    }
+
+    .status-footer-sep {
+        display: none;
+    }
+
+    .status-footer-left {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .status-footer-right {
+        width: 100%;
+        display: flex;
+        gap: 8px;
+    }
+
+    .status-footer-right .btn {
+        flex: 1 1 0;
+        min-height: 36px;
+        font-size: 0.76rem;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .modal-backdrop {
+        padding: 10px;
+    }
+
+    .modal-card,
+    #catalogModal .modal-card.wide {
+        width: 100%;
+        max-width: 100%;
+        max-height: calc(100dvh - 20px);
+    }
+
+    .modal-head {
+        padding: 12px 14px;
+    }
+
+    .modal-body {
+        padding: 14px;
+    }
+
+    .catalog-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .backup-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .backup-actions .btn {
+        width: 100%;
+        white-space: normal;
+        text-align: center;
+        line-height: 1.3;
+        min-height: 38px;
+    }
+
+    .backup-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .backup-row .catalog-item-actions {
+        width: 100%;
+        display: flex;
+        gap: 6px;
+    }
+
+    .backup-row .catalog-item-actions .btn {
+        flex: 1 1 0;
+    }
+
+    .toast {
+        left: 12px;
+        right: 12px;
+        bottom: 16px;
+        text-align: center;
+        white-space: normal;
+        word-break: break-word;
     }
 }
 

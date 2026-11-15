@@ -222,6 +222,10 @@
     border: 1px solid var(--accent-border);
 }
 
+.mobile-switch-device-btn {
+    display: none;
+}
+
 .db-save-status {
     display: inline-flex;
     align-items: center;
@@ -230,6 +234,7 @@
     font-weight: 400;
     color: var(--text-secondary);
     white-space: nowrap;
+    overflow-wrap: anywhere;
 }
 
 .db-save-dot {
@@ -450,6 +455,7 @@
     color: var(--text-muted);
     border-top: 1px dashed var(--border);
     padding-top: 6px;
+    overflow-wrap: anywhere;
 }
 
 .price-badge {

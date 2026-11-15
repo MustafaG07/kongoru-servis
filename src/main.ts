@@ -609,6 +609,8 @@ function selectDevice(brand: string, device: string): void {
     renderCenterWorkbench();
     if (window.innerWidth <= 1160) {
         setMobilePane('stage');
+        const centerPane = document.querySelector<HTMLElement>('.pane-center');
+        if (centerPane) centerPane.scrollTop = 0;
     }
 }
 
