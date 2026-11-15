@@ -1003,8 +1003,9 @@ function renderCenterWorkbench(): void {
         }
 
         renderedCardCount += 1;
+        const isWideAdminCard = !isCustomerMode && quals.length >= 4;
         cardsHtml += `
-        <article class="service-card">
+        <article class="service-card ${isWideAdminCard ? 'service-card-wide' : ''}">
             <div class="service-card-head">
                 <div class="service-card-head-left">
                     <span class="service-icon-badge ${iconMeta.colorClass}" aria-hidden="true">${iconMeta.svg}</span>
