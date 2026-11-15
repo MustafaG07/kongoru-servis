@@ -475,7 +475,7 @@ function applyModeUI(): void {
     byId('openBackupBtn').classList.toggle('hidden', isCustomerMode);
     byId('adminFinanceStrip').classList.toggle('hidden', isCustomerMode);
     maybeById('adminQuickCatalogStrip')?.classList.toggle('hidden', isCustomerMode);
-    byId('adminBackupStrip').classList.toggle('hidden', isCustomerMode);
+    maybeById('adminBackupStrip')?.classList.toggle('hidden', isCustomerMode);
 
     byId('modeSubtitle').textContent = isCustomerMode
         ? 'Servis Fiyat Listesi'

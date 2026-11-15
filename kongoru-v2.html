@@ -33,6 +33,11 @@
 
             <div class="topbar-actions">
                 <div class="topbar-group hidden" id="adminSessionGroup">
+                    <button type="button" class="btn btn-secondary btn-sm hidden" id="openBackupBtn"
+                        onclick="openBackupModal()" title="Günlük CSV Yedek &amp; Geri Yükleme">
+                        <span class="backup-dot waiting" id="adminBackupDot"></span>
+                        Yedekler <span class="device-item-badge" id="backupStatusBadge">0</span>
+                    </button>
                     <button type="button" class="btn btn-amber btn-sm hidden" id="headerPassChangeBtn"
                         onclick="openPasswordModal()">Şifre Değiştir</button>
                     <button type="button" class="btn btn-ghost btn-sm hidden" id="headerCustomerBtn"
@@ -219,25 +224,6 @@
             <button type="button" class="btn btn-ghost btn-sm quote-clear-btn"
                 onclick="clearQuoteSelection()">Temizle</button>
         </div>
-
-        <!-- ALT DURUM & YEDEKLEME ÇUBUĞU (Çalışma Panellerinden Bağımsız) -->
-        <footer class="status-footer hidden" id="adminBackupStrip" aria-label="Otomatik Kaydetme ve Yedekleme Durumu">
-            <div class="status-footer-left">
-                <span class="status-footer-indicator">
-                    <span class="backup-dot waiting" id="adminBackupDot"></span>
-                    <span id="adminAutoBackupStatus">Otomatik CSV Yedek: Beklemede (Bugün Değişiklik Yok)</span>
-                </span>
-                <span class="status-footer-sep" aria-hidden="true">·</span>
-                <span class="status-footer-meta" id="adminLastBackupTime">Son Yedek: Henüz yedek alınmadı</span>
-            </div>
-            <div class="status-footer-right">
-                <button type="button" class="btn btn-amber btn-sm" id="manualBackupBtn"
-                    onclick="takeManualBackupNow()">Şimdi Yedek Al</button>
-                <button type="button" class="btn btn-secondary btn-sm hidden" id="openBackupBtn"
-                    onclick="openBackupModal()">Yedek Merkezi &amp; Geri Yükle <span class="device-item-badge"
-                        id="backupStatusBadge">0</span></button>
-            </div>
-        </footer>
     </div>
 
     <!-- YÖNETİCİ GİRİŞ MODALI -->
