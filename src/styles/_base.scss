@@ -52,6 +52,22 @@ body[data-mode="customer"] .device-banner-stats {
     user-select: none;
 }
 
+@media (min-width: 1161px) {
+    .topbar-left {
+        gap: 0;
+    }
+
+    .brand-lockup {
+        width: 259px;
+        padding-right: 12px;
+        flex-shrink: 0;
+    }
+
+    .topbar-divider {
+        margin-right: 16px;
+    }
+}
+
 .brand-title {
     font-size: 0.98rem;
     font-weight: 400;
