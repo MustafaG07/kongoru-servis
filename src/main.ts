@@ -512,6 +512,7 @@ function toggleAdminToolsMenu(event?: Event): void {
 
 function switchToCustomerMode(): void {
     isCustomerMode = true;
+    localStorage.setItem(STORAGE_KEYS.uiMode, 'customer');
     applyModeUI();
     renderAll();
     showToast('Müşteri görünümüne geçildi.');
@@ -564,6 +565,7 @@ function submitAdminLogin(event: Event): void {
     if (input.value === getAdminPassword()) {
         closeAuthModal();
         isCustomerMode = false;
+        localStorage.setItem(STORAGE_KEYS.uiMode, 'admin');
         applyModeUI();
         syncFinanceInputsFromState();
         updateQuickCalc();
@@ -2085,12 +2087,14 @@ function bootApp(): void {
     const storedTheme = localStorage.getItem(STORAGE_KEYS.theme);
     const savedTheme: ThemeMode = storedTheme === 'light' ? 'light' : 'dark';
     applyTheme(savedTheme);
+    isCustomerMode = localStorage.getItem(STORAGE_KEYS.uiMode) !== 'admin';
     loadAllLocalData();
     if (localStorage.getItem(STORAGE_KEYS.lastBackupHash) === null) {
         localStorage.setItem(STORAGE_KEYS.lastBackupHash, computeDataFingerprint());
     }
     applyModeUI();
     syncFinanceInputsFromState();
+    if (!isCustomerMode) updateQuickCalc();
     renderAll();
     updateBackupUI();
     void initSavedBackupFolder();

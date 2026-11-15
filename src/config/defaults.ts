@@ -11,7 +11,8 @@ export const STORAGE_KEYS: StorageKeysMap = {
     theme: 'kongoruV2Theme',
     dailyBackups: 'kongoruDailyCsvBackups',
     lastBackupHash: 'kongoruLastBackupHash',
-    pendingSync: 'kongoruPendingCloudSync'
+    pendingSync: 'kongoruPendingCloudSync',
+    uiMode: 'kongoruUiMode'
 };
 
 export const GITHUB_DB: GithubDbConfig = {

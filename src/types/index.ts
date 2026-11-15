@@ -86,6 +86,7 @@ export interface StorageKeysMap {
     dailyBackups: string;
     lastBackupHash: string;
     pendingSync: string;
+    uiMode: string;
 }
 
 export interface GithubDbConfig {
