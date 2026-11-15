@@ -137,10 +137,7 @@ function ensureDefaultsInPricesState(): void {
     if (pricesState.vatRate === undefined || pricesState.vatRate === '') {
         pricesState.vatRate = pricesState.__vatRate !== undefined ? String(pricesState.__vatRate) : '20';
     }
-    if (!pricesState.roundingMode) {
-        const legacyRound = pricesState.__roundingMode === 'none' ? 'exact' : pricesState.__roundingMode;
-        pricesState.roundingMode = typeof legacyRound === 'string' && legacyRound ? legacyRound : 'ceil100';
-    }
+    pricesState.roundingMode = 'ceil100';
     delete pricesState.__dollarRate;
     delete pricesState.__vatRate;
     delete pricesState.__roundingMode;
@@ -443,13 +440,10 @@ function writeItemPrice(
 function getFinanceConfig(): FinanceConfig {
     const rateRaw = pricesState.dollarRate !== undefined ? pricesState.dollarRate : pricesState.__dollarRate;
     const vatRaw = pricesState.vatRate !== undefined ? pricesState.vatRate : pricesState.__vatRate;
-    const roundRaw = String(pricesState.roundingMode || pricesState.__roundingMode || 'ceil100');
 
     const rate = Math.max(0, parseFloat(String(rateRaw ?? 0)) || 0);
     const vatRate = Math.max(0, parseFloat(String(vatRaw ?? 0)) || 0);
-    const roundingMode: RoundingMode = roundRaw === 'none' || roundRaw === 'exact'
-        ? 'exact'
-        : (roundRaw === 'ceil10' ? 'ceil10' : 'ceil100');
+    const roundingMode: RoundingMode = 'ceil100';
     return { rate, vatRate, roundingMode };
 }
 
@@ -657,18 +651,16 @@ function syncFinanceInputsFromState(): void {
     const cfg = getFinanceConfig();
     byId<HTMLInputElement>('dollarRate').value = String(cfg.rate);
     byId<HTMLInputElement>('vatRate').value = String(cfg.vatRate);
-    byId<HTMLSelectElement>('roundingMode').value = cfg.roundingMode;
     byId('statRateVat').textContent = `${cfg.rate} ₺ / %${cfg.vatRate}`;
 }
 
 function onFinanceChange(): void {
     const r = parseFloat(byId<HTMLInputElement>('dollarRate').value);
     const v = parseFloat(byId<HTMLInputElement>('vatRate').value);
-    const m = byId<HTMLSelectElement>('roundingMode').value;
 
     pricesState.dollarRate = String(Number.isFinite(r) && r >= 0 ? r : 0);
     pricesState.vatRate = String(Number.isFinite(v) && v >= 0 ? v : 0);
-    pricesState.roundingMode = m === 'none' ? 'exact' : (m || 'ceil100');
+    pricesState.roundingMode = 'ceil100';
     persistLocalData();
     scheduleAutoCloudSave();
 

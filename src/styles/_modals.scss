@@ -444,7 +444,7 @@
 
     .finance-fields {
         display: grid;
-        grid-template-columns: 78px 68px minmax(0, 1fr);
+        grid-template-columns: 1fr 1fr;
         gap: 6px;
         width: 100%;
     }
@@ -460,7 +460,6 @@
 
     .finance-strip #dollarRate,
     .finance-strip #vatRate,
-    .finance-strip #roundingMode,
     .finance-strip #quickUsdInput,
     .finance-strip #quickLaborInput {
         width: 100%;

@@ -70,6 +70,8 @@ async function runTests(): Promise<void> {
     assert.equal(v2Html.includes('Fiyatlı İşlem'), false, 'Fiyatlı İşlem başlığı kaldırılmış olmalı');
     assert.equal(v2Html.includes('adminSaveGroup'), false, 'adminSaveGroup alanı kaldırılmış olmalı');
     assert.equal(v2Html.includes('saveAllBtn'), false, 'saveAllBtn butonu kaldırılmış olmalı');
+    assert.equal(v2Html.includes('roundingMode'), false, 'roundingMode alanı kaldırılmış olmalı');
+    assert.equal(v2Html.includes('Yuvarlama Kuralı'), false, 'Yuvarlama Kuralı etiketi kaldırılmış olmalı');
     assert.equal(v2Html.includes('mobile-switch-device-btn'), true, 'Mobil hızlı cihaz değiştir butonu eksik');
 
     const mainTs = readFileSync(join(ROOT, 'src/main.ts'), 'utf8');
@@ -127,7 +129,13 @@ async function runTests(): Promise<void> {
     assert.equal(modalsScss.includes('.admin-tile-inputs'), true, '_modals.scss mobil .admin-tile-inputs kuralı eksik');
     assert.equal(modalsScss.includes('.mobile-switch-device-btn'), true, '_modals.scss @media altında .mobile-switch-device-btn eksik');
     assert.equal(workbenchScss.includes('padding: 8px 12px;'), true, '_workbench.scss .finance-strip kompakt padding içermeli');
-    assert.equal(modalsScss.includes('78px 68px minmax(0, 1fr)'), true, '_modals.scss mobil tek satır 3 sütunlu .finance-fields kuralı eksik');
+    assert.equal(workbenchScss.includes('#roundingMode'), false, '_workbench.scss #roundingMode kuralı kaldırılmış olmalı');
+    assert.equal(
+        /\.finance-fields\s*\{[^}]*grid-template-columns:\s*1fr 1fr;/.test(modalsScss),
+        true,
+        '_modals.scss mobil 2 sütunlu .finance-fields kuralı eksik'
+    );
+    assert.equal(modalsScss.includes('#roundingMode'), false, '_modals.scss #roundingMode kuralı kaldırılmış olmalı');
 
     const inspectFiles = [join(ROOT, 'kongoru-v2.html'), ...srcFiles];
     for (const file of inspectFiles) {
