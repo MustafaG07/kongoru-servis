@@ -669,6 +669,13 @@ body[data-mode="admin"] .quality-list {
     white-space: nowrap;
 }
 
+html[data-theme="dark"] body[data-mode="customer"] .price-badge {
+    background: transparent;
+    border-color: transparent;
+    padding: 4px 2px;
+    color: var(--text-primary);
+}
+
 .price-badge.empty {
     background: var(--bg-muted);
     color: var(--text-muted);
