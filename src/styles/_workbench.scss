@@ -1,10 +1,67 @@
 /* --- Yönetici Finans & Hızlı Hesaplayıcı Şeridi --- */
-.finance-strip {
+.finance-strip,
+.admin-quick-catalog {
     background: var(--bg-surface);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 8px 12px;
     flex-shrink: 0;
+}
+
+.quick-cat-grid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 8px 10px;
+}
+
+.quick-cat-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-canvas);
+}
+
+.quick-cat-group .select,
+.quick-cat-group .input {
+    height: 32px;
+    min-height: 32px;
+    padding: 4px 9px;
+    font-size: 0.78rem;
+}
+
+.quick-cat-group .select {
+    min-width: 120px;
+}
+
+.quick-cat-group .input {
+    width: 150px;
+}
+
+.btn-emerald {
+    background: #10B981;
+    border-color: #10B981;
+    color: #FFFFFF;
+}
+
+.btn-emerald:hover {
+    background: #059669;
+    border-color: #059669;
+}
+
+.btn-purple {
+    background: #6366F1;
+    border-color: #6366F1;
+    color: #FFFFFF;
+}
+
+.btn-purple:hover {
+    background: #4F46E5;
+    border-color: #4F46E5;
 }
 
 .finance-strip-grid {

@@ -477,6 +477,7 @@ function applyModeUI(): void {
     byId('openBackupBtn').classList.toggle('hidden', isCustomerMode);
     byId('openCatalogBtn').classList.toggle('hidden', isCustomerMode);
     byId('adminFinanceStrip').classList.toggle('hidden', isCustomerMode);
+    maybeById('adminQuickCatalogStrip')?.classList.toggle('hidden', isCustomerMode);
     byId('adminBackupStrip').classList.toggle('hidden', isCustomerMode);
 
     byId('modeSubtitle').textContent = isCustomerMode
@@ -1124,18 +1125,43 @@ function renderCatalogManager(): void {
     </div>`).join('');
 }
 
-function addBrand(): void {
-    const input = byId<HTMLInputElement>('newBrandInput');
-    const name = input.value.trim();
-    if (!name || categories.includes(name)) return;
+function renderQuickCatalogBar(): void {
+    const devBrandSel = maybeById<HTMLSelectElement>('quickDeviceTargetBrand');
+    if (devBrandSel) {
+        const prevBrand = devBrandSel.value || selectedBrand || categories[0] || '';
+        devBrandSel.innerHTML = categories.map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+        if (categories.includes(prevBrand)) devBrandSel.value = prevBrand;
+    }
+
+    const qualGrpSel = maybeById<HTMLSelectElement>('quickQualityTargetGroup');
+    if (qualGrpSel) {
+        const grpKeys = Object.keys(serviceGroups);
+        const prevGrp = qualGrpSel.value || grpKeys[0] || '';
+        qualGrpSel.innerHTML = grpKeys.map((g) => `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join('');
+        if (grpKeys.includes(prevGrp)) qualGrpSel.value = prevGrp;
+    }
+}
+
+function performAddBrand(name: string): boolean {
+    if (!name || categories.includes(name)) return false;
     categories.push(name);
     if (!devicesMap[name]) devicesMap[name] = [];
-    input.value = '';
     persistLocalData();
     void saveAllChanges({ silent: true });
     renderAll();
-    renderCatalogManager();
+    if (isCatalogViewOpen) renderCatalogManager();
     showToast(`${name} markası eklendi.`);
+    return true;
+}
+
+function addBrand(): void {
+    const input = byId<HTMLInputElement>('newBrandInput');
+    if (performAddBrand(input.value.trim())) input.value = '';
+}
+
+function addBrandFromQuickBar(): void {
+    const input = byId<HTMLInputElement>('quickNewBrandInput');
+    if (performAddBrand(input.value.trim())) input.value = '';
 }
 
 function deleteBrand(name: string): void {
@@ -1148,23 +1174,32 @@ function deleteBrand(name: string): void {
     renderCatalogManager();
 }
 
-function addDevice(): void {
-    const brand = byId<HTMLSelectElement>('deviceTargetBrand').value;
-    const input = byId<HTMLInputElement>('newDeviceInput');
-    const name = input.value.trim();
-    if (!brand || !name) return;
+function performAddDevice(brand: string, name: string): boolean {
+    if (!brand || !name) return false;
     if (!devicesMap[brand]) devicesMap[brand] = [];
     if (!devicesMap[brand].includes(name)) {
         devicesMap[brand].unshift(name);
     }
-    input.value = '';
     selectedBrand = brand;
     selectedDevice = name;
     persistLocalData();
     void saveAllChanges({ silent: true });
     renderAll();
-    renderCatalogManager();
+    if (isCatalogViewOpen) renderCatalogManager();
     showToast(`${name} eklendi.`);
+    return true;
+}
+
+function addDevice(): void {
+    const brand = byId<HTMLSelectElement>('deviceTargetBrand').value;
+    const input = byId<HTMLInputElement>('newDeviceInput');
+    if (performAddDevice(brand, input.value.trim())) input.value = '';
+}
+
+function addDeviceFromQuickBar(): void {
+    const brand = byId<HTMLSelectElement>('quickDeviceTargetBrand').value;
+    const input = byId<HTMLInputElement>('quickNewDeviceInput');
+    if (performAddDevice(brand, input.value.trim())) input.value = '';
 }
 
 function moveBrand(brand: string, delta: -1 | 1): void {
@@ -1216,17 +1251,25 @@ function deleteDevice(brand: string, dev: string): void {
     showToast(`${dev} silindi.`);
 }
 
-function addServiceGroup(): void {
-    const input = byId<HTMLInputElement>('newGroupInput');
-    const name = input.value.trim();
-    if (!name || serviceGroups[name]) return;
+function performAddServiceGroup(name: string): boolean {
+    if (!name || serviceGroups[name]) return false;
     serviceGroups[name] = ['Orijinal', 'A Kalite'];
-    input.value = '';
     persistLocalData();
     void saveAllChanges({ silent: true });
     renderAll();
-    renderCatalogManager();
+    if (isCatalogViewOpen) renderCatalogManager();
     showToast(`${name} hizmet grubu eklendi.`);
+    return true;
+}
+
+function addServiceGroup(): void {
+    const input = byId<HTMLInputElement>('newGroupInput');
+    if (performAddServiceGroup(input.value.trim())) input.value = '';
+}
+
+function addGroupFromQuickBar(): void {
+    const input = byId<HTMLInputElement>('quickNewGroupInput');
+    if (performAddServiceGroup(input.value.trim())) input.value = '';
 }
 
 function deleteServiceGroup(grp: string): void {
@@ -1238,19 +1281,28 @@ function deleteServiceGroup(grp: string): void {
     renderCatalogManager();
 }
 
-function addQualityTier(): void {
-    const grp = byId<HTMLSelectElement>('qualityTargetGroup').value;
-    const input = byId<HTMLInputElement>('newQualityInput');
-    const name = input.value.trim();
-    if (!grp || !name) return;
+function performAddQualityTier(grp: string, name: string): boolean {
+    if (!grp || !name) return false;
     if (!serviceGroups[grp]) serviceGroups[grp] = [];
     if (!serviceGroups[grp].includes(name)) serviceGroups[grp].push(name);
-    input.value = '';
     persistLocalData();
     void saveAllChanges({ silent: true });
     renderAll();
-    renderCatalogManager();
+    if (isCatalogViewOpen) renderCatalogManager();
     showToast(`${name} kalite sınıfı eklendi.`);
+    return true;
+}
+
+function addQualityTier(): void {
+    const grp = byId<HTMLSelectElement>('qualityTargetGroup').value;
+    const input = byId<HTMLInputElement>('newQualityInput');
+    if (performAddQualityTier(grp, input.value.trim())) input.value = '';
+}
+
+function addQualityFromQuickBar(): void {
+    const grp = byId<HTMLSelectElement>('quickQualityTargetGroup').value;
+    const input = byId<HTMLInputElement>('quickNewQualityInput');
+    if (performAddQualityTier(grp, input.value.trim())) input.value = '';
 }
 
 function deleteQualityTier(grp: string, qual: string): void {
@@ -1931,12 +1983,17 @@ function renderAll(): void {
     renderBrandChips();
     renderDeviceDirectory();
     renderCenterWorkbench();
+    if (!isCustomerMode) renderQuickCatalogBar();
 }
 
 // HTML satır içi olay yöneticileri için pencere bağlamaları
 Object.assign(window, {
     addBrand,
+    addBrandFromQuickBar,
     addDevice,
+    addDeviceFromQuickBar,
+    addGroupFromQuickBar,
+    addQualityFromQuickBar,
     addQualityTier,
     addServiceGroup,
     clearDeviceSearch,
