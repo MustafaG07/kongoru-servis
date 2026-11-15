@@ -1073,7 +1073,7 @@ function renderCenterWorkbench(): void {
     const targetGroups = activeServiceFilter === 'ALL' ? groupNames : groupNames.filter((g) => g === activeServiceFilter);
     const contentWrap = byId('workbenchContent');
 
-    let cardsHtml = '<div class="customer-groups-grid">';
+    const renderedCards: Array<{ html: string; rowsCount: number; order: number }> = [];
     let renderedCardCount = 0;
 
     for (const grp of targetGroups) {
@@ -1138,9 +1138,13 @@ function renderCenterWorkbench(): void {
             continue;
         }
 
+        const order = renderedCardCount;
         renderedCardCount += 1;
-        cardsHtml += `
-        <article class="service-card">
+        renderedCards.push({
+            rowsCount: renderedRowsCount,
+            order,
+            html: `
+        <article class="service-card" data-rows="${renderedRowsCount}" data-order="${order}">
             <div class="service-card-head">
                 <div class="service-card-head-left">
                     <span class="service-icon-badge ${iconMeta.colorClass}" aria-hidden="true">${iconMeta.svg}</span>
@@ -1148,16 +1152,84 @@ function renderCenterWorkbench(): void {
                 </div>
             </div>
             <div class="quality-list">${rowsHtml}</div>
-        </article>`;
+        </article>`,
+        });
     }
-    cardsHtml += '</div>';
 
     if (isCustomerMode && renderedCardCount === 0) {
         contentWrap.innerHTML = '<div class="quote-empty">Bu cihaz için henüz fiyat tanımlanmamış.</div>';
     } else {
-        contentWrap.innerHTML = cardsHtml;
+        contentWrap.innerHTML = buildMasonryColumnsHtml(renderedCards, contentWrap);
     }
     renderCustomerQuoteBar();
+}
+
+function getMasonryColumnCount(container: HTMLElement, cardCount: number): number {
+    if (window.innerWidth < 900 || cardCount <= 1) return 1;
+    const width = container.clientWidth || Math.max(320, window.innerWidth - 320);
+    const minColWidth = isCustomerMode ? 280 : 275;
+    return Math.max(1, Math.min(cardCount, Math.floor((width + 10) / (minColWidth + 10))));
+}
+
+function distributeMasonryItems<T extends { rowsCount: number; order: number }>(items: T[], colCount: number): T[][] {
+    if (colCount <= 1) return [items];
+    const sorted = [...items].sort((a, b) => b.rowsCount - a.rowsCount || a.order - b.order);
+    const columns: T[][] = Array.from({ length: colCount }, () => []);
+    const weights = new Array<number>(colCount).fill(0);
+
+    for (const item of sorted) {
+        let minIdx = 0;
+        for (let i = 1; i < colCount; i += 1) {
+            if (weights[i] < weights[minIdx]) minIdx = i;
+        }
+        columns[minIdx].push(item);
+        weights[minIdx] += 1 + item.rowsCount * 2;
+    }
+    return columns;
+}
+
+function buildMasonryColumnsHtml(
+    cards: Array<{ html: string; rowsCount: number; order: number }>,
+    container: HTMLElement
+): string {
+    const colCount = getMasonryColumnCount(container, cards.length);
+    const distributed = distributeMasonryItems(cards, colCount);
+    const colsHtml = distributed
+        .map((col) => `<div class="masonry-column">${col.map((c) => c.html).join('')}</div>`)
+        .join('');
+    return `<div class="customer-groups-grid" data-cols="${colCount}">${colsHtml}</div>`;
+}
+
+function relayoutMasonryGrid(): void {
+    const contentWrap = maybeById<HTMLElement>('workbenchContent');
+    if (!contentWrap) return;
+    const grid = contentWrap.querySelector<HTMLElement>('.customer-groups-grid');
+    if (!grid) return;
+
+    const cards = Array.from(grid.querySelectorAll<HTMLElement>('.service-card'));
+    const nextCols = getMasonryColumnCount(contentWrap, cards.length);
+    const prevCols = Number(grid.dataset.cols || '1');
+    if (nextCols === prevCols) return;
+
+    const items = cards
+        .map((el) => ({
+            el,
+            rowsCount: Number(el.dataset.rows || '1'),
+            order: Number(el.dataset.order || '0'),
+        }))
+        .sort((a, b) => a.order - b.order);
+
+    const distributed = distributeMasonryItems(items, nextCols);
+    grid.dataset.cols = String(nextCols);
+    grid.innerHTML = '';
+    for (const col of distributed) {
+        const colDiv = document.createElement('div');
+        colDiv.className = 'masonry-column';
+        for (const item of col) {
+            colDiv.appendChild(item.el);
+        }
+        grid.appendChild(colDiv);
+    }
 }
 
 // --- Hızlı Maliyet Hesaplayıcı ---
@@ -2023,6 +2095,14 @@ function bootApp(): void {
     updateBackupUI();
     void initSavedBackupFolder();
     void syncFromCloud();
+
+    let resizeRaf = 0;
+    window.addEventListener('resize', () => {
+        if (resizeRaf) cancelAnimationFrame(resizeRaf);
+        resizeRaf = requestAnimationFrame(() => {
+            relayoutMasonryGrid();
+        });
+    });
 }
 
 if (document.readyState === 'loading') {
