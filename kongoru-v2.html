@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KONGORU — Teknik Servis Çalışma Masası &amp; Fiyat Sistemi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="./src/styles/main.css">
+</head>
+
+<body>
+    <div class="app-shell">
+        <!-- ÜST KOMUT ŞERİDİ -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="brand-lockup" ondblclick="openAuthModal()" title="Yönetici erişimi için çift tıklayın">
+                    <div>
+                        <div class="brand-title">KONGORU</div>
+                        <div class="brand-sub" id="modeSubtitle">Teknik Servis Çalışma Masası</div>
+                    </div>
+                </div>
+                <span class="topbar-divider" aria-hidden="true"></span>
+                <span class="sync-badge" onclick="syncFromCloud()" title="Bulut / yerel senkronizasyon durumu">
+                    <span class="sync-dot" id="syncDot"></span>
+                    <span id="syncText">Yerel Hafıza</span>
+                </span>
+            </div>
+
+            <div class="topbar-actions">
+                <div class="topbar-group hidden" id="adminSessionGroup">
+                    <button type="button" class="btn btn-amber btn-sm hidden" id="headerPassChangeBtn"
+                        onclick="openPasswordModal()">Şifre Değiştir</button>
+                    <button type="button" class="btn btn-ghost btn-sm hidden" id="headerCustomerBtn"
+                        onclick="switchToCustomerMode()">Müşteri Görünümü</button>
+                </div>
+                <button type="button" class="btn btn-ghost btn-sm" id="themeToggleBtn" onclick="toggleTheme()">Açık
+                    Tema</button>
+                <button type="button" class="btn btn-primary btn-sm" id="headerAdminBtn"
+                    onclick="openAuthModal()">Yönetici Girişi</button>
+            </div>
+        </header>
+
+        <!-- MOBİL BÖLÜM SEÇİCİ -->
+        <div class="mobile-pane-bar">
+            <button type="button" class="mobile-pane-btn" id="mobBtnDirectory"
+                onclick="setMobilePane('directory')">Cihazlar</button>
+            <button type="button" class="mobile-pane-btn active" id="mobBtnStage" onclick="setMobilePane('stage')">Tamir
+                Masası</button>
+        </div>
+
+        <!-- 2 SÜTUNLU ÇALIŞMA ALANI -->
+        <div class="workbench" id="workbenchGrid" data-mobile-pane="stage">
+            <!-- SOL PANEL: CİHAZ & MARKA REHBERİ -->
+            <aside class="pane pane-left">
+                <div class="directory-top">
+                    <div class="directory-header">
+                        <div class="directory-title">Cihaz &amp; Marka Rehberi</div>
+                        <button type="button" class="btn catalog-launch-btn hidden" id="openCatalogBtn"
+                            onclick="openCatalogModal()">+ Katalog &amp; Model Yöneticisi</button>
+                    </div>
+                    <div class="search-wrap">
+                        <input type="text" class="search-input" id="deviceSearchInput"
+                            placeholder="Model veya marka ara..." oninput="onSearchInput()">
+                        <button type="button" class="search-clear hidden" id="clearSearchBtn"
+                            onclick="clearDeviceSearch()" title="Aramayı temizle">×</button>
+                        <span class="search-kbd">/</span>
+                    </div>
+                    <div class="brand-chips" id="brandChips"></div>
+                </div>
+                <div class="device-list" id="deviceList"></div>
+            </aside>
+
+            <!-- ORTA PANEL: TAMİR MASASI -->
+            <main class="pane pane-center">
+                <!-- YÖNETİCİ FİNANS & HIZLI MALİYET ŞERİDİ -->
+                <section class="finance-strip hidden" id="adminFinanceStrip" aria-label="Kur ve KDV Yönetimi">
+                    <div class="finance-strip-grid">
+                        <div class="finance-fields">
+                            <div class="field-col">
+                                <label for="dollarRate">Dolar Kuru (₺)</label>
+                                <input type="number" step="0.01" min="0" class="input input-num" id="dollarRate"
+                                    oninput="onFinanceChange()">
+                            </div>
+                            <div class="field-col">
+                                <label for="vatRate">KDV (%)</label>
+                                <input type="number" step="1" min="0" max="100" class="input input-num" id="vatRate"
+                                    oninput="onFinanceChange()">
+                            </div>
+                            <div class="field-col">
+                                <label for="roundingMode">Yuvarlama Kuralı</label>
+                                <select class="select" id="roundingMode" onchange="onFinanceChange()">
+                                    <option value="ceil100">100 ₺'ye Tamamla</option>
+                                    <option value="ceil10">10 ₺'ye Tamamla</option>
+                                    <option value="exact">Tam Kuruş / Net</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="quick-calc-inline" id="quickCalcPanel" aria-label="Hızlı Maliyet Hesaplayıcı">
+                            <div class="quick-calc-inline-head">
+                                <span class="quick-calc-title">Hızlı Maliyet Hesaplayıcı</span>
+                                <span class="live-pill">Canlı</span>
+                            </div>
+                            <div class="quick-calc-inline-row">
+                                <div class="quick-calc-inline-inputs">
+                                    <div class="field-col">
+                                        <label for="quickUsdInput">Parça ($)</label>
+                                        <input type="number" min="0" step="0.5" class="input input-num"
+                                            id="quickUsdInput" placeholder="0" oninput="updateQuickCalc()">
+                                    </div>
+                                    <div class="field-col">
+                                        <label for="quickLaborInput">İşçilik (₺)</label>
+                                        <input type="number" min="0" step="10" class="input input-num"
+                                            id="quickLaborInput" placeholder="0" oninput="updateQuickCalc()">
+                                    </div>
+                                </div>
+                                <div class="quick-calc-output">
+                                    <div class="calc-main-price" id="quickCalcTotal">- ₺</div>
+                                    <div class="calc-breakdown" id="quickCalcBreakdown">Parça: 0 ₺ · KDV: 0 ₺</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- CİHAZ TAMİR MASASI -->
+                <div id="deviceWorkbenchView">
+                    <div class="device-banner">
+                        <div class="device-banner-main">
+                            <div class="device-banner-badges">
+                                <span class="brand-pill" id="activeBrandBadge">-</span>
+                                <span class="mode-pill" id="activeModeBadge">Müşteri Görünümü</span>
+                            </div>
+                            <h1 class="device-banner-title" id="activeDeviceTitle">Cihaz Seçin</h1>
+                        </div>
+                        <div class="device-banner-stats">
+                            <div class="stat-box">
+                                <span class="stat-label">Fiyatlı İşlem</span>
+                                <span class="stat-value" id="statPricedCount">0 / 0</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-label">Aktif Kur / KDV</span>
+                                <span class="stat-value" id="statRateVat">-</span>
+                            </div>
+                            <div class="admin-save-box hidden" id="adminSaveGroup">
+                                <span class="db-save-status"
+                                    title="Girilen fiyatlar otomatik olarak kaydedilir; dilerseniz hemen kaydedebilirsiniz">
+                                    <span class="db-save-dot" id="dbSaveStatusDot"></span>
+                                    <span id="dbSaveStatusText">Otomatik Kayıt Aktif</span>
+                                </span>
+                                <button type="button" class="btn btn-primary btn-sm hidden" id="saveAllBtn"
+                                    onclick="saveAllChanges()">Kaydet</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="service-pills" id="serviceFilterPills"></div>
+                    <div id="workbenchContent"></div>
+                </div>
+            </main>
+        </div>
+
+        <!-- ALT DURUM & YEDEKLEME ÇUBUĞU (Çalışma Panellerinden Bağımsız) -->
+        <footer class="status-footer hidden" id="adminBackupStrip" aria-label="Otomatik Kaydetme ve Yedekleme Durumu">
+            <div class="status-footer-left">
+                <span class="status-footer-indicator">
+                    <span class="backup-dot waiting" id="adminBackupDot"></span>
+                    <span id="adminAutoBackupStatus">Otomatik CSV Yedek: Beklemede (Bugün Değişiklik Yok)</span>
+                </span>
+                <span class="status-footer-sep" aria-hidden="true">·</span>
+                <span class="status-footer-meta" id="adminLastBackupTime">Son Yedek: Henüz yedek alınmadı</span>
+            </div>
+            <div class="status-footer-right">
+                <button type="button" class="btn btn-amber btn-sm" id="manualBackupBtn"
+                    onclick="takeManualBackupNow()">Şimdi Yedek Al</button>
+                <button type="button" class="btn btn-secondary btn-sm hidden" id="openBackupBtn"
+                    onclick="openBackupModal()">Yedek Merkezi &amp; Geri Yükle <span class="device-item-badge"
+                        id="backupStatusBadge">0</span></button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- YÖNETİCİ GİRİŞ MODALI -->
+    <div class="modal-backdrop" id="authModal" onclick="if(event.target===this) closeAuthModal()">
+        <div class="modal-card">
+            <div class="modal-head">
+                <h3>Yönetici Girişi</h3>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="closeAuthModal()">×</button>
+            </div>
+            <form class="modal-body" onsubmit="submitAdminLogin(event)">
+                <div class="field-col">
+                    <label for="adminPasswordInput">Yönetici Şifresi</label>
+                    <input type="password" class="input" id="adminPasswordInput" placeholder="Şifreyi girin..."
+                        autocomplete="current-password">
+                </div>
+                <div class="modal-error" id="authErrorMsg"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeAuthModal()">İptal</button>
+                    <button type="submit" class="btn btn-primary">Giriş Yap</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ŞİFRE DEĞİŞTİRME MODALI -->
+    <div class="modal-backdrop" id="passwordModal" onclick="if(event.target===this) closePasswordModal()">
+        <div class="modal-card">
+            <div class="modal-head">
+                <h3>Yönetici Şifresini Değiştir</h3>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="closePasswordModal()">×</button>
+            </div>
+            <form class="modal-body" onsubmit="submitPasswordChange(event)">
+                <div class="field-col">
+                    <label for="currentPasswordInput">Mevcut Şifre</label>
+                    <input type="password" class="input" id="currentPasswordInput" placeholder="Mevcut şifreyi girin..."
+                        autocomplete="current-password">
+                </div>
+                <div class="field-col">
+                    <label for="newPasswordInput">Yeni Şifre</label>
+                    <input type="password" class="input" id="newPasswordInput" placeholder="Yeni şifre..."
+                        autocomplete="new-password">
+                </div>
+                <div class="field-col">
+                    <label for="confirmPasswordInput">Yeni Şifre (Tekrar)</label>
+                    <input type="password" class="input" id="confirmPasswordInput"
+                        placeholder="Yeni şifreyi tekrar girin..." autocomplete="new-password">
+                </div>
+                <div class="modal-error" id="changePassErrorMsg"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closePasswordModal()">İptal</button>
+                    <button type="submit" class="btn btn-amber">Şifreyi Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- KATALOG YÖNETİCİSİ MODALI (YATAY 4 KOLON TEK SAYFA) -->
+    <div class="modal-backdrop" id="catalogModal" onclick="if(event.target===this) closeCatalogModal()">
+        <div class="modal-card wide">
+            <div class="modal-head">
+                <h3>Katalog &amp; Model Yöneticisi</h3>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="closeCatalogModal()">Kapat</button>
+            </div>
+            <div class="modal-body">
+                <div class="catalog-grid">
+                    <div class="catalog-box">
+                        <h4>1. Marka / Kategori</h4>
+                        <div class="catalog-add-row">
+                            <input type="text" class="input" id="newBrandInput" placeholder="Örn: Google Pixel">
+                            <button type="button" class="btn btn-primary btn-sm" onclick="addBrand()">Ekle</button>
+                        </div>
+                        <div class="catalog-list" id="catManageList"></div>
+                    </div>
+
+                    <div class="catalog-box">
+                        <h4>2. Cihaz Modeli</h4>
+                        <select class="select" id="deviceTargetBrand" onchange="renderCatalogManager()"></select>
+                        <div class="catalog-add-row">
+                            <input type="text" class="input" id="newDeviceInput" placeholder="Örn: iPhone 16 Pro Max">
+                            <button type="button" class="btn btn-primary btn-sm" onclick="addDevice()">Ekle</button>
+                        </div>
+                        <div class="catalog-list" id="deviceManageList"></div>
+                    </div>
+
+                    <div class="catalog-box">
+                        <h4>3. Hizmet Grubu</h4>
+                        <div class="catalog-add-row">
+                            <input type="text" class="input" id="newGroupInput" placeholder="Örn: Face ID Onarım">
+                            <button type="button" class="btn btn-primary btn-sm"
+                                onclick="addServiceGroup()">Ekle</button>
+                        </div>
+                        <div class="catalog-list" id="groupManageList"></div>
+                    </div>
+
+                    <div class="catalog-box">
+                        <h4>4. Kalite Sınıfı</h4>
+                        <select class="select" id="qualityTargetGroup" onchange="renderCatalogManager()"></select>
+                        <div class="catalog-add-row">
+                            <input type="text" class="input" id="newQualityInput" placeholder="Örn: Servis Orijinal">
+                            <button type="button" class="btn btn-primary btn-sm"
+                                onclick="addQualityTier()">Ekle</button>
+                        </div>
+                        <div class="catalog-list" id="qualityManageList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GÜNLÜK CSV YEDEK & GERİ YÜKLEME MODALI -->
+    <div class="modal-backdrop" id="backupModal" onclick="if(event.target===this) closeBackupModal()">
+        <div class="modal-card wide">
+            <div class="modal-head">
+                <h3>Günlük Otomatik CSV Yedek &amp; Geri Yükleme</h3>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="closeBackupModal()">Kapat</button>
+            </div>
+            <div class="modal-body">
+                <div class="backup-section">
+                    <h4>1. Bugünkü Otomatik Yedek Durumu &amp; Yerel Klasör</h4>
+                    <div class="backup-meta" id="todayBackupStatusText">Durum kontrol ediliyor...</div>
+                    <div class="backup-meta" id="folderStatusText">Yerel klasör bağlı değil.</div>
+                    <div class="backup-actions">
+                        <button type="button" class="btn btn-amber btn-sm" onclick="takeManualBackupNow()">Şimdi Yedek
+                            Al</button>
+                        <button type="button" class="btn btn-primary btn-sm" id="connectFolderBtn"
+                            onclick="connectBackupFolder()">Yerel Yedek Klasörü Bağla (Otomatik Üzerine Yaz)</button>
+                        <button type="button" class="btn btn-secondary btn-sm hidden" id="disconnectFolderBtn"
+                            onclick="disconnectBackupFolder()">Klasör Bağlantısını Kes</button>
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="downloadCurrentCsv()">Güncel Yedeği
+                            CSV İndir</button>
+                    </div>
+                </div>
+
+                <div class="backup-section">
+                    <h4>2. Bilgisayardaki CSV Dosyasından Geri Yükle</h4>
+                    <div class="backup-meta">Daha önce alınan veya indirilen <span class="mono">.csv</span> yedeğini
+                        seçerek tüm marka, cihaz, kur ve fiyatları geri yükleyebilirsiniz.</div>
+                    <div class="backup-actions">
+                        <input type="file" id="csvRestoreFileInput" accept=".csv,text/csv" class="hidden"
+                            onchange="handleCsvFileRestore(event)">
+                        <button type="button" class="btn btn-amber btn-sm" onclick="triggerCsvFileSelect()">CSV Dosyası
+                            Seç ve Geri Yükle</button>
+                    </div>
+                </div>
+
+                <div class="backup-section">
+                    <h4>3. Günlük Yedek Geçmişi (Değişiklik Yapılan Günler)</h4>
+                    <div class="backup-meta">Yalnızca değişiklik yapılan günlerde yedek oluşturulur; aynı gün içinde
+                        tekrar değişiklik yapılırsa o günün mevcut yedeği silinip yenisi yazılır.</div>
+                    <div class="backup-history-list" id="dailyBackupList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toastEl"></div>
+
+    <script type="module" src="./src/main.js"></script>
+</body>
+
+</html>

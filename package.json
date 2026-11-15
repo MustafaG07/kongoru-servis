@@ -1,0 +1,16 @@
+{
+  "name": "kongoru-servis-fiyat-listesi",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "KONGORU Teknik Servis Çalışma Masası & Fiyat Sistemi",
+  "scripts": {
+    "dev": "vite --open /kongoru-v2.html",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node tests/verify.mjs"
+  },
+  "devDependencies": {
+    "vite": "^6.4.6"
+  }
+}

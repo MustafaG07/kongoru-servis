@@ -1,0 +1,2152 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD0nYH-wuumIrz-PSb853jpBwaFRONQtfM",
+            authDomain: "kongoru-fiyat-be5cb.firebaseapp.com",
+            projectId: "kongoru-fiyat-be5cb",
+            storageBucket: "kongoru-fiyat-be5cb.firebasestorage.app",
+            messagingSenderId: "808489950269",
+            appId: "1:808489950269:web:5832d352811b2bb8669e54"
+        };
+
+        try {
+            const db = getDatabase(initializeApp(firebaseConfig));
+            window.saveCloudData = (key, data) => set(ref(db, key), data);
+            window.getCloudData = async (key) => {
+                const snap = await get(ref(db, key));
+                return snap.exists() ? snap.val() : null;
+            };
+        } catch (err) {
+            console.warn("Firebase başlatılamadı, yerel modda devam ediliyor:", err);
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KONGORU — Teknik Servis Fiyat Merkezi</title>
+    <style>
+        :root {
+            --bg-page: #2d3436;
+            --bg-band: #1e2729;
+            --bg-card: #3b4244;
+            --bg-service-card: #2f3537;
+            --bg-elevated: #363d3f;
+            --bg-input: #2d3436;
+            --border: #636e72;
+            --border-subtle: #454d50;
+            --border-strong: #74b9ff;
+            --text-main: #ffffff;
+            --text-sub: #b2bec3;
+            --text-dim: #b2bec3;
+            --sky: #74b9ff;
+            --accent: #40e0d0;
+            --accent-hover: #2ec2b3;
+            --accent-bg: #1e2729;
+            --blue: #0984e3;
+            --blue-hover: #74b9ff;
+            --amber: #eccc68;
+            --yellow-title: #74b9ff;
+            --yellow-group: #74b9ff;
+            --emerald: #55efc4;
+            --emerald-text: #55efc4;
+            --emerald-bg: #314744;
+            --emerald-border: #488577;
+            --danger: #ff7675;
+            --danger-bg: #3b1f22;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* 1. ÜST NAVİGASYON */
+        .navbar {
+            width: 100%;
+            background-color: var(--bg-band);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 30;
+        }
+
+        .navbar-inner {
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .brand-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            user-select: none;
+            cursor: default;
+        }
+
+        .brand-mark {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            color: #2d3436;
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .brand-title {
+            font-size: 15.5px;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            color: #40e0d0;
+        }
+
+        .brand-divider {
+            width: 1px;
+            height: 16px;
+            background-color: var(--border);
+        }
+
+        .brand-tag {
+            font-size: 13px;
+            color: var(--text-sub);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sync-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        .sync-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: var(--text-dim);
+        }
+        .sync-dot.online { background-color: var(--emerald); }
+        .sync-dot.offline { background-color: #d97706; }
+
+        /* FORM & BUTONLAR */
+        .input, .select {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 9px 12px;
+        }
+
+        .input::placeholder {
+            color: var(--text-sub);
+        }
+
+        .input:focus, .select:focus {
+            outline: none;
+            border-color: var(--sky);
+        }
+
+        .btn {
+            padding: 9px 15px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            font-family: inherit;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-add { background-color: var(--blue); color: #ffffff; }
+        .btn-add:hover { background-color: var(--blue-hover); }
+
+        .btn-accent { background-color: var(--accent); color: #2d3436; font-weight: 700; }
+        .btn-accent:hover { background-color: var(--accent-hover); }
+
+        .btn-admin-login {
+            background-color: #00b894;
+            border-color: #00b894;
+            color: #ffffff;
+        }
+        .btn-admin-login:hover {
+            background-color: #00a383;
+            border-color: #00a383;
+            color: #ffffff;
+        }
+
+        .btn-drawer {
+            background-color: #0984e3;
+            border-color: #0984e3;
+            color: #ffffff;
+        }
+        .btn-drawer:hover {
+            background-color: #74b9ff;
+            border-color: #74b9ff;
+        }
+
+        .btn-save {
+            background-color: #40e0d0;
+            border-color: #40e0d0;
+            color: #2d3436;
+            font-weight: 700;
+        }
+        .btn-save:hover {
+            background-color: #2ec2b3;
+            border-color: #2ec2b3;
+        }
+
+        .btn-mode-switch {
+            background-color: #e17055;
+            border-color: #e17055;
+            color: #ffffff;
+        }
+        .btn-mode-switch:hover {
+            background-color: #d65f44;
+            border-color: #d65f44;
+        }
+
+        .btn-add-device {
+            background-color: #0984e3;
+            border-color: #0984e3;
+            color: #ffffff;
+        }
+        .btn-add-device:hover {
+            background-color: #74b9ff;
+            border-color: #74b9ff;
+        }
+
+        .btn-add-quality {
+            background-color: #00b894;
+            border-color: #00b894;
+            color: #ffffff;
+            font-weight: 700;
+        }
+        .btn-add-quality:hover {
+            background-color: #00a383;
+            border-color: #00a383;
+        }
+
+        .btn-add-service {
+            background-color: #6c5ce7;
+            border-color: #6c5ce7;
+            color: #ffffff;
+        }
+        .btn-add-service:hover {
+            background-color: #5b4bc4;
+            border-color: #5b4bc4;
+        }
+
+        .btn-add-category {
+            background-color: #fdcb6e;
+            border-color: #fdcb6e;
+            color: #2d3436;
+            font-weight: 700;
+        }
+        .btn-add-category:hover {
+            background-color: #f0b954;
+            border-color: #f0b954;
+        }
+
+        .btn-pass-change {
+            background-color: #6c5ce7;
+            border-color: #6c5ce7;
+            color: #ffffff;
+        }
+        .btn-pass-change:hover {
+            background-color: #5b4bc4;
+            border-color: #5b4bc4;
+        }
+
+        .btn-secondary {
+            background-color: #636e72;
+            border-color: #636e72;
+            color: #ffffff;
+        }
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+            border-color: #7f8c8d;
+        }
+
+        .btn-reset {
+            background-color: #636e72;
+            border-color: #636e72;
+            color: #ffffff;
+            font-size: 12.5px;
+            padding: 9px 14px;
+        }
+        .btn-reset:hover {
+            background-color: #7f8c8d;
+            border-color: #7f8c8d;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-dim);
+        }
+
+        /* 2. ANA İÇERİK (FERAH VE DOĞAL AKIŞ) */
+        .main-content {
+            flex: 1;
+            padding: 28px 0 64px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* ARAMA + KATEGORİ SEKMELERİ + ANLIK FİYAT BARI */
+        .finder-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .finder-top-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .search-box-input {
+            flex: 1;
+            min-width: 240px;
+            max-width: 420px;
+            height: 42px;
+            padding: 10px 14px;
+        }
+
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .cat-tab {
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border);
+            color: var(--text-sub);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .cat-tab:hover {
+            color: var(--text-main);
+            border-color: var(--sky);
+        }
+
+        .cat-tab.active {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: #2d3436;
+        }
+
+        .cat-tab-count {
+            font-size: 11.5px;
+            color: var(--text-sub);
+            font-weight: 700;
+        }
+
+        .cat-tab.active .cat-tab-count {
+            color: #2d3436;
+        }
+
+        .finder-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .finder-selected-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+            max-width: 250px;
+        }
+
+        .finder-selected-meta span {
+            font-size: 11.5px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .finder-selected-meta strong {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: var(--sky);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        .finder-result-box {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+        }
+
+        .finder-result-label {
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--emerald-text);
+        }
+
+        .finder-result {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--emerald-text);
+            background-color: var(--emerald-bg);
+            border: 1px solid var(--emerald-border);
+            padding: 8px 18px;
+            border-radius: 6px;
+            min-width: 126px;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* FERAH YÖNETİM PANELİ (SİMETRİK 2 SÜTUN) */
+        .admin-panel {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+            border-radius: 8px;
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .admin-header-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .admin-header-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .admin-header-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.01em;
+        }
+
+        .admin-header-subtitle {
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        .admin-actions-right {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .admin-main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            align-items: stretch;
+        }
+
+        .admin-card-box {
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .admin-box-title {
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-dim);
+        }
+
+        .admin-box-controls {
+            display: grid;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .admin-params-controls {
+            grid-template-columns: 1fr 1fr 1.25fr;
+        }
+
+        .admin-quick-controls {
+            grid-template-columns: 1fr 1fr 1.4fr;
+        }
+
+        .admin-box-controls .control-group {
+            min-width: 0;
+        }
+
+        .admin-field {
+            width: 100%;
+            height: 40px;
+            text-align: center;
+        }
+
+        .check-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            width: 100%;
+            height: 40px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            padding: 0 10px;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .check-toggle input {
+            accent-color: var(--accent);
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .quick-calc-result {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 0 12px;
+            background-color: var(--bg-input);
+            border: 1px solid var(--emerald-border);
+            border-radius: 6px;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .quick-calc-result strong {
+            font-size: 15.5px;
+            font-weight: 800;
+            color: var(--emerald-text);
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .quick-calc-result span {
+            font-size: 10px;
+            line-height: 1.2;
+            color: var(--text-sub);
+            font-variant-numeric: tabular-nums;
+            text-align: right;
+            min-width: 0;
+        }
+
+        /* AÇILIR KATALOG YÖNETİMİ ÇEKMECESİ */
+        .catalog-drawer {
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .admin-forms-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            align-items: stretch;
+        }
+
+        .admin-section-box {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            background-color: var(--bg-elevated);
+            padding: 14px 16px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            min-width: 0;
+        }
+
+        .admin-section-box .control-group {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .admin-section-box .input,
+        .admin-section-box .select {
+            width: 100%;
+            height: 40px;
+        }
+
+        .admin-section-box .btn {
+            min-width: 96px;
+            height: 40px;
+            flex-shrink: 0;
+        }
+
+        .cat-order-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cat-order-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 12.5px;
+            color: var(--text-sub);
+        }
+
+        .order-btn {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-sub);
+            cursor: pointer;
+            font-size: 11px;
+            padding: 3px 6px;
+            border-radius: 4px;
+        }
+        .order-btn:hover { color: var(--text-main); border-color: var(--border-strong); }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #ff7675;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 700;
+            padding: 3px 7px;
+            border-radius: 4px;
+            line-height: 1;
+        }
+        .delete-btn:hover { color: #d63031; background: none; }
+
+        /* 3. KOMPAKT CİHAZ LİSTESİ & AKORDEON KARTLAR */
+        .category-container {
+            margin-bottom: 22px;
+        }
+
+        .category-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2px 0 8px 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #74b9ff;
+            border-bottom: 2px solid #636e72;
+        }
+
+        .category-title-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .category-title-text {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: #74b9ff;
+        }
+
+        .category-count-pill {
+            font-size: 12px;
+            font-weight: 700;
+            color: #b2bec3;
+            background-color: var(--bg-elevated);
+            border: 1px solid #636e72;
+            padding: 4px 11px;
+            border-radius: 4px;
+        }
+
+        .accordion-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .accordion-card {
+            background-color: #3b4244;
+            border: 1px solid #636e72;
+            border-left: 4px solid #40e0d0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .accordion-card.open {
+            border-color: #636e72;
+            border-left-color: #55efc4;
+        }
+
+        .accordion-header {
+            background-color: #2d3436;
+            padding: 11px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .accordion-header:hover {
+            background-color: #1e2729;
+        }
+
+        .accordion-device-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #40e0d0;
+            letter-spacing: -0.01em;
+        }
+
+        .accordion-header:hover .accordion-device-name {
+            color: #55efc4;
+        }
+
+        .accordion-header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .detail-pill {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #b2bec3;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        .accordion-card.open .detail-pill {
+            color: #55efc4;
+            background: none;
+            border: none;
+        }
+
+        .accordion-body {
+            padding: 12px 14px;
+            display: none;
+            background-color: #3b4244;
+            border-top: 1px solid #636e72;
+            grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
+            gap: 12px;
+        }
+
+        .accordion-card.open .accordion-body {
+            display: grid;
+        }
+
+        .service-group-card {
+            background-color: #2f3537;
+            border: 1px solid #636e72;
+            border-radius: 6px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .service-group-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #74b9ff;
+            border-bottom: 1px solid #454d50;
+            padding-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .quality-row {
+            background-color: #363d3f;
+            border: 1px solid #454d50;
+            border-radius: 5px;
+            padding: 7px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .quality-row.customer-row {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 10px;
+            gap: 8px;
+        }
+
+        .quality-row.customer-row .service-inputs {
+            flex: 0 0 auto;
+        }
+
+        .quality-row.customer-row .final-price {
+            flex: 0 0 auto;
+            min-width: 88px;
+            padding: 4px 10px;
+            font-size: 13px;
+        }
+
+        .quality-row-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-width: 0;
+        }
+
+        .quality-name {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #eccc68;
+        }
+
+        .service-inputs {
+            display: flex;
+            gap: 6px;
+            align-items: flex-end;
+        }
+
+        .input-box-group {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .input-box-group label {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #b2bec3;
+        }
+
+        .card-input {
+            width: 72px;
+            padding: 5px 7px;
+            border: 1px solid #636e72;
+            border-radius: 5px;
+            background-color: #2d3436;
+            color: #ffffff;
+            text-align: center;
+            font-size: 12.5px;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .card-input:focus {
+            outline: none;
+            border-color: #40e0d0;
+        }
+
+        .final-price {
+            flex: 1;
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #55efc4;
+            background-color: #314744;
+            border: 1px solid #488577;
+            padding: 6px 10px;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .final-price:hover {
+            background-color: #395853;
+            border-color: #55efc4;
+        }
+
+        .final-price.empty {
+            color: #55efc4;
+            background-color: #314744;
+            border-color: #488577;
+            font-weight: 600;
+        }
+
+        .row-breakdown {
+            font-size: 10.5px;
+            color: var(--text-sub);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .empty-box {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 36px 20px;
+            text-align: center;
+            color: var(--text-sub);
+            font-size: 14px;
+        }
+
+        /* FOOTER */
+        .site-footer {
+            width: 100%;
+            background-color: var(--bg-band);
+            border-top: 1px solid var(--border);
+            padding: 22px 0;
+            margin-top: auto;
+        }
+
+        .footer-inner {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            font-size: 12.5px;
+            color: var(--text-dim);
+        }
+
+        #statusMessage {
+            position: fixed;
+            bottom: 20px;
+            right: 24px;
+            background-color: var(--emerald-bg);
+            border: 1px solid var(--emerald-border);
+            color: var(--emerald-text);
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+            z-index: 60;
+        }
+        #statusMessage.show { opacity: 1; }
+
+        /* ŞİFRE MODALI */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background-color: #000000b8;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 50;
+        }
+        .modal-backdrop.open { display: flex; }
+
+        .modal-card {
+            width: 100%;
+            max-width: 410px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-strong);
+            border-radius: 8px;
+            padding: 22px;
+        }
+
+        .modal-card h3 {
+            margin: 0 0 14px;
+            font-size: 16px;
+        }
+
+        .modal-card .control-group + .control-group {
+            margin-top: 10px;
+        }
+
+        .modal-error {
+            color: var(--danger);
+            font-size: 12px;
+            min-height: 18px;
+            margin-top: 8px;
+        }
+
+        .modal-success {
+            color: #4ef0ed;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+
+        .modal-actions-right {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .hidden { display: none !important; }
+
+        @media (max-width: 960px) {
+            .admin-main-grid,
+            .admin-forms-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .container { padding: 0 14px; }
+            .brand-divider, .brand-tag { display: none; }
+            .search-box-input { width: 100%; max-width: none; }
+            .finder-right { width: 100%; justify-content: space-between; }
+            .finder-selected-meta { align-items: flex-start; }
+            .admin-params-controls,
+            .admin-quick-controls { grid-template-columns: 1fr; }
+            .admin-section-box { flex-wrap: wrap; }
+            .admin-section-box .btn { width: 100%; }
+            .accordion-body { grid-template-columns: 1fr; padding: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 1. ÜST NAVİGASYON -->
+<nav class="navbar">
+    <div class="container navbar-inner">
+        <div class="brand-wrap" id="secretAdminTrigger" ondblclick="requestAdminAccess()">
+            <div class="brand-mark">K</div>
+            <span class="brand-title">KONGORU</span>
+            <span class="brand-divider"></span>
+            <span class="brand-tag" id="modeSubtitle">Teknik Servis Fiyat Listesi</span>
+        </div>
+
+        <div class="nav-actions">
+            <span class="sync-indicator" title="Senkronizasyon durumu">
+                <span class="sync-dot" id="syncDot"></span>
+                <span id="syncText">Yerel</span>
+            </span>
+            <button type="button" class="btn btn-pass-change hidden" id="headerPassChangeBtn" onclick="openPasswordChangeModal()">Şifre Değiştir</button>
+            <button type="button" class="btn btn-admin-login" id="headerAdminBtn" onclick="requestAdminAccess()">Yönetici Girişi</button>
+        </div>
+    </div>
+</nav>
+
+<!-- 2. ANA İÇERİK -->
+<main class="container main-content">
+
+    <!-- ARAMA + KATEGORİ SEKMELERİ + ANLIK FİYAT BARI -->
+    <section class="finder-card">
+        <div class="finder-top-row">
+            <input type="text" id="globalSearchInput" class="input search-box-input" placeholder="Model ara (ör. 8 Plus, S24...)" oninput="filterBySearch()">
+
+            <div class="finder-right">
+                <div class="finder-selected-meta">
+                    <span id="selectedDeviceText">İşlem seçilmedi</span>
+                    <strong id="selectedServiceText">-</strong>
+                </div>
+                <div class="finder-result-box">
+                    <span class="finder-result-label" id="finderVatLabel">KDV (%20) Dahil</span>
+                    <div class="finder-result" id="finderResult">- ₺</div>
+                </div>
+                <button type="button" class="btn btn-reset" onclick="clearSelection()">Sıfırla</button>
+            </div>
+        </div>
+
+        <div class="category-tabs" id="categoryTabs"></div>
+    </section>
+
+    <!-- YÖNETİM PANELİ (YÖNETİCİ MODUNDA) -->
+    <section class="admin-panel hidden" id="adminPanel">
+        <div class="admin-header-bar">
+            <div class="admin-header-meta">
+                <span class="admin-header-title">Yönetici Paneli</span>
+                <span class="admin-header-subtitle">Kur, KDV ve Katalog Yönetimi</span>
+            </div>
+            <div class="admin-actions-right">
+                <button type="button" class="btn btn-drawer" id="toggleCatalogDrawerBtn" onclick="toggleCatalogDrawer()">+ Cihaz / Hizmet / Sınıf Ekle</button>
+                <button type="button" class="btn btn-save" onclick="saveData()">Kaydet</button>
+                <button type="button" class="btn btn-mode-switch" onclick="switchToCustomerMode()">Müşteri Moduna Geç</button>
+            </div>
+        </div>
+
+        <div class="admin-main-grid">
+            <div class="admin-card-box">
+                <div class="admin-box-title">KUR VE VERGİ AYARLARI</div>
+                <div class="admin-box-controls admin-params-controls">
+                    <div class="control-group">
+                        <label for="dollarRate">Dolar Kuru (₺)</label>
+                        <input type="number" id="dollarRate" class="input admin-field" step="0.01" min="0" placeholder="36.00" oninput="onParamChange()">
+                    </div>
+                    <div class="control-group">
+                        <label for="vatRate">KDV (%)</label>
+                        <input type="number" id="vatRate" class="input admin-field" step="1" min="0" max="100" placeholder="20" oninput="onParamChange()">
+                    </div>
+                    <div class="control-group">
+                        <label for="roundTo100">Yuvarlama</label>
+                        <label class="check-toggle">
+                            <input type="checkbox" id="roundTo100" onchange="onParamChange()">
+                            <span>100 ₺'ye yuvarla</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-card-box">
+                <div class="admin-box-title">HIZLI MALİYET HESAPLA</div>
+                <div class="admin-box-controls admin-quick-controls">
+                    <div class="control-group">
+                        <label for="quickUsd">Parça ($)</label>
+                        <input type="number" id="quickUsd" class="input admin-field" step="0.5" min="0" placeholder="$" oninput="updateQuickCalc()">
+                    </div>
+                    <div class="control-group">
+                        <label for="quickLabor">İşçilik (₺)</label>
+                        <input type="number" id="quickLabor" class="input admin-field" step="10" min="0" placeholder="₺" oninput="updateQuickCalc()">
+                    </div>
+                    <div class="control-group">
+                        <label>KDV Dahil Sonuç</label>
+                        <div class="quick-calc-result">
+                            <strong id="quickResult">- ₺</strong>
+                            <span id="quickBreakdown">Parça: 0 ₺ · KDV: 0 ₺</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AÇILIR KATALOG EKLEME / DÜZENLEME ÇEKMECESİ -->
+        <div class="catalog-drawer hidden" id="catalogDrawer">
+            <div class="admin-forms-row">
+                <div class="admin-section-box">
+                    <div class="control-group">
+                        <label for="newDeviceCategory">Cihaz Sınıfı</label>
+                        <select id="newDeviceCategory" class="select"></select>
+                    </div>
+                    <div class="control-group">
+                        <label for="newDeviceName">Cihaz Adı</label>
+                        <input type="text" id="newDeviceName" class="input" placeholder="Örn: iPhone 16">
+                    </div>
+                    <button type="button" class="btn btn-add-device" onclick="addNewDevice()">+ Cihaz</button>
+                </div>
+
+                <div class="admin-section-box">
+                    <div class="control-group">
+                        <label for="targetServiceGroupSelect">Hangi Ana Grup?</label>
+                        <select id="targetServiceGroupSelect" class="select"></select>
+                    </div>
+                    <div class="control-group">
+                        <label for="newQualityName">Yeni Kalite / Alt İşlem</label>
+                        <input type="text" id="newQualityName" class="input" placeholder="Örn: Revize">
+                    </div>
+                    <button type="button" class="btn btn-add-quality" onclick="addNewQualityToSelectedGroup()">+ Kalite</button>
+                </div>
+
+                <div class="admin-section-box">
+                    <div class="control-group">
+                        <label for="newGroupName">Yeni Hizmet Grubu</label>
+                        <input type="text" id="newGroupName" class="input" placeholder="Örn: Flex">
+                    </div>
+                    <button type="button" class="btn btn-add-service" onclick="addNewServiceGroup()">+ Hizmet</button>
+                </div>
+
+                <div class="admin-section-box">
+                    <div class="control-group">
+                        <label for="newCategoryName">Yeni Cihaz Sınıfı</label>
+                        <input type="text" id="newCategoryName" class="input" placeholder="Örn: Huawei">
+                    </div>
+                    <button type="button" class="btn btn-add-category" onclick="addNewCategory()">+ Sınıf</button>
+                </div>
+            </div>
+
+            <div class="cat-order-strip" id="categoryManageStrip"></div>
+        </div>
+    </section>
+
+    <!-- 3. FERAH CİHAZ LİSTESİ (KATEGORİLİ AKORDEON KARTLAR) -->
+    <div id="mainContentArea"></div>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+    <div class="container footer-inner">
+        <span><strong>KONGORU Teknik Servis</strong> — Tüm fiyatlar güncel kur ve KDV oranına göre hesaplanır.</span>
+        <span id="footerVatNote">KDV (%20) dahil fiyatlandırma</span>
+    </div>
+</footer>
+
+<div id="statusMessage"></div>
+
+<!-- YÖNETİCİ ŞİFRE MODALI -->
+<div class="modal-backdrop" id="authModal" onclick="if(event.target===this) closeAuthModal()">
+    <div class="modal-card">
+        <h3 id="authModalTitle">Yönetici Girişi</h3>
+
+        <div id="loginFormView">
+            <form onsubmit="submitAdminPassword(event)">
+                <div class="control-group">
+                    <label for="adminPasswordInput">Yönetici Şifresi</label>
+                    <input type="password" id="adminPasswordInput" class="input" placeholder="Şifreyi girin..." autocomplete="current-password">
+                </div>
+                <div class="modal-error" id="authErrorMsg"></div>
+                <div class="modal-actions">
+                    <div class="modal-actions-right">
+                        <button type="button" class="btn btn-secondary" onclick="closeAuthModal()">İptal</button>
+                        <button type="submit" class="btn btn-accent">Giriş Yap</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div id="changePasswordView" class="hidden">
+            <form onsubmit="submitPasswordChange(event)">
+                <div class="control-group">
+                    <label for="currentPasswordInput">Mevcut Şifre</label>
+                    <input type="password" id="currentPasswordInput" class="input" placeholder="Mevcut şifreyi girin..." autocomplete="current-password">
+                </div>
+                <div class="control-group">
+                    <label for="newPasswordInput">Yeni Şifre</label>
+                    <input type="password" id="newPasswordInput" class="input" placeholder="Yeni şifreyi girin..." autocomplete="new-password">
+                </div>
+                <div class="control-group">
+                    <label for="confirmPasswordInput">Yeni Şifre (Tekrar)</label>
+                    <input type="password" id="confirmPasswordInput" class="input" placeholder="Yeni şifreyi tekrar girin..." autocomplete="new-password">
+                </div>
+                <div class="modal-error" id="changePassErrorMsg"></div>
+                <div class="modal-actions">
+                    <div class="modal-actions-right">
+                        <button type="button" class="btn btn-secondary" onclick="closeAuthModal()">İptal</button>
+                        <button type="submit" class="btn btn-save">Şifreyi Kaydet</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const defaultCategories = ['iPhone', 'iPad', 'Samsung', 'Xiaomi', 'Diğer'];
+
+    const defaultServiceGroups = {
+        "Ekran Değişimi": ["Orijinal", "Revize", "A Kalite", "B Kalite"],
+        "Ön Cam - Dokunmatik": ["Orijinal", "A Kalite"],
+        "Batarya Değişimi": ["Orijinal", "A Kalite Yükseltilmiş"],
+        "Arka Kapak": ["Orijinal", "A Kalite"],
+        "Soket İşlemleri": ["Sadece Soket", "Bordlu-Filmli Soket"],
+        "Kamera Değişimi": ["Arka Kamera", "Ön Kamera"],
+        "Diğer İşlemler": ["On Off Film Değişimi"]
+    };
+
+    const defaultDevices = [
+        { name: "iPhone 8 Plus", category: "iPhone" },
+        { name: "iPhone 8", category: "iPhone" },
+        { name: "iPhone 7", category: "iPhone" }
+    ];
+
+    const STORAGE_KEYS = {
+        categories: 'kongoruGroupCatList',
+        groups: 'kongoruServiceGroupsMap',
+        devices: 'kongoruGroupDeviceList',
+        prices: 'kongoruGroupPrices',
+        password: 'kongoruAdminPassword'
+    };
+
+    const defaultAdminPassword = "kongoru";
+
+    let isCustomerMode = true;
+    let isCatalogDrawerOpen = false;
+    let activeCategoryFilter = 'ALL';
+    let activeSelectedDevice = null;
+    let activeSelectedKey = null;
+    let openDeviceSlugs = new Set();
+    let pricesState = {};
+    let statusTimer = null;
+
+    function makeSlug(str) {
+        return String(str || '').replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+    }
+
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function formatMoney(num, allowDecimals = false) {
+        const rounded = allowDecimals ? Math.round(num * 100) / 100 : Math.round(num);
+        return rounded.toLocaleString('tr-TR', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: allowDecimals ? 2 : 0
+        }) + ' ₺';
+    }
+
+    function readJsonStorage(key, fallback) {
+        const stored = localStorage.getItem(key);
+        if (stored) {
+            try { return JSON.parse(stored); } catch (e) {}
+        }
+        const copy = JSON.parse(JSON.stringify(fallback));
+        localStorage.setItem(key, JSON.stringify(copy));
+        return copy;
+    }
+
+    function getCategories() { return readJsonStorage(STORAGE_KEYS.categories, defaultCategories); }
+    function getServiceGroups() { return readJsonStorage(STORAGE_KEYS.groups, defaultServiceGroups); }
+    function getDevices() { return readJsonStorage(STORAGE_KEYS.devices, defaultDevices); }
+
+    function loadPricesState() {
+        const stored = localStorage.getItem(STORAGE_KEYS.prices);
+        if (stored) {
+            try { pricesState = JSON.parse(stored) || {}; } catch (e) { pricesState = {}; }
+        } else {
+            pricesState = {};
+        }
+        if (pricesState.dollarRate === undefined || pricesState.dollarRate === '') pricesState.dollarRate = '36.00';
+        if (pricesState.vatRate === undefined || pricesState.vatRate === '') pricesState.vatRate = '20';
+        if (!pricesState.roundingMode) pricesState.roundingMode = 'ceil100';
+    }
+
+    function persistPricesState() {
+        localStorage.setItem(STORAGE_KEYS.prices, JSON.stringify(pricesState));
+    }
+
+    function getActiveParams() {
+        const rateEl = document.getElementById('dollarRate');
+        const vatEl = document.getElementById('vatRate');
+        const roundEl = document.getElementById('roundTo100');
+
+        const rateVal = !isCustomerMode && rateEl ? rateEl.value : pricesState.dollarRate;
+        const vatVal = !isCustomerMode && vatEl ? vatEl.value : pricesState.vatRate;
+
+        const rate = rateVal === '' ? 0 : Math.max(0, parseFloat(rateVal) || 0);
+        const vatRate = vatVal === '' ? 0 : Math.max(0, parseFloat(vatVal) || 0);
+        const roundingMode = !isCustomerMode && roundEl
+            ? (roundEl.checked ? 'ceil100' : 'exact')
+            : (pricesState.roundingMode || 'ceil100');
+
+        return { rate, vatRate, roundingMode };
+    }
+
+    // --- Hesaplama Motoru ---
+    function calculateSinglePrice(usdCost, laborCost, rate, vatRate, roundingMode) {
+        const safeUsd = Math.max(0, parseFloat(usdCost) || 0);
+        const safeLabor = Math.max(0, parseFloat(laborCost) || 0);
+        const safeRate = Math.max(0, parseFloat(rate) || 0);
+        const safeVat = Math.max(0, parseFloat(vatRate) || 0);
+
+        const tlCost = safeUsd * safeRate;
+        const rawTotal = tlCost + safeLabor;
+        const hasPrice = (safeUsd > 0 && safeRate > 0) || safeLabor > 0;
+
+        if (!hasPrice) {
+            return {
+                hasPrice: false,
+                tlCost: 0,
+                laborCost: 0,
+                rawTotal: 0,
+                vatAmount: 0,
+                withTax: 0,
+                finalPrice: 0
+            };
+        }
+
+        const vatAmount = rawTotal * (safeVat / 100);
+        const withTax = Math.round((rawTotal + vatAmount) * 100) / 100;
+
+        let finalPrice = withTax;
+        if (roundingMode === 'ceil100') {
+            finalPrice = Math.ceil(withTax / 100) * 100;
+        } else if (roundingMode === 'ceil10') {
+            finalPrice = Math.ceil(withTax / 10) * 10;
+        }
+
+        return {
+            hasPrice: true,
+            tlCost,
+            laborCost: safeLabor,
+            rawTotal,
+            vatAmount,
+            withTax,
+            finalPrice
+        };
+    }
+
+    function updateQuickCalc() {
+        const { rate, vatRate, roundingMode } = getActiveParams();
+        const usd = document.getElementById('quickUsd')?.value || 0;
+        const labor = document.getElementById('quickLabor')?.value || 0;
+        const res = calculateSinglePrice(usd, labor, rate, vatRate, roundingMode);
+        const allowDec = roundingMode === 'exact';
+
+        document.getElementById('quickResult').textContent = res.hasPrice ? formatMoney(res.finalPrice, allowDec) : '- ₺';
+        document.getElementById('quickBreakdown').textContent =
+            `Parça: ${formatMoney(res.tlCost, true)} · KDV (%${vatRate}): ${formatMoney(res.vatAmount, true)}`;
+    }
+
+    function calculateAllPrices() {
+        const { rate, vatRate, roundingMode } = getActiveParams();
+        const devices = getDevices();
+        const serviceGroups = getServiceGroups();
+        const allowDec = roundingMode === 'exact';
+
+        document.getElementById('finderVatLabel').textContent = `KDV (%${vatRate}) Dahil`;
+        document.getElementById('footerVatNote').textContent = `KDV (%${vatRate}) dahil fiyatlandırma`;
+
+        devices.forEach((item) => {
+            const devId = makeSlug(item.name);
+
+            for (const groupName in serviceGroups) {
+                (serviceGroups[groupName] || []).forEach(qName => {
+                    const qKey = makeSlug(`${groupName}_${qName}`);
+                    const uniqueInputId = `${devId}-${qKey}`;
+
+                    const costInput = document.getElementById(`${uniqueInputId}-cost`);
+                    const laborInput = document.getElementById(`${uniqueInputId}-labor`);
+                    const finalCell = document.getElementById(`${uniqueInputId}-final`);
+                    const breakdownEl = document.getElementById(`${uniqueInputId}-bd`);
+
+                    const usdCost = costInput ? costInput.value : (pricesState[`${uniqueInputId}-cost`] || '');
+                    const customLabor = laborInput ? laborInput.value : (pricesState[`${uniqueInputId}-labor`] || '');
+
+                    const res = calculateSinglePrice(usdCost, customLabor, rate, vatRate, roundingMode);
+
+                    if (finalCell) {
+                        if (res.hasPrice) {
+                            finalCell.textContent = formatMoney(res.finalPrice, allowDec);
+                            finalCell.classList.remove('empty');
+                        } else {
+                            finalCell.textContent = '-';
+                            finalCell.classList.add('empty');
+                        }
+                    }
+
+                    if (breakdownEl) {
+                        if (!isCustomerMode && res.hasPrice) {
+                            const netStr = roundingMode !== 'exact' && Math.abs(res.finalPrice - res.withTax) > 0.001
+                                ? ` · Net: ${formatMoney(res.withTax, true)}`
+                                : '';
+                            breakdownEl.textContent = `Parça: ${formatMoney(res.tlCost, true)} + İşçilik: ${formatMoney(res.laborCost, true)} + KDV (%${vatRate}): ${formatMoney(res.vatAmount, true)}${netStr}`;
+                        } else {
+                            breakdownEl.textContent = '';
+                        }
+                    }
+                });
+            }
+        });
+
+        if (activeSelectedDevice && activeSelectedKey) {
+            const activeEl = document.getElementById(`${activeSelectedDevice}-${activeSelectedKey}-final`);
+            if (activeEl) {
+                document.getElementById('finderResult').textContent = activeEl.textContent === '-' ? '- ₺' : activeEl.textContent;
+            }
+        }
+
+        updateQuickCalc();
+    }
+
+    function onParamChange() {
+        pricesState.dollarRate = document.getElementById('dollarRate').value;
+        pricesState.vatRate = document.getElementById('vatRate').value;
+        pricesState.roundingMode = document.getElementById('roundTo100').checked ? 'ceil100' : 'exact';
+        persistPricesState();
+        calculateAllPrices();
+    }
+
+    function onRowInput(uniqueInputId) {
+        const costEl = document.getElementById(`${uniqueInputId}-cost`);
+        const laborEl = document.getElementById(`${uniqueInputId}-labor`);
+        pricesState[`${uniqueInputId}-cost`] = costEl ? costEl.value : '';
+        pricesState[`${uniqueInputId}-labor`] = laborEl ? laborEl.value : '';
+        persistPricesState();
+        calculateAllPrices();
+    }
+
+    function updateDropdowns() {
+        const categories = getCategories();
+        const catSelect = document.getElementById('newDeviceCategory');
+        if (catSelect) {
+            catSelect.innerHTML = categories.map(cat => `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`).join('');
+        }
+
+        const serviceGroups = getServiceGroups();
+        const groupSelect = document.getElementById('targetServiceGroupSelect');
+        if (groupSelect) {
+            groupSelect.innerHTML = Object.keys(serviceGroups).map(g => `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join('');
+        }
+    }
+
+    function renderCategoryTabs(devices, allCats) {
+        if (activeCategoryFilter !== 'ALL' && !allCats.includes(activeCategoryFilter)) {
+            activeCategoryFilter = 'ALL';
+        }
+
+        const counts = { ALL: devices.length };
+        allCats.forEach(c => { counts[c] = 0; });
+        devices.forEach(d => {
+            const c = d.category || 'Diğer';
+            counts[c] = (counts[c] || 0) + 1;
+        });
+
+        let html = `<button type="button" class="cat-tab ${activeCategoryFilter === 'ALL' ? 'active' : ''}" data-cat-tab="ALL">Tümü <span class="cat-tab-count">${counts.ALL}</span></button>`;
+        allCats.forEach(cat => {
+            html += `<button type="button" class="cat-tab ${activeCategoryFilter === cat ? 'active' : ''}" data-cat-tab="${escapeHtml(cat)}">${escapeHtml(cat)} <span class="cat-tab-count">${counts[cat] || 0}</span></button>`;
+        });
+        document.getElementById('categoryTabs').innerHTML = html;
+
+        const stripEl = document.getElementById('categoryManageStrip');
+        if (stripEl) {
+            stripEl.innerHTML = `<span style="font-size:11px; color:var(--text-dim); font-weight:600; text-transform:uppercase;">Sınıf Sırası:</span>` +
+                allCats.map((catName, idx) => `
+                    <div class="cat-order-chip">
+                        <span>${escapeHtml(catName)}</span>
+                        ${idx > 0 ? `<button type="button" class="order-btn" data-action="move-cat" data-cat="${escapeHtml(catName)}" data-dir="up" title="Sola/Yukarı">◀</button>` : ''}
+                        ${idx < allCats.length - 1 ? `<button type="button" class="order-btn" data-action="move-cat" data-cat="${escapeHtml(catName)}" data-dir="down" title="Sağa/Aşağı">▶</button>` : ''}
+                        <button type="button" class="delete-btn" data-action="remove-cat" data-cat="${escapeHtml(catName)}" title="Sınıfı Sil">×</button>
+                    </div>
+                `).join('');
+        }
+    }
+
+    function renderContent() {
+        const devices = getDevices();
+        const serviceGroups = getServiceGroups();
+        const allCats = getCategories();
+        const query = document.getElementById('globalSearchInput').value.toLowerCase().trim();
+
+        document.getElementById('dollarRate').value = pricesState.dollarRate ?? '36.00';
+        document.getElementById('vatRate').value = pricesState.vatRate ?? '20';
+        document.getElementById('roundTo100').checked = (pricesState.roundingMode || 'ceil100') === 'ceil100';
+
+        updateDropdowns();
+        renderCategoryTabs(devices, allCats);
+
+        const categories = {};
+        allCats.forEach(cat => { categories[cat] = []; });
+        devices.forEach(item => {
+            const cat = item.category || 'Diğer';
+            if (!categories[cat]) categories[cat] = [];
+            categories[cat].push(item);
+        });
+
+        const allCatKeys = Object.keys(categories);
+        const visibleCatKeys = (query || activeCategoryFilter === 'ALL') ? allCatKeys : [activeCategoryFilter];
+
+        let html = '';
+        let totalVisibleCards = 0;
+
+        visibleCatKeys.forEach((catName) => {
+            const catDevices = categories[catName] || [];
+            const matchingDevices = query
+                ? catDevices.filter(item => item.name.toLowerCase().includes(query))
+                : catDevices;
+
+            if (query && matchingDevices.length === 0) return;
+
+            totalVisibleCards += matchingDevices.length;
+
+            html += `
+            <section class="category-container" data-category-group="${escapeHtml(catName)}">
+                <div class="category-title">
+                    <div class="category-title-left">
+                        <span class="category-title-text">📂 ${escapeHtml(catName)}</span>
+                        <span class="category-count-pill">${matchingDevices.length} cihaz</span>
+                    </div>
+                </div>
+                <div class="accordion-wrapper">`;
+
+            if (matchingDevices.length === 0) {
+                html += `<div class="empty-box" style="padding: 20px;">Bu sınıfta henüz cihaz yok.</div>`;
+            } else {
+                matchingDevices.forEach(item => {
+                    const devId = makeSlug(item.name);
+                    const isOpen = openDeviceSlugs.has(devId);
+
+                    html += `
+                    <article class="accordion-card ${isOpen ? 'open' : ''}" data-device-name="${escapeHtml(item.name.toLowerCase())}" data-dev-id="${escapeHtml(devId)}">
+                        <div class="accordion-header" data-action="toggle-accordion" data-dev-id="${escapeHtml(devId)}">
+                            <span class="accordion-device-name">📱 ${escapeHtml(item.name)}</span>
+                            <div class="accordion-header-right">
+                                <span class="detail-pill">${isOpen ? 'Detay ▲' : 'Detay ▼'}</span>
+                                ${!isCustomerMode ? `<button type="button" class="delete-btn" data-action="remove-device" data-device="${escapeHtml(item.name)}" title="Cihazı Sil">×</button>` : ''}
+                            </div>
+                        </div>
+                        <div class="accordion-body">`;
+
+                    for (const groupName in serviceGroups) {
+                        const qualities = serviceGroups[groupName] || [];
+
+                        html += `
+                            <div class="service-group-card">
+                                <div class="service-group-title">
+                                    <span>${escapeHtml(groupName)}</span>
+                                    ${!isCustomerMode ? `<button type="button" class="delete-btn" style="font-size:12px;" data-action="remove-group" data-group="${escapeHtml(groupName)}" title="Hizmeti Sil">×</button>` : ''}
+                                </div>`;
+
+                        qualities.forEach(qName => {
+                            const qKey = makeSlug(`${groupName}_${qName}`);
+                            const uniqueInputId = `${devId}-${qKey}`;
+                            const costVal = pricesState[`${uniqueInputId}-cost`] ?? '';
+                            const laborVal = pricesState[`${uniqueInputId}-labor`] ?? '';
+
+                            html += `
+                                <div class="quality-row ${isCustomerMode ? 'customer-row' : ''}">
+                                    <div class="quality-row-header">
+                                        <span class="quality-name">🔹 ${escapeHtml(qName)}</span>
+                                        ${!isCustomerMode ? `<button type="button" class="delete-btn" style="font-size:11px;" data-action="remove-quality" data-group="${escapeHtml(groupName)}" data-quality="${escapeHtml(qName)}" title="Kaliteyi Sil">×</button>` : ''}
+                                    </div>
+                                    <div class="service-inputs">`;
+
+                            if (!isCustomerMode) {
+                                html += `
+                                        <div class="input-box-group">
+                                            <label for="${escapeHtml(uniqueInputId)}-cost">Maliyet ($)</label>
+                                            <input type="number" step="0.5" min="0" class="card-input cost-input" id="${escapeHtml(uniqueInputId)}-cost" data-uid="${escapeHtml(uniqueInputId)}" value="${escapeHtml(costVal)}" placeholder="$">
+                                        </div>
+                                        <div class="input-box-group">
+                                            <label for="${escapeHtml(uniqueInputId)}-labor">İşçilik (₺)</label>
+                                            <input type="number" step="10" min="0" class="card-input labor-input" id="${escapeHtml(uniqueInputId)}-labor" data-uid="${escapeHtml(uniqueInputId)}" value="${escapeHtml(laborVal)}" placeholder="₺">
+                                        </div>`;
+                            }
+
+                            html += `
+                                        <div class="final-price" id="${escapeHtml(uniqueInputId)}-final" data-action="select-cell" data-dev-id="${escapeHtml(devId)}" data-qkey="${escapeHtml(qKey)}" data-device="${escapeHtml(item.name)}" data-service="${escapeHtml(groupName + ' - ' + qName)}">-</div>
+                                    </div>
+                                    ${!isCustomerMode ? `<div class="row-breakdown" id="${escapeHtml(uniqueInputId)}-bd"></div>` : ''}
+                                </div>`;
+                        });
+
+                        html += `</div>`;
+                    }
+
+                    html += `</div></article>`;
+                });
+            }
+
+            html += `</div></section>`;
+        });
+
+        if (query && totalVisibleCards === 0) {
+            html = `<div class="empty-box">"${escapeHtml(document.getElementById('globalSearchInput').value)}" aramasıyla eşleşen cihaz bulunamadı.</div>`;
+        }
+
+        document.getElementById('mainContentArea').innerHTML = html;
+        calculateAllPrices();
+    }
+
+    // --- Event Delegation ---
+    document.getElementById('categoryTabs').addEventListener('click', (e) => {
+        const tab = e.target.closest('[data-cat-tab]');
+        if (!tab) return;
+        activeCategoryFilter = tab.dataset.catTab;
+        document.getElementById('globalSearchInput').value = '';
+        renderContent();
+    });
+
+    document.addEventListener('click', (e) => {
+        const el = e.target.closest('[data-action]');
+        if (!el) return;
+
+        const action = el.dataset.action;
+
+        if (action === 'toggle-accordion') {
+            const devId = el.dataset.devId;
+            const card = el.closest('.accordion-card');
+            const pill = card.querySelector('.detail-pill');
+            if (openDeviceSlugs.has(devId)) {
+                openDeviceSlugs.delete(devId);
+                card.classList.remove('open');
+                if (pill) pill.textContent = 'Detay ▼';
+            } else {
+                openDeviceSlugs.add(devId);
+                card.classList.add('open');
+                if (pill) pill.textContent = 'Detay ▲';
+            }
+        } else if (action === 'remove-device') {
+            e.stopPropagation();
+            removeDevice(el.dataset.device);
+        } else if (action === 'remove-group') {
+            removeGroup(el.dataset.group);
+        } else if (action === 'remove-quality') {
+            removeQualityFromGroup(el.dataset.group, el.dataset.quality);
+        } else if (action === 'move-cat') {
+            moveCategory(el.dataset.cat, el.dataset.dir);
+        } else if (action === 'remove-cat') {
+            removeCategory(el.dataset.cat);
+        } else if (action === 'select-cell') {
+            selectCell(el.dataset.devId, el.dataset.qkey, el.dataset.device, el.dataset.service);
+        }
+    });
+
+    document.getElementById('mainContentArea').addEventListener('input', (e) => {
+        if (e.target.classList.contains('card-input')) {
+            onRowInput(e.target.dataset.uid);
+        }
+    });
+
+    function filterBySearch() {
+        renderContent();
+    }
+
+    function selectCell(devId, qKey, deviceName, serviceFullName) {
+        activeSelectedDevice = devId;
+        activeSelectedKey = qKey;
+        openDeviceSlugs.add(devId);
+
+        document.getElementById('selectedDeviceText').textContent = deviceName;
+        document.getElementById('selectedServiceText').textContent = serviceFullName;
+        calculateAllPrices();
+    }
+
+    function clearSelection() {
+        activeSelectedDevice = null;
+        activeSelectedKey = null;
+        document.getElementById('selectedDeviceText').textContent = 'İşlem seçilmedi';
+        document.getElementById('selectedServiceText').textContent = '-';
+        document.getElementById('finderResult').textContent = '- ₺';
+    }
+
+    // --- Mod Geçişleri ---
+    function toggleCatalogDrawer() {
+        isCatalogDrawerOpen = !isCatalogDrawerOpen;
+        document.getElementById('catalogDrawer').classList.toggle('hidden', !isCatalogDrawerOpen);
+    }
+
+    function applyModeUI() {
+        document.getElementById('adminPanel').classList.toggle('hidden', isCustomerMode);
+        document.getElementById('headerAdminBtn').classList.toggle('hidden', !isCustomerMode);
+        document.getElementById('headerPassChangeBtn').classList.toggle('hidden', isCustomerMode);
+        document.getElementById('modeSubtitle').textContent = isCustomerMode
+            ? 'Teknik Servis Fiyat Listesi'
+            : 'Yönetici Modu — Kur, KDV ve Maliyet Yönetimi';
+    }
+
+    async function switchToCustomerMode() {
+        isCustomerMode = true;
+        isCatalogDrawerOpen = false;
+        document.getElementById('catalogDrawer').classList.add('hidden');
+
+        if (typeof window.getCloudData === 'function') {
+            try {
+                const cloudPrices = await window.getCloudData('prices');
+                if (cloudPrices) {
+                    localStorage.setItem(STORAGE_KEYS.prices, JSON.stringify(cloudPrices));
+                    loadPricesState();
+                }
+            } catch (e) {}
+        }
+        clearSelection();
+        applyModeUI();
+        renderContent();
+    }
+
+    function getAdminPassword() {
+        const stored = localStorage.getItem(STORAGE_KEYS.password);
+        if (stored !== null && stored !== '') return stored;
+        if (pricesState && typeof pricesState.__adminPassword === 'string' && pricesState.__adminPassword !== '') {
+            return pricesState.__adminPassword;
+        }
+        return defaultAdminPassword;
+    }
+
+    async function saveAdminPassword(newPass) {
+        localStorage.setItem(STORAGE_KEYS.password, newPass);
+        pricesState.__adminPassword = newPass;
+        persistPricesState();
+        if (typeof window.saveCloudData === 'function') {
+            try {
+                await Promise.all([
+                    window.saveCloudData('adminPassword', newPass),
+                    window.saveCloudData('prices', pricesState)
+                ]);
+            } catch (e) {}
+        }
+    }
+
+    function togglePasswordChangeView(showChange) {
+        const loginView = document.getElementById('loginFormView');
+        const changeView = document.getElementById('changePasswordView');
+        const titleEl = document.getElementById('authModalTitle');
+        const authErr = document.getElementById('authErrorMsg');
+        const changeErr = document.getElementById('changePassErrorMsg');
+
+        authErr.textContent = '';
+        authErr.classList.remove('modal-success');
+        changeErr.textContent = '';
+        changeErr.classList.remove('modal-success');
+
+        if (showChange) {
+            loginView.classList.add('hidden');
+            changeView.classList.remove('hidden');
+            titleEl.textContent = 'Yönetici Şifresini Değiştir';
+            document.getElementById('currentPasswordInput').value = '';
+            document.getElementById('newPasswordInput').value = '';
+            document.getElementById('confirmPasswordInput').value = '';
+            setTimeout(() => document.getElementById('currentPasswordInput').focus(), 50);
+        } else {
+            changeView.classList.add('hidden');
+            loginView.classList.remove('hidden');
+            titleEl.textContent = 'Yönetici Girişi';
+            const input = document.getElementById('adminPasswordInput');
+            input.value = '';
+            setTimeout(() => input.focus(), 50);
+        }
+    }
+
+    function requestAdminAccess() {
+        if (!isCustomerMode) return;
+        document.getElementById('authModal').classList.add('open');
+        togglePasswordChangeView(false);
+    }
+
+    function openPasswordChangeModal() {
+        document.getElementById('authModal').classList.add('open');
+        togglePasswordChangeView(true);
+    }
+
+    function closeAuthModal() {
+        document.getElementById('authModal').classList.remove('open');
+    }
+
+    function submitAdminPassword(event) {
+        event.preventDefault();
+        const errEl = document.getElementById('authErrorMsg');
+        errEl.classList.remove('modal-success');
+        if (document.getElementById('adminPasswordInput').value === getAdminPassword()) {
+            closeAuthModal();
+            isCustomerMode = false;
+            applyModeUI();
+            renderContent();
+            showStatus('Yönetim paneli açıldı.');
+        } else {
+            errEl.textContent = 'Şifre yanlış!';
+            document.getElementById('adminPasswordInput').select();
+        }
+    }
+
+    async function submitPasswordChange(event) {
+        event.preventDefault();
+        const currentEl = document.getElementById('currentPasswordInput');
+        const newEl = document.getElementById('newPasswordInput');
+        const confirmEl = document.getElementById('confirmPasswordInput');
+        const errEl = document.getElementById('changePassErrorMsg');
+        errEl.classList.remove('modal-success');
+
+        const currentPass = currentEl.value;
+        const newPass = newEl.value;
+        const confirmPass = confirmEl.value;
+
+        if (currentPass !== getAdminPassword()) {
+            errEl.textContent = 'Mevcut şifre yanlış!';
+            currentEl.select();
+            return;
+        }
+        if (!newPass || !newPass.trim()) {
+            errEl.textContent = 'Yeni şifre boş olamaz!';
+            newEl.focus();
+            return;
+        }
+        if (newPass !== confirmPass) {
+            errEl.textContent = 'Yeni şifreler eşleşmiyor!';
+            confirmEl.select();
+            return;
+        }
+
+        await saveAdminPassword(newPass);
+        showStatus('Yönetici şifresi başarıyla değiştirildi!');
+        closeAuthModal();
+    }
+
+    // --- Katalog İşlemleri ---
+    function moveCategory(catName, direction) {
+        const categories = getCategories();
+        const index = categories.indexOf(catName);
+        if (index === -1) return;
+
+        if (direction === 'up' && index > 0) {
+            [categories[index - 1], categories[index]] = [categories[index], categories[index - 1]];
+        } else if (direction === 'down' && index < categories.length - 1) {
+            [categories[index + 1], categories[index]] = [categories[index], categories[index + 1]];
+        }
+
+        localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(categories));
+        renderContent();
+    }
+
+    function addNewDevice() {
+        const inputField = document.getElementById('newDeviceName');
+        const category = document.getElementById('newDeviceCategory').value;
+        const deviceName = inputField.value.trim();
+
+        if (!deviceName) { showStatus('Cihaz adı yazın!'); return; }
+
+        const devices = getDevices();
+        if (devices.some(d => d.name.toLowerCase() === deviceName.toLowerCase())) {
+            showStatus('Bu cihaz zaten var!');
+            return;
+        }
+
+        devices.unshift({ name: deviceName, category });
+        localStorage.setItem(STORAGE_KEYS.devices, JSON.stringify(devices));
+        openDeviceSlugs.add(makeSlug(deviceName));
+        inputField.value = '';
+        renderContent();
+        showStatus('Cihaz eklendi!');
+    }
+
+    function removeDevice(deviceName) {
+        if (!confirm(`"${deviceName}" silinsin mi?`)) return;
+        const devices = getDevices().filter(d => d.name !== deviceName);
+        localStorage.setItem(STORAGE_KEYS.devices, JSON.stringify(devices));
+        renderContent();
+        showStatus('Cihaz silindi.');
+    }
+
+    function addNewServiceGroup() {
+        const gInput = document.getElementById('newGroupName');
+        const gName = gInput.value.trim();
+        if (!gName) { showStatus('Hizmet adı yazın!'); return; }
+
+        const groups = getServiceGroups();
+        if (groups[gName]) { showStatus('Bu hizmet zaten var!'); return; }
+
+        groups[gName] = [];
+        localStorage.setItem(STORAGE_KEYS.groups, JSON.stringify(groups));
+        gInput.value = '';
+        renderContent();
+        showStatus(`Yeni hizmet eklendi: ${gName}`);
+    }
+
+    function addNewCategory() {
+        const cInput = document.getElementById('newCategoryName');
+        const cName = cInput.value.trim();
+        if (!cName) { showStatus('Sınıf adı yazın!'); return; }
+
+        const cats = getCategories();
+        if (cats.includes(cName)) { showStatus('Bu sınıf zaten var!'); return; }
+
+        cats.push(cName);
+        localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(cats));
+        cInput.value = '';
+        renderContent();
+        showStatus(`Yeni cihaz sınıfı eklendi: ${cName}`);
+    }
+
+    function removeCategory(catName) {
+        if (!confirm(`"${catName}" sınıfını ve altındaki cihazları silmek istiyor musunuz?`)) return;
+        const cats = getCategories().filter(c => c !== catName);
+        localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(cats));
+        const devices = getDevices().filter(d => d.category !== catName);
+        localStorage.setItem(STORAGE_KEYS.devices, JSON.stringify(devices));
+        if (activeCategoryFilter === catName) activeCategoryFilter = 'ALL';
+        renderContent();
+        showStatus('Cihaz sınıfı silindi.');
+    }
+
+    function addNewQualityToSelectedGroup() {
+        const targetGroup = document.getElementById('targetServiceGroupSelect').value;
+        const qInput = document.getElementById('newQualityName');
+        const qName = qInput.value.trim();
+
+        if (!targetGroup || !qName) { showStatus('Hedef grup seçip kalite adı yazın!'); return; }
+
+        const groups = getServiceGroups();
+        if (!groups[targetGroup]) groups[targetGroup] = [];
+        if (groups[targetGroup].includes(qName)) { showStatus('Bu kalite zaten var!'); return; }
+
+        groups[targetGroup].push(qName);
+        localStorage.setItem(STORAGE_KEYS.groups, JSON.stringify(groups));
+        qInput.value = '';
+        renderContent();
+        showStatus(`"${targetGroup}" grubuna "${qName}" eklendi!`);
+    }
+
+    function removeGroup(groupName) {
+        if (!confirm(`"${groupName}" hizmetini ve altındaki tüm kaliteleri silmek istiyor musunuz?`)) return;
+        const groups = getServiceGroups();
+        delete groups[groupName];
+        localStorage.setItem(STORAGE_KEYS.groups, JSON.stringify(groups));
+        renderContent();
+        showStatus('Hizmet silindi.');
+    }
+
+    function removeQualityFromGroup(groupName, qName) {
+        if (!confirm(`"${groupName}" altındaki "${qName}" silinsin mi?`)) return;
+        const groups = getServiceGroups();
+        if (groups[groupName]) {
+            groups[groupName] = groups[groupName].filter(q => q !== qName);
+            if (groups[groupName].length === 0) delete groups[groupName];
+        }
+        localStorage.setItem(STORAGE_KEYS.groups, JSON.stringify(groups));
+        renderContent();
+        showStatus('Kalite silindi.');
+    }
+
+    // --- Bulut & Bildirim ---
+    function setSyncStatus(online) {
+        const dot = document.getElementById('syncDot');
+        dot.classList.remove('online', 'offline');
+        dot.classList.add(online ? 'online' : 'offline');
+        document.getElementById('syncText').textContent = online ? 'Bulut' : 'Yerel';
+    }
+
+    function showStatus(text) {
+        const el = document.getElementById('statusMessage');
+        el.textContent = text;
+        el.classList.add('show');
+        clearTimeout(statusTimer);
+        statusTimer = setTimeout(() => el.classList.remove('show'), 3000);
+    }
+
+    async function saveData() {
+        persistPricesState();
+        if (typeof window.saveCloudData !== 'function') {
+            setSyncStatus(false);
+            showStatus('Yerel hafızaya kaydedildi.');
+            return;
+        }
+        try {
+            await Promise.all([
+                window.saveCloudData('catList', getCategories()),
+                window.saveCloudData('serviceGroups', getServiceGroups()),
+                window.saveCloudData('deviceList', getDevices()),
+                window.saveCloudData('prices', pricesState)
+            ]);
+            setSyncStatus(true);
+            showStatus('Buluta kaydedildi!');
+            calculateAllPrices();
+        } catch (err) {
+            console.error('Bulut kayıt hatası:', err);
+            setSyncStatus(false);
+            showStatus('Yerel hafızaya kaydedildi (Bulut erişilemedi).');
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeAuthModal();
+    });
+
+    window.addEventListener('load', async () => {
+        loadPricesState();
+        applyModeUI();
+        renderContent();
+
+        if (typeof window.getCloudData === 'function') {
+            try {
+                const [cloudCats, cloudGroups, cloudDevices, cloudPrices, cloudPassword] = await Promise.all([
+                    window.getCloudData('catList'),
+                    window.getCloudData('serviceGroups'),
+                    window.getCloudData('deviceList'),
+                    window.getCloudData('prices'),
+                    window.getCloudData('adminPassword').catch(() => null)
+                ]);
+
+                if (cloudCats) localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(cloudCats));
+                if (cloudGroups) localStorage.setItem(STORAGE_KEYS.groups, JSON.stringify(cloudGroups));
+                if (cloudDevices) localStorage.setItem(STORAGE_KEYS.devices, JSON.stringify(cloudDevices));
+                if (cloudPrices) {
+                    localStorage.setItem(STORAGE_KEYS.prices, JSON.stringify(cloudPrices));
+                    loadPricesState();
+                }
+                if (cloudPassword) {
+                    localStorage.setItem(STORAGE_KEYS.password, cloudPassword);
+                } else if (cloudPrices && cloudPrices.__adminPassword) {
+                    localStorage.setItem(STORAGE_KEYS.password, cloudPrices.__adminPassword);
+                }
+
+                setSyncStatus(true);
+                renderContent();
+            } catch (err) {
+                console.warn('Bulut verisi alınamadı, yerel verilerle devam ediliyor:', err);
+                setSyncStatus(false);
+            }
+        } else {
+            setSyncStatus(false);
+        }
+    });
+</script>
+
+</body>
+</html>
