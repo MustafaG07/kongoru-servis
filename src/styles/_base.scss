@@ -22,15 +22,7 @@
     flex-shrink: 0;
 }
 
-body[data-mode="customer"] .topbar {
-    background: var(--bg-canvas);
-    border-bottom: none;
-    min-height: 48px;
-    padding: 10px 16px 6px;
-}
-
 body[data-mode="customer"] .topbar-divider,
-body[data-mode="customer"] .brand-sub,
 body[data-mode="customer"] .sync-badge,
 body[data-mode="customer"] .mode-pill,
 body[data-mode="customer"] .device-banner-stats {

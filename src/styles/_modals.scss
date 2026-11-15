@@ -695,8 +695,35 @@ body.catalog-fullscreen .pane-center {
         font-size: 0.78rem;
     }
 
+    body[data-mode="customer"] .topbar {
+        background: var(--bg-canvas);
+        border-bottom: none;
+        min-height: 48px;
+        padding: 10px 16px 6px;
+    }
+
+    body[data-mode="customer"] .brand-sub {
+        display: none;
+    }
+
     body[data-mode="customer"] .device-banner {
+        background: transparent;
+        border: none;
+        border-radius: 0;
         padding: 6px 2px 4px;
+    }
+
+    body[data-mode="customer"] .brand-pill {
+        background: transparent;
+        border: none;
+        padding: 0;
+        color: var(--text-muted);
+        font-size: 0.82rem;
+    }
+
+    body[data-mode="customer"] .device-banner-title {
+        font-size: 1.36rem;
+        color: var(--text-primary);
     }
 
     body[data-mode="customer"] .mobile-switch-device-btn {
@@ -704,6 +731,8 @@ body.catalog-fullscreen .pane-center {
         border: none;
         color: #4E80EE;
         padding: 4px 0;
+        font-size: 0.88rem;
+        min-height: auto;
     }
 
     body[data-mode="admin"] .service-pills {
@@ -731,6 +760,38 @@ body.catalog-fullscreen .pane-center {
         flex-wrap: nowrap;
         overflow-x: auto;
         gap: 18px;
+        padding: 0;
+        margin: 0;
+        border-bottom: 1px solid var(--border);
+        scrollbar-width: none;
+    }
+
+    body[data-mode="customer"] .service-pills::-webkit-scrollbar {
+        display: none;
+    }
+
+    body[data-mode="customer"] .service-pill {
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid transparent;
+        border-radius: 0;
+        padding: 8px 2px 10px;
+        min-height: auto;
+        color: var(--text-muted);
+        flex-shrink: 0;
+    }
+
+    body[data-mode="customer"] .service-pill:hover {
+        background: transparent;
+        color: var(--text-primary);
+        border-color: transparent;
+    }
+
+    body[data-mode="customer"] .service-pill.active {
+        background: transparent;
+        color: var(--text-primary);
+        border-color: transparent;
+        border-bottom-color: var(--accent);
     }
 
     .customer-groups-grid {
