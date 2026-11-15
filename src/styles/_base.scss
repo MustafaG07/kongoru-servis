@@ -86,9 +86,10 @@ body[data-mode="admin"] .topbar-actions-sep {
     display: none;
 }
 
-.icon-header-btn {
+.btn.icon-header-btn {
     background: transparent;
     border: none;
+    box-shadow: none;
     color: var(--text-primary);
     padding: 6px;
     border-radius: 8px;
@@ -98,9 +99,11 @@ body[data-mode="admin"] .topbar-actions-sep {
     justify-content: center;
 }
 
-.icon-header-btn:hover {
-    background: var(--bg-elevated);
+.btn.icon-header-btn:hover {
+    background: transparent;
+    border: none;
     color: var(--text-primary);
+    opacity: 0.72;
 }
 
 .topbar-group {
