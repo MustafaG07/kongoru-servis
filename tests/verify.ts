@@ -124,6 +124,8 @@ async function runTests(): Promise<void> {
     assert.equal(modalsScss.includes('font-size: 16px'), true, '_modals.scss mobil iOS yakınlaştırmasını önleyen 16px kuralı eksik');
     assert.equal(modalsScss.includes('.admin-tile-inputs'), true, '_modals.scss mobil .admin-tile-inputs kuralı eksik');
     assert.equal(modalsScss.includes('.mobile-switch-device-btn'), true, '_modals.scss @media altında .mobile-switch-device-btn eksik');
+    assert.equal(workbenchScss.includes('padding: 8px 12px;'), true, '_workbench.scss .finance-strip kompakt padding içermeli');
+    assert.equal(modalsScss.includes('78px 68px minmax(0, 1fr)'), true, '_modals.scss mobil tek satır 3 sütunlu .finance-fields kuralı eksik');
 
     const inspectFiles = [join(ROOT, 'kongoru-v2.html'), ...srcFiles];
     for (const file of inspectFiles) {
