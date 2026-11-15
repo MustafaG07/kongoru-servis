@@ -261,14 +261,9 @@
 .device-item-name {
     min-width: 0;
     flex: 1 1 auto;
-    white-space: nowrap;
-    overflow-x: auto;
-    scrollbar-width: none;
+    white-space: normal;
+    word-break: break-word;
     line-height: 1.35;
-}
-
-.device-item-name::-webkit-scrollbar {
-    display: none;
 }
 
 .device-item-check {

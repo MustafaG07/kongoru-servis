@@ -122,7 +122,7 @@ async function runTests(): Promise<void> {
     const workbenchScss = readFileSync(join(ROOT, 'src/styles/_workbench.scss'), 'utf8');
     const modalsScss = readFileSync(join(ROOT, 'src/styles/_modals.scss'), 'utf8');
     assert.equal(baseScss.includes('100dvh'), true, '_base.scss .app-shell için 100dvh içermeli');
-    assert.equal(layoutScss.includes('white-space: nowrap'), true, '_layout.scss cihaz adlarını tek satırda tutmalı');
+    assert.equal(layoutScss.includes('word-break: break-word'), true, '_layout.scss uzun cihaz adlarını kesmeden sarmalı');
     assert.equal(layoutScss.includes('text-overflow: ellipsis'), false, '_layout.scss cihaz adlarını ... ile kesmemeli');
     assert.equal(workbenchScss.includes('.mobile-switch-device-btn'), true, '_workbench.scss mobil geçiş butonu kuralı eksik');
     assert.equal(modalsScss.includes('font-size: 16px'), true, '_modals.scss mobil iOS yakınlaştırmasını önleyen 16px kuralı eksik');
