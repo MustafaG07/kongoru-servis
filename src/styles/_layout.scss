@@ -154,8 +154,11 @@
 }
 
 .brand-dropdown-caret {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     color: var(--text-muted);
-    font-size: 0.78rem;
+    flex-shrink: 0;
 }
 
 .brand-dropdown-menu {
