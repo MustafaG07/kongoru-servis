@@ -86,7 +86,7 @@ body[data-mode="admin"] .topbar-actions-sep {
     display: none;
 }
 
-body[data-mode="customer"] .icon-header-btn {
+.icon-header-btn {
     background: transparent;
     border: none;
     color: var(--text-primary);
@@ -98,8 +98,8 @@ body[data-mode="customer"] .icon-header-btn {
     justify-content: center;
 }
 
-body[data-mode="customer"] .icon-header-btn:hover {
-    background: var(--bg-surface);
+.icon-header-btn:hover {
+    background: var(--bg-elevated);
     color: var(--text-primary);
 }
 

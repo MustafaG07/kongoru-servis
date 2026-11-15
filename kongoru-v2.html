@@ -33,26 +33,6 @@
 
             <div class="topbar-actions">
                 <div class="topbar-group hidden" id="adminSessionGroup">
-                    <div class="admin-tools-wrap" id="adminToolsWrap">
-                        <button type="button" class="btn btn-secondary btn-sm" id="adminToolsToggleBtn"
-                            onclick="toggleAdminToolsMenu(event)" aria-expanded="false" aria-controls="adminToolsMenu">
-                            Ayarlar ▾
-                        </button>
-                        <div class="admin-tools-menu hidden" id="adminToolsMenu" role="menu">
-                            <button type="button" class="admin-menu-item" id="openBackupBtn" role="menuitem"
-                                onclick="closeAdminToolsMenu(); openBackupModal();">
-                                <span class="admin-menu-item-left">
-                                    <span class="backup-dot waiting" id="adminBackupDot"></span>
-                                    <span>Yedekler</span>
-                                </span>
-                                <span class="device-item-badge" id="backupStatusBadge">0</span>
-                            </button>
-                            <button type="button" class="admin-menu-item" id="headerPassChangeBtn" role="menuitem"
-                                onclick="closeAdminToolsMenu(); openPasswordModal();">
-                                <span class="admin-menu-item-left">Şifre Değiştir</span>
-                            </button>
-                        </div>
-                    </div>
                     <button type="button" class="btn btn-ghost btn-sm hidden" id="headerCustomerBtn"
                         onclick="switchToCustomerMode()">Müşteri Görünümü</button>
                 </div>
@@ -62,7 +42,28 @@
                 </button>
                 <span class="topbar-actions-sep" id="customerHeaderSep" aria-hidden="true"></span>
                 <button type="button" class="btn btn-ghost btn-sm icon-header-btn" id="themeToggleBtn"
-                    onclick="toggleTheme()" title="Tema Değiştir" aria-label="Tema Değiştir">Açık Tema</button>
+                    onclick="toggleTheme()" title="Tema Değiştir" aria-label="Tema Değiştir"></button>
+                <div class="admin-tools-wrap hidden" id="adminToolsWrap">
+                    <button type="button" class="btn btn-ghost btn-sm icon-header-btn" id="adminToolsToggleBtn"
+                        onclick="toggleAdminToolsMenu(event)" title="Yönetici Ayarları" aria-label="Yönetici Ayarları"
+                        aria-expanded="false" aria-controls="adminToolsMenu">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="1.75"/><circle cx="12" cy="12" r="1.75"/><circle cx="12" cy="19" r="1.75"/></svg>
+                    </button>
+                    <div class="admin-tools-menu hidden" id="adminToolsMenu" role="menu">
+                        <button type="button" class="admin-menu-item" id="openBackupBtn" role="menuitem"
+                            onclick="closeAdminToolsMenu(); openBackupModal();">
+                            <span class="admin-menu-item-left">
+                                <span class="backup-dot waiting" id="adminBackupDot"></span>
+                                <span>Yedekler</span>
+                            </span>
+                            <span class="device-item-badge" id="backupStatusBadge">0</span>
+                        </button>
+                        <button type="button" class="admin-menu-item" id="headerPassChangeBtn" role="menuitem"
+                            onclick="closeAdminToolsMenu(); openPasswordModal();">
+                            <span class="admin-menu-item-left">Şifre Değiştir</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </header>
 
