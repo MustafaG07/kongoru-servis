@@ -471,8 +471,7 @@ function applyModeUI(): void {
     maybeById('customerHeaderSep')?.classList.toggle('hidden', !isCustomerMode);
     byId('adminSessionGroup').classList.toggle('hidden', isCustomerMode);
     byId('headerCustomerBtn').classList.toggle('hidden', isCustomerMode);
-    byId('headerPassChangeBtn').classList.toggle('hidden', isCustomerMode);
-    byId('openBackupBtn').classList.toggle('hidden', isCustomerMode);
+    closeAdminToolsMenu();
     byId('adminFinanceStrip').classList.toggle('hidden', isCustomerMode);
     maybeById('adminQuickCatalogStrip')?.classList.toggle('hidden', isCustomerMode);
     maybeById('adminBackupStrip')?.classList.toggle('hidden', isCustomerMode);
@@ -489,6 +488,22 @@ function applyModeUI(): void {
         renderCustomerQuoteBar();
     }
     applyTheme((document.documentElement.getAttribute('data-theme') || 'dark') as ThemeMode);
+}
+
+function closeAdminToolsMenu(): void {
+    const menu = maybeById('adminToolsMenu');
+    const btn = maybeById('adminToolsToggleBtn');
+    if (menu) menu.classList.add('hidden');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+
+function toggleAdminToolsMenu(event?: Event): void {
+    event?.stopPropagation();
+    const menu = maybeById('adminToolsMenu');
+    const btn = maybeById('adminToolsToggleBtn');
+    if (!menu || !btn) return;
+    const isHidden = menu.classList.toggle('hidden');
+    btn.setAttribute('aria-expanded', String(!isHidden));
 }
 
 function switchToCustomerMode(): void {
@@ -1811,6 +1826,7 @@ Object.assign(window, {
     clearDeviceSearch,
     clearMobileQuickSearch,
     clearQuoteSelection,
+    closeAdminToolsMenu,
     closeAuthModal,
     closeBackupModal,
     closePasswordModal,
@@ -1843,12 +1859,17 @@ Object.assign(window, {
     syncFromCloud,
     takeManualBackupNow,
     toggleQuoteItem,
+    toggleAdminToolsMenu,
     toggleTheme,
     triggerCsvFileSelect,
     updateQuickCalc
 });
 
 document.addEventListener('click', (e: MouseEvent) => {
+    const toolsWrap = maybeById('adminToolsWrap');
+    if (toolsWrap && !toolsWrap.contains(e.target as Node)) {
+        closeAdminToolsMenu();
+    }
     const searchWrap = maybeById('mobileQuickSearch');
     const results = maybeById('mobileQuickSearchResults');
     if (searchWrap && results && !results.classList.contains('hidden')) {
@@ -1866,6 +1887,7 @@ document.addEventListener('keydown', (e: KeyboardEvent) => {
         const input = maybeById<HTMLInputElement>('deviceSearchInput');
         if (input) input.focus();
     } else if (e.key === 'Escape') {
+        closeAdminToolsMenu();
         closeAuthModal();
         closePasswordModal();
         closeBackupModal();

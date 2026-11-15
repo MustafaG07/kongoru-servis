@@ -111,6 +111,55 @@ body[data-mode="customer"] .icon-header-btn:hover {
     border-right: 1px solid var(--border-strong);
 }
 
+.admin-tools-wrap {
+    position: relative;
+    display: inline-flex;
+}
+
+.admin-tools-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 190px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+    z-index: 60;
+}
+
+.admin-menu-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 400;
+    cursor: pointer;
+    text-align: left;
+}
+
+.admin-menu-item:hover {
+    background: var(--bg-elevated);
+}
+
+.admin-menu-item-left {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .sync-badge {
     display: inline-flex;
     align-items: center;

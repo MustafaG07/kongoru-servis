@@ -33,13 +33,26 @@
 
             <div class="topbar-actions">
                 <div class="topbar-group hidden" id="adminSessionGroup">
-                    <button type="button" class="btn btn-secondary btn-sm hidden" id="openBackupBtn"
-                        onclick="openBackupModal()" title="Günlük CSV Yedek &amp; Geri Yükleme">
-                        <span class="backup-dot waiting" id="adminBackupDot"></span>
-                        Yedekler <span class="device-item-badge" id="backupStatusBadge">0</span>
-                    </button>
-                    <button type="button" class="btn btn-amber btn-sm hidden" id="headerPassChangeBtn"
-                        onclick="openPasswordModal()">Şifre Değiştir</button>
+                    <div class="admin-tools-wrap" id="adminToolsWrap">
+                        <button type="button" class="btn btn-secondary btn-sm" id="adminToolsToggleBtn"
+                            onclick="toggleAdminToolsMenu(event)" aria-expanded="false" aria-controls="adminToolsMenu">
+                            Ayarlar ▾
+                        </button>
+                        <div class="admin-tools-menu hidden" id="adminToolsMenu" role="menu">
+                            <button type="button" class="admin-menu-item" id="openBackupBtn" role="menuitem"
+                                onclick="closeAdminToolsMenu(); openBackupModal();">
+                                <span class="admin-menu-item-left">
+                                    <span class="backup-dot waiting" id="adminBackupDot"></span>
+                                    <span>Yedekler</span>
+                                </span>
+                                <span class="device-item-badge" id="backupStatusBadge">0</span>
+                            </button>
+                            <button type="button" class="admin-menu-item" id="headerPassChangeBtn" role="menuitem"
+                                onclick="closeAdminToolsMenu(); openPasswordModal();">
+                                <span class="admin-menu-item-left">Şifre Değiştir</span>
+                            </button>
+                        </div>
+                    </div>
                     <button type="button" class="btn btn-ghost btn-sm hidden" id="headerCustomerBtn"
                         onclick="switchToCustomerMode()">Müşteri Görünümü</button>
                 </div>
