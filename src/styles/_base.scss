@@ -10,16 +10,23 @@
 }
 
 .topbar {
-    min-height: 62px;
-    padding: 8px 24px;
+    min-height: 58px;
+    padding: 8px 20px;
     background: var(--bg-surface);
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
+    gap: 16px;
     flex-wrap: wrap;
     flex-shrink: 0;
+}
+
+body[data-mode="customer"] .topbar-divider,
+body[data-mode="customer"] .sync-badge,
+body[data-mode="customer"] .mode-pill,
+body[data-mode="customer"] .device-banner-stats {
+    display: none;
 }
 
 .topbar-left {
@@ -119,8 +126,8 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
-    padding: 7px 13px;
-    border-radius: 7px;
+    padding: 7px 14px;
+    border-radius: 10px;
     border: 1px solid transparent;
     font-family: inherit;
     font-size: 0.8rem;
@@ -131,9 +138,9 @@
 }
 
 .btn-sm {
-    padding: 5px 10px;
-    font-size: 0.75rem;
-    border-radius: 6px;
+    padding: 6px 11px;
+    font-size: 0.76rem;
+    border-radius: 9px;
 }
 
 .btn-primary {
@@ -194,10 +201,10 @@
 .search-input {
     width: 100%;
     min-width: 0;
-    padding: 8px 11px;
-    border-radius: 7px;
+    padding: 9px 12px;
+    border-radius: 10px;
     border: 1px solid var(--border-strong);
-    background: var(--bg-surface);
+    background: var(--bg-elevated);
     color: var(--text-primary);
     font-family: inherit;
     font-size: 0.84rem;

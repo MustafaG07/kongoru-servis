@@ -10,6 +10,7 @@
     padding: 20px;
 }
 
+
 .modal-backdrop.open {
     display: flex;
 }
@@ -293,12 +294,17 @@
         display: flex;
     }
 
+    body[data-mode="customer"] .mobile-pane-bar {
+        display: none;
+    }
+
     .mobile-pane-btn {
         min-height: 40px;
         font-size: 0.86rem;
     }
 
-    .mobile-switch-device-btn {
+    .mobile-switch-device-btn,
+    .mobile-back-stage-btn {
         display: inline-flex;
     }
 
@@ -349,6 +355,7 @@
 }
 
 @media (max-width: 768px) {
+
     .input,
     .select,
     .search-input,
@@ -358,8 +365,29 @@
     }
 
     .topbar {
-        padding: 10px 12px;
+        padding: 10px 14px;
         gap: 8px;
+    }
+
+    body[data-mode="customer"] .topbar {
+        flex-wrap: nowrap;
+        gap: 10px;
+    }
+
+    body[data-mode="customer"] .topbar-left {
+        width: auto;
+        flex: 1 1 auto;
+    }
+
+    body[data-mode="customer"] .topbar-actions {
+        width: auto;
+        flex-shrink: 0;
+    }
+
+    body[data-mode="customer"] .topbar-actions .btn {
+        flex: 0 0 auto;
+        min-height: 34px;
+        padding: 6px 10px;
     }
 
     .topbar-left {
@@ -510,10 +538,30 @@
     }
 
     .device-banner {
-        padding: 10px 12px;
-        gap: 8px;
+        padding: 12px 14px;
+        gap: 10px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .device-banner-main {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .device-banner-actions {
+        flex-shrink: 0;
+    }
+
+    body[data-mode="admin"] .device-banner {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    body[data-mode="admin"] .device-banner-actions {
+        width: 100%;
+        justify-content: space-between;
     }
 
     .device-banner-title {
@@ -542,16 +590,14 @@
     }
 
     .service-pills {
-        gap: 6px;
+        gap: 7px;
     }
 
     .service-pill {
-        flex: 1 1 calc(50% - 6px);
-        text-align: center;
-        justify-content: center;
-        padding: 6px 8px;
+        flex: 0 0 auto;
+        padding: 7px 12px;
         min-height: 32px;
-        font-size: 0.8rem;
+        font-size: 0.78rem;
     }
 
     .customer-groups-grid {
@@ -560,7 +606,7 @@
     }
 
     .quality-tile {
-        padding: 10px 12px;
+        padding: 12px 14px;
         gap: 10px;
     }
 
@@ -570,8 +616,8 @@
     }
 
     .price-badge {
-        font-size: 0.86rem;
-        padding: 5px 10px;
+        font-size: 0.92rem;
+        padding: 4px 10px;
     }
 
     .admin-tile-inputs {
@@ -693,4 +739,3 @@
         word-break: break-word;
     }
 }
-

@@ -73,6 +73,7 @@ let autoCloudSaveTimer: ReturnType<typeof setTimeout> | null = null;
 let localMutationVersion = 0;
 let toastTimer: ReturnType<typeof setTimeout> | null = null;
 const tileSaveHideTimers = new WeakMap<HTMLElement, ReturnType<typeof setTimeout>>();
+const selectedQuoteItems = new Map<string, number>();
 
 // --- Küresel Çökme Koruması ---
 window.addEventListener('error', (event: ErrorEvent) => {
@@ -461,6 +462,7 @@ function toggleTheme(): void {
 }
 
 function applyModeUI(): void {
+    document.body.setAttribute('data-mode', isCustomerMode ? 'customer' : 'admin');
     byId('headerAdminBtn').classList.toggle('hidden', !isCustomerMode);
     byId('adminSessionGroup').classList.toggle('hidden', isCustomerMode);
     byId('headerCustomerBtn').classList.toggle('hidden', isCustomerMode);
@@ -471,11 +473,16 @@ function applyModeUI(): void {
     byId('adminBackupStrip').classList.toggle('hidden', isCustomerMode);
 
     byId('modeSubtitle').textContent = isCustomerMode
-        ? 'Teknik Servis Çalışma Masası'
+        ? 'Servis Fiyat Listesi'
         : 'Yönetici Modu — Kur, KDV ve Maliyet Kontrolü';
     byId('activeModeBadge').textContent = isCustomerMode
         ? 'Müşteri Görünümü'
         : 'Yönetici Düzenleme Modu';
+
+    if (!isCustomerMode) {
+        selectedQuoteItems.clear();
+        renderCustomerQuoteBar();
+    }
 }
 
 function switchToCustomerMode(): void {
@@ -595,6 +602,9 @@ function selectBrandFilter(brand: string): void {
 }
 
 function selectDevice(brand: string, device: string): void {
+    if (selectedBrand !== brand || selectedDevice !== device) {
+        selectedQuoteItems.clear();
+    }
     selectedBrand = brand;
     selectedDevice = device;
     renderDeviceDirectory();
@@ -636,6 +646,7 @@ function renderDeviceDirectory(): void {
                 data-brand="${escapeHtml(brand)}" data-device="${escapeHtml(dev)}"
                 onclick="selectDevice(this.dataset.brand, this.dataset.device)">
                 <span class="device-item-name">${escapeHtml(dev)}</span>
+                <span class="device-item-check" aria-hidden="true">${isActive ? '✓' : ''}</span>
             </button>`;
         }
     }
@@ -723,6 +734,98 @@ function handleCostTableInput(inputEl: HTMLInputElement): void {
     if (vatEl) vatEl.textContent = calc.hasPrice ? formatTry(calc.vatAmount) : '-';
 }
 
+function getServiceIconMeta(groupName: string): { colorClass: string; svg: string } {
+    const key = groupName.toLocaleLowerCase('tr-TR');
+    if (key.includes('ekran')) {
+        return {
+            colorClass: 'icon-blue',
+            svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10 18h4"/></svg>'
+        };
+    }
+    if (key.includes('batarya')) {
+        return {
+            colorClass: 'icon-green',
+            svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="4" width="10" height="17" rx="2"/><path d="M10 2h4"/><path d="M12 9v5"/><path d="M10 11.5h4"/></svg>'
+        };
+    }
+    if (key.includes('kapak')) {
+        return {
+            colorClass: 'icon-purple',
+            svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><circle cx="10" cy="6.5" r="1.2"/></svg>'
+        };
+    }
+    if (key.includes('kamera')) {
+        return {
+            colorClass: 'icon-cyan',
+            svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 0 1 2-2h2l1.5-2h5L16 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z"/><circle cx="12" cy="12.5" r="3.2"/></svg>'
+        };
+    }
+    if (key.includes('soket')) {
+        return {
+            colorClass: 'icon-amber',
+            svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-5"/><path d="M9 8V3"/><path d="M15 8V3"/><path d="M7 8h10v4a5 5 0 0 1-10 0V8Z"/></svg>'
+        };
+    }
+    if (key.includes('ahize')) {
+        return {
+            colorClass: 'icon-rose',
+            svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13a8 8 0 0 1 16 0"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/></svg>'
+        };
+    }
+    if (key.includes('cam')) {
+        return {
+            colorClass: 'icon-cyan',
+            svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="m9 9 6-3"/><path d="m9 14 6-3"/></svg>'
+        };
+    }
+    return {
+        colorClass: 'icon-blue',
+        svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m14.7 6.3 3 3-9.4 9.4H5.3v-3l9.4-9.4Z"/></svg>'
+    };
+}
+
+function renderCustomerQuoteBar(): void {
+    const bar = maybeById('customerQuoteBar');
+    if (!bar) return;
+    if (!isCustomerMode || selectedQuoteItems.size === 0) {
+        bar.classList.add('hidden');
+        document.body.classList.remove('has-quote-bar');
+        return;
+    }
+    let total = 0;
+    for (const price of selectedQuoteItems.values()) {
+        total += price;
+    }
+    byId('quoteCountBadge').textContent = String(selectedQuoteItems.size);
+    byId('quoteTotalPrice').textContent = formatTry(total);
+    bar.classList.remove('hidden');
+    document.body.classList.add('has-quote-bar');
+}
+
+function toggleQuoteItem(el: HTMLElement): void {
+    if (!isCustomerMode) return;
+    const key = el.dataset.quoteKey || '';
+    const price = parseFloat(el.dataset.price || '0') || 0;
+    if (!key || price <= 0) return;
+
+    if (selectedQuoteItems.has(key)) {
+        selectedQuoteItems.delete(key);
+        el.classList.remove('selected');
+    } else {
+        selectedQuoteItems.set(key, price);
+        el.classList.add('selected');
+    }
+    renderCustomerQuoteBar();
+}
+
+function clearQuoteSelection(): void {
+    selectedQuoteItems.clear();
+    document.querySelectorAll('.customer-tile.selected').forEach((tile) => {
+        tile.classList.remove('selected');
+    });
+    renderCustomerQuoteBar();
+}
+
 function renderCenterWorkbench(): void {
     const cfg = getFinanceConfig();
     byId('statRateVat').textContent = `${cfg.rate} ₺ / %${cfg.vatRate}`;
@@ -732,6 +835,7 @@ function renderCenterWorkbench(): void {
         byId('activeDeviceTitle').textContent = 'Cihaz Seçin';
         byId('serviceFilterPills').innerHTML = '';
         byId('workbenchContent').innerHTML = '<div class="quote-empty">Sol rehberden bir cihaz seçin.</div>';
+        renderCustomerQuoteBar();
         return;
     }
 
@@ -739,7 +843,7 @@ function renderCenterWorkbench(): void {
     byId('activeDeviceTitle').textContent = selectedDevice;
 
     const groupNames = Object.keys(serviceGroups);
-    let pillsHtml = `<button type="button" class="service-pill ${activeServiceFilter === 'ALL' ? 'active' : ''}" onclick="selectServiceFilter('ALL')">Tüm Hizmetler</button>`;
+    let pillsHtml = `<button type="button" class="service-pill ${activeServiceFilter === 'ALL' ? 'active' : ''}" onclick="selectServiceFilter('ALL')">Tümü</button>`;
     for (const grp of groupNames) {
         pillsHtml += `<button type="button" class="service-pill ${activeServiceFilter === grp ? 'active' : ''}" data-group="${escapeHtml(grp)}" onclick="selectServiceFilter(this.dataset.group)">${escapeHtml(grp)}</button>`;
     }
@@ -749,8 +853,11 @@ function renderCenterWorkbench(): void {
     const contentWrap = byId('workbenchContent');
 
     let cardsHtml = '<div class="customer-groups-grid">';
+    let renderedCardCount = 0;
+
     for (const grp of targetGroups) {
         const quals = serviceGroups[grp] || [];
+        const iconMeta = getServiceIconMeta(grp);
         let rowsHtml = '';
 
         for (const qual of quals) {
@@ -758,15 +865,22 @@ function renderCenterWorkbench(): void {
             const calc = calculatePrice(usd, labor, cfg.rate, cfg.vatRate, cfg.roundingMode);
 
             if (isCustomerMode) {
+                if (!calc.hasPrice) continue;
+                const quoteKey = `${selectedBrand}|${selectedDevice}|${grp}|${qual}`;
+                const isSelected = selectedQuoteItems.has(quoteKey);
                 rowsHtml += `
-                <div class="quality-tile ${calc.hasPrice ? '' : 'unpriced'}">
+                <button type="button" class="quality-tile customer-tile ${isSelected ? 'selected' : ''}"
+                    data-quote-key="${escapeHtml(quoteKey)}" data-price="${calc.finalPrice}"
+                    onclick="toggleQuoteItem(this)">
                     <div class="quality-tile-left">
                         <span class="quality-name">${escapeHtml(qual)}</span>
+                        <span class="quality-sub">KDV Dahil</span>
                     </div>
                     <div class="quality-tile-right">
-                        <span class="price-badge ${calc.hasPrice ? '' : 'empty'}">${calc.hasPrice ? formatTry(calc.finalPrice) : '-'}</span>
+                        <span class="price-badge">${formatTry(calc.finalPrice)}</span>
+                        <span class="quote-radio" aria-hidden="true"></span>
                     </div>
-                </div>`;
+                </button>`;
             } else {
                 const breakdownText = calc.hasPrice
                     ? `Parça: ${formatTry(calc.tlPart)} · Ham: ${formatTry(calc.rawTotal)} · KDV (%${cfg.vatRate}): ${formatTry(calc.vatAmount)}`
@@ -796,16 +910,30 @@ function renderCenterWorkbench(): void {
             }
         }
 
+        if (isCustomerMode && !rowsHtml) {
+            continue;
+        }
+
+        renderedCardCount += 1;
         cardsHtml += `
         <article class="service-card">
             <div class="service-card-head">
-                <span class="service-card-title">${escapeHtml(grp)}</span>
+                <div class="service-card-head-left">
+                    <span class="service-icon-badge ${iconMeta.colorClass}" aria-hidden="true">${iconMeta.svg}</span>
+                    <span class="service-card-title">${escapeHtml(grp)}</span>
+                </div>
             </div>
             <div class="quality-list">${rowsHtml}</div>
         </article>`;
     }
     cardsHtml += '</div>';
-    contentWrap.innerHTML = cardsHtml;
+
+    if (isCustomerMode && renderedCardCount === 0) {
+        contentWrap.innerHTML = '<div class="quote-empty">Bu cihaz için henüz fiyat tanımlanmamış.</div>';
+    } else {
+        contentWrap.innerHTML = cardsHtml;
+    }
+    renderCustomerQuoteBar();
 }
 
 // --- Hızlı Maliyet Hesaplayıcı ---
@@ -1639,6 +1767,7 @@ Object.assign(window, {
     addQualityTier,
     addServiceGroup,
     clearDeviceSearch,
+    clearQuoteSelection,
     closeAuthModal,
     closeBackupModal,
     closeCatalogModal,
@@ -1672,6 +1801,7 @@ Object.assign(window, {
     switchToCustomerMode,
     syncFromCloud,
     takeManualBackupNow,
+    toggleQuoteItem,
     toggleTheme,
     triggerCsvFileSelect,
     updateQuickCalc

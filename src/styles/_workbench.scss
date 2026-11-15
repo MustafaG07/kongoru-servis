@@ -140,8 +140,8 @@
 .device-banner {
     background: var(--bg-surface);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 16px;
+    border-radius: 14px;
+    padding: 14px 18px;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -152,7 +152,7 @@
 .device-banner-main {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     min-width: 0;
 }
 
@@ -161,6 +161,13 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 8px;
+}
+
+.device-banner-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .brand-pill {
@@ -283,34 +290,35 @@
     opacity: 1;
 }
 
-/* Ferah Dikdörtgen Kategori / Hizmet Sekmeleri */
+/* Ferah Yuvarlak Kategori / Hizmet Sekmeleri */
 .service-pills {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 10px 10px;
-    padding: 6px 0;
+    gap: 8px;
+    padding: 4px 0;
     margin: 2px 0;
 }
 
 .service-pill {
-    padding: 8px 16px;
-    min-height: 36px;
-    border-radius: 6px;
-    border: 1px solid var(--border-strong);
+    padding: 7px 14px;
+    min-height: 34px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
     background: var(--bg-surface);
-    color: var(--text-primary);
+    color: var(--text-secondary);
     font-family: inherit;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     font-weight: 400;
     cursor: pointer;
+    white-space: nowrap;
     transition: all 0.14s ease;
 }
 
 .service-pill:hover {
     background: var(--bg-elevated);
-    color: var(--group-title-text);
-    border-color: var(--group-title-text);
+    color: var(--text-primary);
+    border-color: var(--border-strong);
 }
 
 .service-pill.active {
@@ -322,7 +330,7 @@
 /* --- Hizmet Kartları (Müşteri ve Yönetici Dikey Izgarası) --- */
 .customer-groups-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 14px;
     align-items: start;
 }
@@ -330,7 +338,7 @@
 .service-card {
     background: var(--bg-surface);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 14px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -338,13 +346,64 @@
 
 .service-card-head {
     padding: 12px 16px;
-    background: var(--bg-elevated);
+    background: var(--bg-surface);
     border-bottom: 1px solid var(--border);
-    border-left: 4px solid var(--group-title-text);
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
+}
+
+.service-card-head-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.service-icon-badge {
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.service-icon-badge svg {
+    width: 16px;
+    height: 16px;
+}
+
+.service-icon-badge.icon-blue {
+    background: rgba(37, 99, 235, 0.16);
+    color: #60A5FA;
+}
+
+.service-icon-badge.icon-green {
+    background: rgba(34, 197, 94, 0.16);
+    color: #4ADE80;
+}
+
+.service-icon-badge.icon-purple {
+    background: rgba(168, 85, 247, 0.16);
+    color: #C084FC;
+}
+
+.service-icon-badge.icon-cyan {
+    background: rgba(6, 182, 212, 0.16);
+    color: #22D3EE;
+}
+
+.service-icon-badge.icon-amber {
+    background: rgba(245, 158, 11, 0.16);
+    color: #FBBF24;
+}
+
+.service-icon-badge.icon-rose {
+    background: rgba(244, 63, 94, 0.16);
+    color: #FB7185;
 }
 
 .service-card-title {
@@ -354,21 +413,12 @@
     color: var(--group-title-text);
 }
 
-.service-card-count {
-    font-family: var(--font-mono);
-    font-size: 0.74rem;
-    font-weight: 400;
-    color: var(--group-title-text);
-    background: var(--accent-soft);
-    border: 1px solid var(--accent-border);
-    padding: 2px 8px;
-    border-radius: 5px;
-    white-space: nowrap;
-}
-
 .quality-list {
     display: flex;
     flex-direction: column;
+}
+
+body[data-mode="admin"] .quality-list {
     padding: 10px;
     gap: 8px;
 }
@@ -378,49 +428,94 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 10px 12px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
+    padding: 12px 16px;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-primary);
+    font-family: inherit;
+    text-align: left;
+    transition: background-color 0.14s ease, border-color 0.14s ease;
+}
+
+.quality-tile:last-child {
+    border-bottom: none;
+}
+
+.customer-tile {
+    width: 100%;
+    min-height: 56px;
+    cursor: pointer;
+}
+
+.customer-tile:hover {
     background: var(--bg-elevated);
-    transition: border-color 0.14s ease, background-color 0.14s ease;
 }
 
-.quality-tile:hover {
-    border-color: var(--border-strong);
-    background: var(--bg-muted);
-}
-
-.quality-tile.unpriced {
-    opacity: 1;
+.customer-tile.selected {
+    background: rgba(34, 197, 94, 0.08);
 }
 
 .quality-tile-left {
     display: flex;
-    align-items: center;
-    gap: 8px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
     min-width: 0;
 }
 
 .quality-name {
-    font-size: 0.875rem;
+    font-size: 0.9rem;
     font-weight: 400;
     color: var(--quality-text);
-    border-left: 2px solid var(--quality-accent);
-    padding-left: 8px;
     word-break: break-word;
+}
+
+.quality-sub {
+    font-size: 0.7rem;
+    font-weight: 400;
+    color: var(--text-muted);
 }
 
 .quality-tile-right {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     flex-shrink: 0;
+}
+
+.quote-radio {
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    border: 1.5px solid var(--border-strong);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.14s ease;
+}
+
+.customer-tile.selected .quote-radio {
+    background: var(--quality-accent);
+    border-color: var(--quality-accent);
+}
+
+.customer-tile.selected .quote-radio::after {
+    content: '✓';
+    color: #062814;
+    font-size: 11px;
+    line-height: 1;
 }
 
 .quality-tile.admin-tile {
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
 }
 
 .admin-tile-head {
@@ -582,7 +677,77 @@
     font-size: 0.84rem;
     color: var(--text-muted);
     border: 1px dashed var(--border-strong);
-    border-radius: 8px;
-    background: var(--bg-elevated);
+    border-radius: 14px;
+    background: var(--bg-surface);
 }
 
+/* --- Müşteri Alt Toplam Özet Çubuğu --- */
+.customer-quote-bar {
+    position: fixed;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+    width: min(520px, calc(100vw - 24px));
+    padding: 10px 14px;
+    border-radius: 14px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-strong);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.38);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    z-index: 45;
+}
+
+body.has-quote-bar .pane-center {
+    padding-bottom: 84px;
+}
+
+.customer-quote-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.quote-count-pill {
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    background: var(--quality-accent);
+    color: #062814;
+    font-family: var(--font-mono);
+    font-size: 0.86rem;
+    font-weight: 400;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.quote-summary-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.quote-summary-label {
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--text-muted);
+}
+
+.quote-summary-total {
+    font-family: var(--font-mono);
+    font-size: 1.05rem;
+    font-weight: 400;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+}
+
+.quote-clear-btn {
+    color: var(--accent);
+    border-color: transparent;
+}

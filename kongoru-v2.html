@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="./src/styles/main.scss">
 </head>
 
-<body>
+<body data-mode="customer">
     <div class="app-shell">
         <!-- ÜST KOMUT ŞERİDİ -->
         <header class="topbar">
@@ -21,7 +21,7 @@
                 <div class="brand-lockup" ondblclick="openAuthModal()" title="Yönetici erişimi için çift tıklayın">
                     <div>
                         <div class="brand-title">KONGORU</div>
-                        <div class="brand-sub" id="modeSubtitle">Teknik Servis Çalışma Masası</div>
+                        <div class="brand-sub" id="modeSubtitle">Servis Fiyat Listesi</div>
                     </div>
                 </div>
                 <span class="topbar-divider" aria-hidden="true"></span>
@@ -41,7 +41,7 @@
                 <button type="button" class="btn btn-ghost btn-sm" id="themeToggleBtn" onclick="toggleTheme()">Açık
                     Tema</button>
                 <button type="button" class="btn btn-primary btn-sm" id="headerAdminBtn"
-                    onclick="openAuthModal()">Yönetici Girişi</button>
+                    onclick="openAuthModal()" title="Yönetici Girişi">Yönetici</button>
             </div>
         </header>
 
@@ -59,7 +59,11 @@
             <aside class="pane pane-left">
                 <div class="directory-top">
                     <div class="directory-header">
-                        <div class="directory-title">Cihaz &amp; Marka Rehberi</div>
+                        <div class="directory-header-row">
+                            <div class="directory-title">Cihaz &amp; Marka Rehberi</div>
+                            <button type="button" class="btn btn-secondary btn-sm mobile-back-stage-btn"
+                                onclick="setMobilePane('stage')">‹ Fiyatlara Dön</button>
+                        </div>
                         <button type="button" class="btn catalog-launch-btn hidden" id="openCatalogBtn"
                             onclick="openCatalogModal()">+ Katalog &amp; Model Yöneticisi</button>
                     </div>
@@ -124,15 +128,17 @@
                             <div class="device-banner-badges">
                                 <span class="brand-pill" id="activeBrandBadge">-</span>
                                 <span class="mode-pill" id="activeModeBadge">Müşteri Görünümü</span>
-                                <button type="button" class="btn btn-secondary btn-sm mobile-switch-device-btn"
-                                    onclick="setMobilePane('directory')">Cihaz Değiştir</button>
                             </div>
                             <h1 class="device-banner-title" id="activeDeviceTitle">Cihaz Seçin</h1>
                         </div>
-                        <div class="device-banner-stats">
-                            <div class="stat-box">
-                                <span class="stat-label">Aktif Kur / KDV</span>
-                                <span class="stat-value" id="statRateVat">-</span>
+                        <div class="device-banner-actions">
+                            <button type="button" class="btn btn-secondary btn-sm mobile-switch-device-btn"
+                                onclick="setMobilePane('directory')">Cihaz Değiştir ›</button>
+                            <div class="device-banner-stats">
+                                <div class="stat-box">
+                                    <span class="stat-label">Aktif Kur / KDV</span>
+                                    <span class="stat-value" id="statRateVat">-</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -141,6 +147,19 @@
                     <div id="workbenchContent"></div>
                 </div>
             </main>
+        </div>
+
+        <!-- MÜŞTERİ SEÇİLEN İŞLEMLER ÖZET ÇUBUĞU -->
+        <div class="customer-quote-bar hidden" id="customerQuoteBar" aria-live="polite">
+            <div class="customer-quote-left">
+                <span class="quote-count-pill" id="quoteCountBadge">0</span>
+                <div class="quote-summary-text">
+                    <span class="quote-summary-label">İşlem Seçildi</span>
+                    <span class="quote-summary-total" id="quoteTotalPrice">0 ₺</span>
+                </div>
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm quote-clear-btn"
+                onclick="clearQuoteSelection()">Temizle</button>
         </div>
 
         <!-- ALT DURUM & YEDEKLEME ÇUBUĞU (Çalışma Panellerinden Bağımsız) -->
