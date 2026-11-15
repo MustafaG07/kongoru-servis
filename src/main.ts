@@ -979,6 +979,7 @@ function renderCenterWorkbench(): void {
         const quals = serviceGroups[grp] || [];
         const iconMeta = getServiceIconMeta(grp);
         let rowsHtml = '';
+        let renderedRowsCount = 0;
 
         for (const qual of quals) {
             const { usd, labor } = readItemPrice(selectedBrand, selectedDevice, grp, qual);
@@ -986,6 +987,7 @@ function renderCenterWorkbench(): void {
 
             if (isCustomerMode) {
                 if (!calc.hasPrice) continue;
+                renderedRowsCount += 1;
                 const quoteKey = `${selectedBrand}|${selectedDevice}|${grp}|${qual}`;
                 const isSelected = selectedQuoteItems.has(quoteKey);
                 rowsHtml += `
@@ -1002,6 +1004,7 @@ function renderCenterWorkbench(): void {
                     </div>
                 </button>`;
             } else {
+                renderedRowsCount += 1;
                 const breakdownText = calc.hasPrice
                     ? `Parça: ${formatTry(calc.tlPart)} · Ham: ${formatTry(calc.rawTotal)} · KDV (%${cfg.vatRate}): ${formatTry(calc.vatAmount)}`
                     : 'Maliyet veya işçilik girin';
@@ -1035,9 +1038,9 @@ function renderCenterWorkbench(): void {
         }
 
         renderedCardCount += 1;
-        const isWideAdminCard = !isCustomerMode && quals.length >= 4;
+        const isWideCard = renderedRowsCount >= 4;
         cardsHtml += `
-        <article class="service-card ${isWideAdminCard ? 'service-card-wide' : ''}">
+        <article class="service-card ${isWideCard ? 'service-card-wide' : ''}">
             <div class="service-card-head">
                 <div class="service-card-head-left">
                     <span class="service-icon-badge ${iconMeta.colorClass}" aria-hidden="true">${iconMeta.svg}</span>

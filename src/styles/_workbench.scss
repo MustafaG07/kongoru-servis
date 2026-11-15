@@ -389,14 +389,14 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 14px;
-    align-items: start;
-}
-
-body[data-mode="admin"] .customer-groups-grid {
     align-items: stretch;
 }
 
 @media (min-width: 900px) {
+    body[data-mode="customer"] .customer-groups-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .service-card-wide {
         grid-column: span 2;
     }
@@ -409,6 +409,14 @@ body[data-mode="admin"] .customer-groups-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
+    }
+
+    body[data-mode="customer"] .service-card-wide .quality-list {
+        gap: 0;
+    }
+
+    body[data-mode="customer"] .service-card-wide .quality-tile:nth-child(odd) {
+        border-right: 1px solid var(--border);
     }
 }
 
