@@ -1,9 +1,20 @@
+import { GITHUB_DB, getGithubToken } from '../config/defaults.ts';
+import type { GithubDbPayload } from '../types/index.ts';
+import { safeJsonParse } from './pricing.ts';
+
 // Zaman aşımı ve otomatik yeniden deneme (retry) korumalı GitHub Gist veritabanı servisi
 
-import { GITHUB_DB, getGithubToken } from '../config/defaults.js';
-import { safeJsonParse } from './pricing.js';
+interface GistFileEntry {
+    truncated?: boolean;
+    content?: string;
+    raw_url?: string;
+}
 
-async function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
+interface GistResponse {
+    files?: Record<string, GistFileEntry>;
+}
+
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 10000): Promise<Response> {
     if (typeof AbortController === 'undefined') {
         return fetch(url, options);
     }
@@ -16,8 +27,13 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
     }
 }
 
-async function fetchWithRetry(url, options = {}, maxRetries = 2, timeoutMs = 10000) {
-    let lastError = null;
+async function fetchWithRetry(
+    url: string,
+    options: RequestInit = {},
+    maxRetries = 2,
+    timeoutMs = 10000
+): Promise<Response> {
+    let lastError: unknown = null;
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {
             const res = await fetchWithTimeout(url, options, timeoutMs);
@@ -29,13 +45,13 @@ async function fetchWithRetry(url, options = {}, maxRetries = 2, timeoutMs = 100
             lastError = err;
         }
         if (attempt < maxRetries) {
-            await new Promise((resolve) => setTimeout(resolve, 350 * (attempt + 1)));
+            await new Promise<void>((resolve) => setTimeout(resolve, 350 * (attempt + 1)));
         }
     }
-    throw lastError || new Error('Ağ isteği başarısız');
+    throw lastError instanceof Error ? lastError : new Error('Ağ isteği başarısız');
 }
 
-export async function fetchGithubDb() {
+export async function fetchGithubDb(): Promise<GithubDbPayload | null> {
     const token = getGithubToken();
     if (!GITHUB_DB.gistId || !token) return null;
 
@@ -54,8 +70,8 @@ export async function fetchGithubDb() {
     );
     if (!res.ok) return null;
 
-    const gist = await res.json();
-    const file = gist && gist.files ? gist.files[GITHUB_DB.fileName] : null;
+    const gist = (await res.json()) as GistResponse;
+    const file = gist && gist.files ? gist.files[GITHUB_DB.fileName] : undefined;
     if (!file) return null;
 
     let rawText = file.content || '';
@@ -64,10 +80,10 @@ export async function fetchGithubDb() {
         if (!rawRes.ok) return null;
         rawText = await rawRes.text();
     }
-    return safeJsonParse(rawText, null);
+    return safeJsonParse<GithubDbPayload | null>(rawText, null);
 }
 
-export async function pushGithubDb(dbPayload) {
+export async function pushGithubDb(dbPayload: GithubDbPayload): Promise<boolean> {
     const token = getGithubToken();
     if (!GITHUB_DB.gistId || !token) return false;
 
@@ -80,7 +96,7 @@ export async function pushGithubDb(dbPayload) {
                 }
             }
         });
-        const fetchOpts = {
+        const fetchOpts: RequestInit = {
             method: 'PATCH',
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -98,7 +114,7 @@ export async function pushGithubDb(dbPayload) {
             12000
         );
         return Boolean(res && res.ok);
-    } catch (e) {
+    } catch {
         return false;
     }
 }

@@ -1,26 +1,34 @@
+import type { PriceCalculation, RoundingMode } from '../types/index.ts';
+
 // Fiyat hesaplama, anahtar üretimi ve güvenli biçimlendirme yardımcıları
 
-export function makeSlug(str) {
+export function makeSlug(str: string): string {
     return String(str || '').replace(/\s+/g, '-').replace(/[^\w-]/g, '');
 }
 
-export function safeJsonParse(raw, fallback) {
+export function safeJsonParse<T>(raw: string | null | undefined, fallback: T): T {
     try {
-        return raw ? JSON.parse(raw) : fallback;
-    } catch (e) {
+        return raw ? (JSON.parse(raw) as T) : fallback;
+    } catch {
         return fallback;
     }
 }
 
-export function getSlugItemBase(device, group, quality) {
+export function getSlugItemBase(device: string, group: string, quality: string): string {
     return `${makeSlug(device)}-${makeSlug(`${group}_${quality}`)}`;
 }
 
-export function calculatePrice(usdCost, laborCost, rate, vatRate, roundingMode) {
-    const safeUsd = Math.max(0, parseFloat(usdCost) || 0);
-    const safeLabor = Math.max(0, parseFloat(laborCost) || 0);
-    const safeRate = Math.max(0, parseFloat(rate) || 0);
-    const safeVat = Math.max(0, parseFloat(vatRate) || 0);
+export function calculatePrice(
+    usdCost: string | number,
+    laborCost: string | number,
+    rate: number,
+    vatRate: number,
+    roundingMode: RoundingMode | string
+): PriceCalculation {
+    const safeUsd = Math.max(0, parseFloat(String(usdCost)) || 0);
+    const safeLabor = Math.max(0, parseFloat(String(laborCost)) || 0);
+    const safeRate = Math.max(0, parseFloat(String(rate)) || 0);
+    const safeVat = Math.max(0, parseFloat(String(vatRate)) || 0);
 
     const hasPrice = (safeUsd > 0 && safeRate > 0) || safeLabor > 0;
     if (!hasPrice) {
@@ -56,11 +64,11 @@ export function calculatePrice(usdCost, laborCost, rate, vatRate, roundingMode) 
     };
 }
 
-export function formatTry(num) {
+export function formatTry(num: number): string {
     return Number(num || 0).toLocaleString('tr-TR', { maximumFractionDigits: 2 }) + ' ₺';
 }
 
-export function escapeHtml(str) {
+export function escapeHtml(str: unknown): string {
     return String(str)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')

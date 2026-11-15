@@ -1,6 +1,8 @@
+import type { DeviceSortScore } from '../types/index.ts';
+
 // Cihazları marka bazında yeni nesilden eski nesile sıralayan algoritma
 
-export function getDeviceSortScore(rawName, brand = '') {
+export function getDeviceSortScore(rawName: string, brand = ''): DeviceSortScore {
     const original = String(rawName || '').trim();
     const lowerOrig = original.toLocaleLowerCase('tr-TR');
     const lowerBrand = String(brand || '').toLocaleLowerCase('tr-TR');
@@ -169,7 +171,7 @@ export function getDeviceSortScore(rawName, brand = '') {
     return { familyRank, genScore, tierScore, subScore: yearVal };
 }
 
-export function compareDevicesByGeneration(nameA, nameB, brand = '') {
+export function compareDevicesByGeneration(nameA: string, nameB: string, brand = ''): number {
     const a = getDeviceSortScore(nameA, brand);
     const b = getDeviceSortScore(nameB, brand);
     if (b.familyRank !== a.familyRank) return b.familyRank - a.familyRank;
@@ -179,7 +181,7 @@ export function compareDevicesByGeneration(nameA, nameB, brand = '') {
     return String(nameA).localeCompare(String(nameB), 'tr-TR', { numeric: true, sensitivity: 'base' });
 }
 
-export function sortDevicesForBrand(brand, deviceList) {
+export function sortDevicesForBrand(brand: string, deviceList: readonly string[]): string[] {
     if (!Array.isArray(deviceList)) return [];
     return [...deviceList].sort((a, b) => compareDevicesByGeneration(a, b, brand));
 }

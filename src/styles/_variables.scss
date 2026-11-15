@@ -1,0 +1,115 @@
+:root {
+    color-scheme: light;
+    --bg-canvas: #F3F5F8;
+    --bg-surface: #FFFFFF;
+    --bg-elevated: #F8FAFC;
+    --bg-muted: #EDF1F7;
+    --text-primary: #0F172A;
+    --text-secondary: #1E293B;
+    --text-muted: #475569;
+    --border: #E2E8F0;
+    --border-strong: #CBD5E1;
+    --accent: #2563EB;
+    --accent-hover: #1D4ED8;
+    --accent-soft: #EFF6FF;
+    --accent-border: #BFDBFE;
+    --brand-pill-bg: #EEF2FF;
+    --brand-pill-text: #4F46E5;
+    --brand-pill-border: #C7D2FE;
+    --group-title-text: #1D4ED8;
+    --quality-text: #059669;
+    --quality-accent: #10B981;
+    --device-title-text: #0F766E;
+    --category-label-text: #4338CA;
+    --table-head-text: #1E40AF;
+    --price-bg: #ECFDF5;
+    --price-text: #059669;
+    --price-border: #A7F3D0;
+    --warning: #C2410C;
+    --warning-soft: #FFF7ED;
+    --warning-border: #FDBA74;
+    --danger: #DC2626;
+    --danger-soft: #FEF2F2;
+    --danger-border: #FECACA;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+html[data-theme="dark"] {
+    color-scheme: dark;
+    --bg-canvas: #181818;
+    --bg-surface: #1F1F1F;
+    --bg-elevated: #262626;
+    --bg-muted: #2E2E2E;
+    --text-primary: #F3F4F6;
+    --text-secondary: #D4D4D8;
+    --text-muted: #A1A1AA;
+    --border: #303030;
+    --border-strong: #404040;
+    --accent: #4F8CFF;
+    --accent-hover: #2563EB;
+    --accent-soft: #1E293B;
+    --accent-border: #334E7B;
+    --brand-pill-bg: #222538;
+    --brand-pill-text: #A5B4FC;
+    --brand-pill-border: #373D5E;
+    --group-title-text: #60A5FA;
+    --quality-text: #34D399;
+    --quality-accent: #10B981;
+    --device-title-text: #2DD4BF;
+    --category-label-text: #A5B4FC;
+    --table-head-text: #93C5FD;
+    --price-bg: #172B24;
+    --price-text: #34D399;
+    --price-border: #23473B;
+    --warning: #E5996F;
+    --warning-soft: #2A201B;
+    --warning-border: #54392C;
+    --danger: #EF4444;
+    --danger-soft: #2E1619;
+    --danger-border: #5E1D23;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: var(--font-sans);
+    font-weight: 400;
+    background: var(--bg-canvas);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+strong,
+b {
+    font-weight: 400;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+

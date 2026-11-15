@@ -1,0 +1,566 @@
+/* --- Yönetici Finans & Hızlı Hesaplayıcı Şeridi --- */
+.finance-strip {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    flex-shrink: 0;
+}
+
+.finance-strip-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 16px;
+    align-items: stretch;
+}
+
+.finance-fields {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    align-items: end;
+}
+
+.field-col {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+
+.field-col label {
+    font-size: 0.72rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-secondary);
+}
+
+.quick-calc-inline {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+}
+
+.quick-calc-inline-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.quick-calc-title {
+    font-size: 0.72rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+}
+
+.live-pill {
+    font-size: 0.68rem;
+    font-weight: 400;
+    padding: 2px 7px;
+    border-radius: 5px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+}
+
+.quick-calc-inline-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: end;
+    min-width: 0;
+}
+
+.quick-calc-inline-inputs {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+    min-width: 0;
+}
+
+.quick-calc-output {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-end;
+    min-width: 0;
+}
+
+.calc-main-price {
+    font-family: var(--font-mono);
+    font-size: 1.12rem;
+    font-weight: 400;
+    color: var(--price-text);
+    line-height: 1.15;
+    white-space: nowrap;
+}
+
+.calc-breakdown {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    margin-top: 2px;
+}
+
+
+/* --- Orta Panel: Cihaz Başlığı ve Hizmet Sekmeleri --- */
+#deviceWorkbenchView {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+}
+
+.device-banner {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.device-banner-main {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.device-banner-badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.brand-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 400;
+    background: var(--brand-pill-bg);
+    color: var(--brand-pill-text);
+    border: 1px solid var(--brand-pill-border);
+}
+
+.mode-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 400;
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+}
+
+.device-banner-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    color: var(--device-title-text);
+}
+
+.device-banner-stats {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.stat-box {
+    padding: 8px 14px;
+    border-radius: 8px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.stat-label {
+    font-size: 0.66rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+}
+
+.stat-value {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: var(--text-primary);
+}
+
+.admin-save-box {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px 6px 12px;
+    border-radius: 8px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--accent-border);
+}
+
+.db-save-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.76rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.db-save-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--quality-accent);
+    flex-shrink: 0;
+}
+
+.db-save-dot.saving {
+    background: var(--warning);
+}
+
+.tile-save-state {
+    font-size: 0.68rem;
+    font-weight: 400;
+    color: var(--price-text);
+    background: var(--price-bg);
+    border: 1px solid var(--price-border);
+    padding: 1px 6px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.tile-save-state.visible {
+    opacity: 1;
+}
+
+/* Ferah Dikdörtgen Kategori / Hizmet Sekmeleri */
+.service-pills {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 10px;
+    padding: 6px 0;
+    margin: 2px 0;
+}
+
+.service-pill {
+    padding: 8px 16px;
+    min-height: 36px;
+    border-radius: 6px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.14s ease;
+}
+
+.service-pill:hover {
+    background: var(--bg-elevated);
+    color: var(--group-title-text);
+    border-color: var(--group-title-text);
+}
+
+.service-pill.active {
+    background: var(--accent);
+    color: #FFFFFF;
+    border-color: var(--accent);
+}
+
+/* --- Hizmet Kartları (Müşteri ve Yönetici Dikey Izgarası) --- */
+.customer-groups-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 14px;
+    align-items: start;
+}
+
+.service-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.service-card-head {
+    padding: 12px 16px;
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+    border-left: 4px solid var(--group-title-text);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.service-card-title {
+    font-size: 0.94rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    color: var(--group-title-text);
+}
+
+.service-card-count {
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    font-weight: 400;
+    color: var(--group-title-text);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-border);
+    padding: 2px 8px;
+    border-radius: 5px;
+    white-space: nowrap;
+}
+
+.quality-list {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    gap: 8px;
+}
+
+.quality-tile {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    transition: border-color 0.14s ease, background-color 0.14s ease;
+}
+
+.quality-tile:hover {
+    border-color: var(--border-strong);
+    background: var(--bg-muted);
+}
+
+.quality-tile.unpriced {
+    opacity: 1;
+}
+
+.quality-tile-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.quality-name {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--quality-text);
+    border-left: 2px solid var(--quality-accent);
+    padding-left: 8px;
+    word-break: break-word;
+}
+
+.quality-tile-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.quality-tile.admin-tile {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+}
+
+.admin-tile-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.admin-tile-inputs {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(88px, auto);
+    gap: 8px;
+    align-items: end;
+}
+
+.admin-input-box {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.admin-input-box label {
+    font-size: 0.68rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.admin-input-box .table-input {
+    width: 100%;
+    height: 32px;
+    padding: 4px 8px;
+    text-align: center;
+}
+
+.admin-tile-inputs .price-badge {
+    height: 32px;
+    width: 100%;
+    padding: 0 10px;
+}
+
+.admin-tile-breakdown {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    border-top: 1px dashed var(--border);
+    padding-top: 6px;
+}
+
+.price-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    font-weight: 400;
+    background: var(--price-bg);
+    color: var(--price-text);
+    border: 1px solid var(--price-border);
+    white-space: nowrap;
+}
+
+.price-badge.empty {
+    background: var(--bg-muted);
+    color: var(--text-muted);
+    border-color: var(--border);
+}
+
+.admin-tables-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.admin-table-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.admin-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.cost-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+}
+
+.cost-table th {
+    background: var(--bg-elevated);
+    color: var(--table-head-text);
+    font-size: 0.72rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    white-space: nowrap;
+}
+
+.cost-table th.num,
+.cost-table td.num {
+    text-align: right;
+}
+
+.cost-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-primary);
+    vertical-align: middle;
+}
+
+.cost-table tbody td strong {
+    color: var(--quality-text);
+    font-weight: 400;
+}
+
+.cost-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.cost-table tbody tr:hover {
+    background: var(--bg-elevated);
+}
+
+.table-input {
+    width: 96px;
+    min-width: 0;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 0.84rem;
+    font-weight: 400;
+    text-align: right;
+    outline: none;
+}
+
+.table-input:focus {
+    border-color: var(--accent);
+}
+
+.quote-empty {
+    padding: 28px 18px;
+    text-align: center;
+    font-size: 0.84rem;
+    color: var(--text-muted);
+    border: 1px dashed var(--border-strong);
+    border-radius: 8px;
+    background: var(--bg-elevated);
+}
+

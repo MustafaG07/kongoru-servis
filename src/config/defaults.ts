@@ -1,6 +1,8 @@
+import type { GithubDbConfig, PricesStateMap, ServiceGroupsMap, StorageKeysMap } from '../types/index.ts';
+
 // Sabitler, GitHub Gist DB bağlantısı ve varsayılan katalog verileri
 
-export const STORAGE_KEYS = {
+export const STORAGE_KEYS: StorageKeysMap = {
     categories: 'kongoruGroupCatList',
     groups: 'kongoruServiceGroupsMap',
     devices: 'kongoruGroupDeviceList',
@@ -12,27 +14,27 @@ export const STORAGE_KEYS = {
     pendingSync: 'kongoruPendingCloudSync'
 };
 
-export const GITHUB_DB = {
+export const GITHUB_DB: GithubDbConfig = {
     gistId: 'd8a260ab738c1acde482e5a276353e11',
     fileName: 'kongoru-db.json',
     tokenParts: ['Z2hvX3d5M3dpVzNtMXk', 'xUWF5bllydjR5cDdhSk', 'tucjhnNTNHT3g5RA==']
 };
 
-export function getGithubToken() {
+export function getGithubToken(): string {
     try {
         return atob(GITHUB_DB.tokenParts.join(''));
-    } catch (e) {
+    } catch {
         return '';
     }
 }
 
 export const DEFAULT_PASSWORD = 'kongoru';
 
-export const DEFAULT_CATEGORIES = [
+export const DEFAULT_CATEGORIES: string[] = [
     'iPhone', 'iPad', 'Samsung', 'Samsung Tablet', 'Xiaomi', 'TCL', 'Diğer', 'TECHNO', 'Oppo', 'Huawei', 'Honor'
 ];
 
-export const DEFAULT_SERVICE_GROUPS = {
+export const DEFAULT_SERVICE_GROUPS: ServiceGroupsMap = {
     'Ahize Değişimi': ['Ahize', 'Filmli Ahize'],
     'Arka Kapak': ['Orijinal', 'A Kalite'],
     'Batarya Değişimi': ['Orijinal', 'A Kalite Yükseltilmiş'],
@@ -43,7 +45,12 @@ export const DEFAULT_SERVICE_GROUPS = {
     'Ön Cam - Dokunmatik': ['Orijinal', 'A Kalite']
 };
 
-export const DEFAULT_DEVICES_LIST = [
+export interface DefaultDeviceEntry {
+    category: string;
+    name: string;
+}
+
+export const DEFAULT_DEVICES_LIST: DefaultDeviceEntry[] = [
     { category: 'Samsung', name: 'Galaxy m20 m205f' },
     { category: 'iPad', name: 'Air M4 11 INCH A3459 A3460' },
     { category: 'Huawei', name: 'Y5 2019' },
@@ -124,7 +131,7 @@ export const DEFAULT_DEVICES_LIST = [
     { category: 'iPhone', name: 'iPhone 6' }
 ];
 
-export const DEFAULT_PRICES = {
+export const DEFAULT_PRICES: PricesStateMap = {
     dollarRate: '50',
     vatRate: '20',
     roundingMode: 'ceil100',
