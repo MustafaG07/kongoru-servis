@@ -72,7 +72,7 @@ async function runTests(): Promise<void> {
     assert.equal(v2Html.includes('saveAllBtn'), false, 'saveAllBtn butonu kaldırılmış olmalı');
     assert.equal(v2Html.includes('roundingMode'), false, 'roundingMode alanı kaldırılmış olmalı');
     assert.equal(v2Html.includes('Yuvarlama Kuralı'), false, 'Yuvarlama Kuralı etiketi kaldırılmış olmalı');
-    assert.equal(v2Html.includes('mobile-switch-device-btn'), true, 'Mobil hızlı cihaz değiştir butonu eksik');
+    assert.equal(v2Html.includes('activeDeviceTrigger'), true, 'Satır içi cihaz seçici butonu eksik');
 
     const mainTs = readFileSync(join(ROOT, 'src/main.ts'), 'utf8');
     assert.equal(mainTs.includes('counts.priced'), false, 'Sol listede ve kartlarda priced sayaçları gösterilmemeli');
@@ -124,10 +124,10 @@ async function runTests(): Promise<void> {
     assert.equal(baseScss.includes('100dvh'), true, '_base.scss .app-shell için 100dvh içermeli');
     assert.equal(layoutScss.includes('word-break: break-word'), true, '_layout.scss uzun cihaz adlarını kesmeden sarmalı');
     assert.equal(layoutScss.includes('text-overflow: ellipsis'), false, '_layout.scss cihaz adlarını ... ile kesmemeli');
-    assert.equal(workbenchScss.includes('.mobile-switch-device-btn'), true, '_workbench.scss mobil geçiş butonu kuralı eksik');
+    assert.equal(workbenchScss.includes('.banner-picker-menu'), true, '_workbench.scss .banner-picker-menu kuralı eksik');
     assert.equal(modalsScss.includes('font-size: 16px'), true, '_modals.scss mobil iOS yakınlaştırmasını önleyen 16px kuralı eksik');
     assert.equal(modalsScss.includes('.admin-tile-inputs'), true, '_modals.scss mobil .admin-tile-inputs kuralı eksik');
-    assert.equal(modalsScss.includes('.mobile-switch-device-btn'), true, '_modals.scss @media altında .mobile-switch-device-btn eksik');
+    assert.equal(modalsScss.includes('.mobile-quick-search'), true, '_modals.scss mobil hızlı arama kuralı eksik');
     assert.equal(workbenchScss.includes('padding: 8px 12px;'), true, '_workbench.scss .finance-strip kompakt padding içermeli');
     assert.equal(workbenchScss.includes('#roundingMode'), false, '_workbench.scss #roundingMode kuralı kaldırılmış olmalı');
     assert.equal(
