@@ -1,4 +1,4 @@
-name: Build & Verify Kongoru V2
+name: Deploy Kongoru V2 to GitHub Pages
 
 on:
   push:
@@ -40,3 +40,14 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
