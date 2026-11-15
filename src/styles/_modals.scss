@@ -152,132 +152,6 @@ body.catalog-fullscreen .pane-center {
     padding: 20px 24px 40px;
 }
 
-.catalog-inline-view {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    width: 100%;
-    max-width: 960px;
-    margin: 0 auto;
-}
-
-.catalog-inline-head {
-    padding: 0 0 14px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-}
-
-.catalog-inline-title {
-    margin: 0;
-    font-size: 1.08rem;
-    font-weight: 400;
-    color: var(--text-primary);
-}
-
-.catalog-inline-sub {
-    margin: 3px 0 0;
-    font-size: 0.78rem;
-    font-weight: 400;
-    color: var(--text-muted);
-}
-
-.catalog-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.catalog-tab-btn {
-    padding: 8px 14px;
-    min-height: 36px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--bg-surface);
-    color: var(--text-secondary);
-    font-family: inherit;
-    font-size: 0.82rem;
-    font-weight: 400;
-    cursor: pointer;
-    transition: all 0.14s ease;
-}
-
-.catalog-tab-btn:hover {
-    background: var(--bg-elevated);
-    color: var(--text-primary);
-    border-color: var(--border-strong);
-}
-
-.catalog-tab-btn.active {
-    background: var(--accent);
-    color: #FFFFFF;
-    border-color: var(--accent);
-}
-
-.catalog-panel-wrap {
-    display: flex;
-    flex-direction: column;
-}
-
-.catalog-box {
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    background: var(--bg-surface);
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.catalog-controls-stack {
-    display: grid;
-    grid-template-columns: 220px minmax(0, 1fr);
-    gap: 10px;
-    align-items: end;
-}
-
-.catalog-add-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-}
-
-.catalog-add-row .input {
-    flex: 1;
-}
-
-.catalog-list {
-    display: flex;
-    flex-direction: column;
-    border-top: 1px solid var(--border);
-}
-
-.catalog-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 11px 6px;
-    border-bottom: 1px solid var(--border);
-    background: transparent;
-    font-size: 0.9rem;
-    font-weight: 400;
-    transition: background-color 0.12s ease;
-}
-
-.catalog-item:hover {
-    background: var(--bg-elevated);
-}
-
-.catalog-item span {
-    min-width: 0;
-    overflow-wrap: anywhere;
-}
-
 .catalog-item-actions {
     display: flex;
     align-items: center;
@@ -503,7 +377,6 @@ body.catalog-fullscreen .pane-center {
         font-size: 0.86rem;
     }
 
-    .mobile-switch-device-btn,
     .mobile-back-stage-btn {
         display: inline-flex;
     }
@@ -801,15 +674,6 @@ body.catalog-fullscreen .pane-center {
         color: var(--text-primary);
     }
 
-    body[data-mode="customer"] .mobile-switch-device-btn {
-        background: transparent;
-        border: none;
-        color: #4E80EE;
-        padding: 4px 0;
-        font-size: 0.88rem;
-        min-height: auto;
-    }
-
     body[data-mode="admin"] .service-pills {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -926,36 +790,6 @@ body.catalog-fullscreen .pane-center {
         word-break: break-word;
     }
 
-    .status-footer {
-        padding: 8px 12px;
-        gap: 8px;
-    }
-
-    .status-footer-sep {
-        display: none;
-    }
-
-    .status-footer-left {
-        width: 100%;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-    }
-
-    .status-footer-right {
-        width: 100%;
-        display: flex;
-        gap: 8px;
-    }
-
-    .status-footer-right .btn {
-        flex: 1 1 0;
-        min-height: 36px;
-        font-size: 0.76rem;
-        white-space: normal;
-        text-align: center;
-    }
-
     .modal-backdrop {
         padding: 10px;
     }
@@ -972,31 +806,6 @@ body.catalog-fullscreen .pane-center {
 
     .modal-body {
         padding: 14px;
-    }
-
-    .catalog-tabs {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 6px;
-    }
-
-    .catalog-tab-btn {
-        width: 100%;
-        text-align: center;
-        padding: 8px 10px;
-        font-size: 0.78rem;
-    }
-
-    .catalog-box {
-        padding: 12px;
-    }
-
-    .catalog-controls-stack {
-        grid-template-columns: 1fr;
-    }
-
-    .catalog-list {
-        max-height: none;
     }
 
     .order-btn {

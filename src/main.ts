@@ -471,7 +471,6 @@ function applyModeUI(): void {
     closeAdminToolsMenu();
     byId('adminFinanceStrip').classList.toggle('hidden', isCustomerMode);
     maybeById('adminQuickCatalogStrip')?.classList.toggle('hidden', isCustomerMode);
-    maybeById('adminBackupStrip')?.classList.toggle('hidden', isCustomerMode);
 
     byId('modeSubtitle').textContent = isCustomerMode
         ? 'Servis Fiyat Listesi'
@@ -494,8 +493,16 @@ function closeAdminToolsMenu(): void {
     if (btn) btn.setAttribute('aria-expanded', 'false');
 }
 
+function closeAllFloatingMenus(except?: 'adminTools' | 'brandDropdown' | 'bannerBrand' | 'bannerDevice'): void {
+    if (except !== 'adminTools') closeAdminToolsMenu();
+    if (except !== 'brandDropdown') closeBrandDropdown();
+    if (except !== 'bannerBrand' && except !== 'bannerDevice') closeBannerPickers();
+    maybeById('mobileQuickSearchResults')?.classList.add('hidden');
+}
+
 function toggleAdminToolsMenu(event?: Event): void {
     event?.stopPropagation();
+    closeAllFloatingMenus('adminTools');
     const menu = maybeById('adminToolsMenu');
     const btn = maybeById('adminToolsToggleBtn');
     if (!menu || !btn) return;
@@ -519,6 +526,7 @@ function setMobilePane(pane: MobilePane): void {
 // --- Modallar ---
 function openAuthModal(event?: Event): void {
     if (!isCustomerMode) return;
+    closeAllFloatingMenus();
     byId('authErrorMsg').textContent = '';
     byId<HTMLInputElement>('adminPasswordInput').value = '';
     const backdrop = byId('authModal');
@@ -702,6 +710,7 @@ function closeBrandDropdown(): void {
 
 function toggleBrandDropdown(event?: Event): void {
     event?.stopPropagation();
+    closeAllFloatingMenus('brandDropdown');
     const menu = maybeById('brandDropdownMenu');
     const btn = maybeById('brandDropdownBtn');
     if (!menu || !btn) return;
@@ -726,6 +735,7 @@ function closeBannerPickers(): void {
 function toggleBannerPicker(kind: 'brand' | 'device', event?: Event): void {
     event?.stopPropagation();
     const isBrand = kind === 'brand';
+    closeAllFloatingMenus(isBrand ? 'bannerBrand' : 'bannerDevice');
     const menu = maybeById(isBrand ? 'bannerBrandMenu' : 'bannerDeviceMenu');
     const trigger = maybeById(isBrand ? 'activeBrandTrigger' : 'activeDeviceTrigger');
     const otherMenu = maybeById(isBrand ? 'bannerDeviceMenu' : 'bannerBrandMenu');
@@ -1828,32 +1838,10 @@ function updateBackupUI(customFolderMsg: string | null = null): void {
     if (badge) badge.textContent = String(dates.length);
 
     const adminDot = maybeById('adminBackupDot');
-    const adminAutoEl = maybeById('adminAutoBackupStatus');
-    const adminLastEl = maybeById('adminLastBackupTime');
 
     if (adminDot) {
         adminDot.classList.remove('active', 'waiting');
         adminDot.classList.add(todayEntry ? 'active' : 'waiting');
-    }
-    if (adminAutoEl) {
-        adminAutoEl.textContent = todayEntry
-            ? 'Otomatik CSV Yedek: Aktif (Bugün Güncellendi)'
-            : 'Otomatik CSV Yedek: Beklemede (Bugün Değişiklik Yok)';
-    }
-    if (adminLastEl) {
-        const latestEntry = dates
-            .map((d) => map[d])
-            .filter(Boolean)
-            .sort((a, b) => String(b.updatedAt || b.date || '').localeCompare(String(a.updatedAt || a.date || '')))[0];
-
-        if (latestEntry) {
-            const formattedTime = latestEntry.updatedAt
-                ? new Date(latestEntry.updatedAt).toLocaleString('tr-TR')
-                : (latestEntry.date || '');
-            adminLastEl.textContent = `Son Yedek: ${formattedTime} — ${latestEntry.fileName || `kongoru_yedek_${latestEntry.date}.csv`}`;
-        } else {
-            adminLastEl.textContent = 'Son Yedek: Henüz yedek alınmadı';
-        }
     }
 
     const todayEl = maybeById('todayBackupStatusText');
