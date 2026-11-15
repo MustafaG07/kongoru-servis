@@ -72,20 +72,31 @@
     font-weight: 400;
 }
 
-/* Satır İçi Katalog & Model Yöneticisi (Ana Sayfada Sade Sekmeli Görünüm) */
+/* Tam Sayfa Sade Katalog & Model Yöneticisi */
+body.catalog-fullscreen .workbench {
+    grid-template-columns: 1fr;
+}
+
+body.catalog-fullscreen .pane-left {
+    display: none;
+}
+
+body.catalog-fullscreen .pane-center {
+    padding: 20px 24px 40px;
+}
+
 .catalog-inline-view {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 16px;
     width: 100%;
-    max-width: 780px;
+    max-width: 960px;
+    margin: 0 auto;
 }
 
 .catalog-inline-head {
-    background: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 14px 18px;
+    padding: 0 0 14px;
+    border-bottom: 1px solid var(--border);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -155,9 +166,10 @@
 }
 
 .catalog-controls-stack {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
     gap: 10px;
+    align-items: end;
 }
 
 .catalog-add-row {
@@ -172,25 +184,26 @@
 }
 
 .catalog-list {
-    max-height: 52dvh;
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding-right: 4px;
+    border-top: 1px solid var(--border);
 }
 
 .catalog-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    padding: 8px 10px;
-    border-radius: 7px;
-    border: 1px solid var(--border);
-    background: var(--bg-surface);
-    font-size: 0.81rem;
+    gap: 12px;
+    padding: 11px 6px;
+    border-bottom: 1px solid var(--border);
+    background: transparent;
+    font-size: 0.9rem;
     font-weight: 400;
+    transition: background-color 0.12s ease;
+}
+
+.catalog-item:hover {
+    background: var(--bg-elevated);
 }
 
 .catalog-item span {
@@ -820,6 +833,10 @@
 
     .catalog-box {
         padding: 12px;
+    }
+
+    .catalog-controls-stack {
+        grid-template-columns: 1fr;
     }
 
     .catalog-list {

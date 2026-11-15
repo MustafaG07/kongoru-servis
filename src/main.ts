@@ -585,6 +585,7 @@ function switchCatalogTab(tab: 'brands' | 'devices' | 'groups' | 'qualities'): v
 function openCatalogModal(): void {
     if (isCustomerMode) return;
     isCatalogViewOpen = true;
+    document.body.classList.add('catalog-fullscreen');
     renderCatalogManager();
     switchCatalogTab(activeCatalogTab);
     byId('deviceWorkbenchView').classList.add('hidden');
@@ -599,6 +600,7 @@ function openCatalogModal(): void {
 
 function closeCatalogModal(): void {
     isCatalogViewOpen = false;
+    document.body.classList.remove('catalog-fullscreen');
     byId('catalogInlineView').classList.add('hidden');
     byId('deviceWorkbenchView').classList.remove('hidden');
     byId('adminFinanceStrip').classList.toggle('hidden', isCustomerMode);
