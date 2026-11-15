@@ -64,6 +64,7 @@ let activeBrandFilter = 'ALL';
 let activeServiceFilter = 'ALL';
 let selectedBrand = '';
 let selectedDevice = '';
+let selectedAdminSummary: { brand: string; device: string; group: string; quality: string } | null = null;
 let searchQuery = '';
 let backupDirHandle: BackupDirectoryHandle | null = null;
 let folderWriteQueue: Promise<void> = Promise.resolve();
@@ -568,7 +569,7 @@ function submitAdminLogin(event: Event): void {
         localStorage.setItem(STORAGE_KEYS.uiMode, 'admin');
         applyModeUI();
         syncFinanceInputsFromState();
-        updateQuickCalc();
+        renderAdminSummaryBar();
         renderAll();
         showToast('Yönetici modu aktif edildi.');
     } else {
@@ -887,7 +888,7 @@ function onFinanceChange(): void {
     scheduleAutoCloudSave();
 
     syncFinanceInputsFromState();
-    updateQuickCalc();
+    renderAdminSummaryBar();
     renderCenterWorkbench();
 }
 
@@ -943,6 +944,16 @@ function handleCostTableInput(inputEl: HTMLInputElement): void {
     if (rawEl) rawEl.textContent = calc.hasPrice ? formatTry(calc.rawTotal) : '-';
     const vatEl = row.querySelector<HTMLElement>('[data-out="vat"]');
     if (vatEl) vatEl.textContent = calc.hasPrice ? formatTry(calc.vatAmount) : '-';
+
+    if (
+        selectedAdminSummary &&
+        selectedAdminSummary.brand === brand &&
+        selectedAdminSummary.device === device &&
+        selectedAdminSummary.group === group &&
+        selectedAdminSummary.quality === quality
+    ) {
+        renderAdminSummaryBar();
+    }
 }
 
 function getServiceIconMeta(groupName: string): { colorClass: string; svg: string } {
@@ -1027,6 +1038,7 @@ function toggleQuoteItem(el: HTMLElement): void {
         el.classList.add('selected');
     }
     renderCustomerQuoteBar();
+    renderAdminSummaryBar();
 }
 
 function clearQuoteSelection(): void {
@@ -1035,6 +1047,7 @@ function clearQuoteSelection(): void {
         tile.classList.remove('selected');
     });
     renderCustomerQuoteBar();
+    renderAdminSummaryBar();
 }
 
 function getShortServiceTabLabel(groupName: string): string {
@@ -1108,11 +1121,18 @@ function renderCenterWorkbench(): void {
                 </button>`;
             } else {
                 renderedRowsCount += 1;
+                const isSummarySelected = Boolean(
+                    selectedAdminSummary &&
+                    selectedAdminSummary.brand === selectedBrand &&
+                    selectedAdminSummary.device === selectedDevice &&
+                    selectedAdminSummary.group === grp &&
+                    selectedAdminSummary.quality === qual
+                );
                 const breakdownText = calc.hasPrice
                     ? `Parça: ${formatTry(calc.tlPart)} · Ham: ${formatTry(calc.rawTotal)} · KDV (%${cfg.vatRate}): ${formatTry(calc.vatAmount)}`
                     : 'Maliyet veya işçilik girin';
                 rowsHtml += `
-                <div class="quality-tile admin-tile" data-brand="${escapeHtml(selectedBrand)}" data-device="${escapeHtml(selectedDevice)}" data-group="${escapeHtml(grp)}" data-quality="${escapeHtml(qual)}">
+                <div class="quality-tile admin-tile ${isSummarySelected ? 'summary-selected' : ''}" data-brand="${escapeHtml(selectedBrand)}" data-device="${escapeHtml(selectedDevice)}" data-group="${escapeHtml(grp)}" data-quality="${escapeHtml(qual)}" onclick="selectAdminTileSummary(this, event)">
                     <div class="admin-tile-head">
                         <span class="quality-name">${escapeHtml(qual)}</span>
                         <span class="tile-save-state" data-out="savestate">✓ Kaydedildi</span>
@@ -1164,6 +1184,7 @@ function renderCenterWorkbench(): void {
         contentWrap.innerHTML = buildMasonryColumnsHtml(renderedCards, contentWrap);
     }
     renderCustomerQuoteBar();
+    renderAdminSummaryBar();
 }
 
 function getMasonryColumnCount(container: HTMLElement, cardCount: number): number {
@@ -1234,14 +1255,58 @@ function relayoutMasonryGrid(): void {
     }
 }
 
-// --- Hızlı Maliyet Hesaplayıcı ---
-function updateQuickCalc(): void {
+// --- Yönetici Anlık İşlem Özeti ---
+function renderAdminSummaryBar(): void {
+    const devEl = maybeById('summaryDeviceText');
+    const srvEl = maybeById('summaryServiceText');
+    const priceEl = maybeById('summaryPriceResult');
+    if (!devEl || !srvEl || !priceEl) return;
+
+    if (!selectedAdminSummary || selectedAdminSummary.brand !== selectedBrand || selectedAdminSummary.device !== selectedDevice) {
+        devEl.textContent = selectedDevice || 'Seçilmedi';
+        srvEl.textContent = 'Seçilmedi';
+        priceEl.textContent = '- ₺';
+        return;
+    }
+
     const cfg = getFinanceConfig();
-    const usd = byId<HTMLInputElement>('quickUsdInput').value;
-    const labor = byId<HTMLInputElement>('quickLaborInput').value;
-    const res = calculatePrice(usd, labor, cfg.rate, cfg.vatRate, cfg.roundingMode);
-    byId('quickCalcTotal').textContent = res.hasPrice ? formatTry(res.finalPrice) : '- ₺';
-    byId('quickCalcBreakdown').textContent = `Parça: ${formatTry(res.tlPart)} · KDV: ${formatTry(res.vatAmount)}`;
+    const { usd, labor } = readItemPrice(
+        selectedAdminSummary.brand,
+        selectedAdminSummary.device,
+        selectedAdminSummary.group,
+        selectedAdminSummary.quality
+    );
+    const calc = calculatePrice(usd, labor, cfg.rate, cfg.vatRate, cfg.roundingMode);
+    devEl.textContent = selectedAdminSummary.device || 'Seçilmedi';
+    srvEl.textContent = `${selectedAdminSummary.group} - ${selectedAdminSummary.quality}`;
+    priceEl.textContent = calc.hasPrice ? formatTry(calc.finalPrice) : '- ₺';
+}
+
+function selectAdminTileSummary(tileEl: HTMLElement, event?: Event): void {
+    if (isCustomerMode) return;
+    const target = event?.target as HTMLElement | null;
+    if (target && target.closest('input')) return;
+
+    const brand = tileEl.dataset.brand || '';
+    const device = tileEl.dataset.device || '';
+    const group = tileEl.dataset.group || '';
+    const quality = tileEl.dataset.quality || '';
+    if (!brand || !device || !group || !quality) return;
+
+    selectedAdminSummary = { brand, device, group, quality };
+    document.querySelectorAll('.quality-tile.admin-tile.summary-selected').forEach((el) => {
+        el.classList.remove('summary-selected');
+    });
+    tileEl.classList.add('summary-selected');
+    renderAdminSummaryBar();
+}
+
+function clearAdminSummarySelection(): void {
+    selectedAdminSummary = null;
+    document.querySelectorAll('.quality-tile.admin-tile.summary-selected').forEach((el) => {
+        el.classList.remove('summary-selected');
+    });
+    renderAdminSummaryBar();
 }
 
 // --- Katalog Hızlı Ekleme & Sıralama İşlemleri ---
@@ -1624,7 +1689,7 @@ function restoreFromCsvText(csvText: string, sourceLabel = 'CSV yedeği'): boole
     ensureInitialSelection();
     persistLocalData();
     syncFinanceInputsFromState();
-    updateQuickCalc();
+    renderAdminSummaryBar();
     renderAll();
     updateBackupUI();
     showToast(`${sourceLabel} başarıyla geri yüklendi!`);
@@ -1999,6 +2064,7 @@ Object.assign(window, {
     clearMobileQuickSearch,
     clearQuoteSelection,
     closeAdminToolsMenu,
+    clearAdminSummarySelection,
     closeAuthModal,
     closeBackupModal,
     closePasswordModal,
@@ -2020,6 +2086,7 @@ Object.assign(window, {
     openPasswordModal,
     restoreDailyBackup,
     saveAllChanges,
+    selectAdminTileSummary,
     selectBrandFilter,
     selectBrandFromBanner,
     selectDevice,
@@ -2037,8 +2104,7 @@ Object.assign(window, {
     toggleBannerPicker,
     toggleBrandDropdown,
     toggleTheme,
-    triggerCsvFileSelect,
-    updateQuickCalc
+    triggerCsvFileSelect
 });
 
 document.addEventListener('click', (e: MouseEvent) => {
@@ -2094,7 +2160,7 @@ function bootApp(): void {
     }
     applyModeUI();
     syncFinanceInputsFromState();
-    if (!isCustomerMode) updateQuickCalc();
+    if (!isCustomerMode) renderAdminSummaryBar();
     renderAll();
     updateBackupUI();
     void initSavedBackupFolder();

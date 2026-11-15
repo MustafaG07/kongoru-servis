@@ -124,26 +124,20 @@
                             </div>
                         </div>
 
-                        <div class="quick-calc-inline" id="quickCalcPanel" aria-label="Hızlı Maliyet Hesaplayıcı">
-                            <div class="quick-calc-inline-row">
-                                <span class="quick-calc-badge live-pill">Hızlı Hesap</span>
-                                <div class="quick-calc-inline-inputs">
-                                    <div class="field-col">
-                                        <label for="quickUsdInput">Parça ($)</label>
-                                        <input type="number" min="0" step="0.5" class="input input-num"
-                                            id="quickUsdInput" placeholder="0" oninput="updateQuickCalc()">
-                                    </div>
-                                    <div class="field-col">
-                                        <label for="quickLaborInput">İşçilik (₺)</label>
-                                        <input type="number" min="0" step="10" class="input input-num"
-                                            id="quickLaborInput" placeholder="0" oninput="updateQuickCalc()">
-                                    </div>
-                                </div>
-                                <div class="quick-calc-output">
-                                    <div class="calc-main-price" id="quickCalcTotal">- ₺</div>
-                                    <div class="calc-breakdown" id="quickCalcBreakdown">Parça: 0 ₺ · KDV: 0 ₺</div>
-                                </div>
+                        <div class="admin-summary-inline" id="adminSummaryPanel" aria-label="Anlık İşlem Özeti">
+                            <div class="admin-summary-item">
+                                <span class="admin-summary-label">SEÇİLEN CİHAZ:</span>
+                                <strong class="admin-summary-value" id="summaryDeviceText">Seçilmedi</strong>
                             </div>
+                            <div class="admin-summary-item">
+                                <span class="admin-summary-label">İŞLEM / KALİTE:</span>
+                                <strong class="admin-summary-value" id="summaryServiceText">Seçilmedi</strong>
+                            </div>
+                            <div class="admin-summary-price-wrap">
+                                <span class="admin-summary-label">ANLIK FİYAT</span>
+                                <div class="admin-summary-price" id="summaryPriceResult">- ₺</div>
+                            </div>
+                            <button type="button" class="btn btn-ghost btn-sm" id="summaryResetBtn" onclick="clearAdminSummarySelection()">Sıfırla</button>
                         </div>
                     </div>
                 </section>
