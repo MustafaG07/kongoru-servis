@@ -79,8 +79,6 @@
                             <button type="button" class="btn btn-secondary btn-sm mobile-back-stage-btn"
                                 onclick="setMobilePane('stage')">‹ Fiyatlara Dön</button>
                         </div>
-                        <button type="button" class="btn catalog-launch-btn hidden" id="openCatalogBtn"
-                            onclick="openCatalogModal()">+ Katalog &amp; Model Yöneticisi</button>
                     </div>
                     <div class="search-wrap">
                         <input type="text" class="search-input" id="deviceSearchInput"
@@ -206,71 +204,6 @@
                     <div class="service-pills" id="serviceFilterPills"></div>
                     <div id="workbenchContent"></div>
                 </div>
-
-                <!-- SATIR İÇİ KATALOG & MODEL YÖNETİCİSİ -->
-                <section class="catalog-inline-view hidden" id="catalogInlineView"
-                    aria-label="Katalog ve Model Yöneticisi">
-                    <div class="catalog-inline-head">
-                        <div>
-                            <h2 class="catalog-inline-title">Katalog &amp; Model Yöneticisi</h2>
-                            <p class="catalog-inline-sub">Marka, cihaz sırası, hizmet grubu ve kalite seçeneklerini yönetin</p>
-                        </div>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="closeCatalogModal()">← Tamir Masasına Dön</button>
-                    </div>
-
-                    <div class="catalog-tabs" id="catalogTabs">
-                        <button type="button" class="catalog-tab-btn" data-tab="brands" onclick="switchCatalogTab('brands')">1. Markalar</button>
-                        <button type="button" class="catalog-tab-btn active" data-tab="devices" onclick="switchCatalogTab('devices')">2. Cihaz Modelleri</button>
-                        <button type="button" class="catalog-tab-btn" data-tab="groups" onclick="switchCatalogTab('groups')">3. Hizmet Grupları</button>
-                        <button type="button" class="catalog-tab-btn" data-tab="qualities" onclick="switchCatalogTab('qualities')">4. Kalite Sınıfları</button>
-                    </div>
-
-                    <div class="catalog-panel-wrap">
-                        <div class="catalog-box hidden" data-catalog-panel="brands">
-                            <div class="catalog-add-row">
-                                <input type="text" class="input" id="newBrandInput" placeholder="Yeni marka (Örn: Google Pixel)">
-                                <button type="button" class="btn btn-primary btn-sm" onclick="addBrand()">Ekle</button>
-                            </div>
-                            <div class="catalog-list" id="catManageList"></div>
-                        </div>
-
-                        <div class="catalog-box" data-catalog-panel="devices">
-                            <div class="catalog-controls-stack">
-                                <div class="field-col">
-                                    <label for="deviceTargetBrand">Marka Seçin</label>
-                                    <select class="select" id="deviceTargetBrand" onchange="renderCatalogManager()"></select>
-                                </div>
-                                <div class="catalog-add-row">
-                                    <input type="text" class="input" id="newDeviceInput" placeholder="Yeni cihaz modeli (Örn: iPhone 16 Pro Max)">
-                                    <button type="button" class="btn btn-primary btn-sm" onclick="addDevice()">Ekle</button>
-                                </div>
-                            </div>
-                            <div class="catalog-list" id="deviceManageList"></div>
-                        </div>
-
-                        <div class="catalog-box hidden" data-catalog-panel="groups">
-                            <div class="catalog-add-row">
-                                <input type="text" class="input" id="newGroupInput" placeholder="Yeni hizmet grubu (Örn: Face ID Onarım)">
-                                <button type="button" class="btn btn-primary btn-sm" onclick="addServiceGroup()">Ekle</button>
-                            </div>
-                            <div class="catalog-list" id="groupManageList"></div>
-                        </div>
-
-                        <div class="catalog-box hidden" data-catalog-panel="qualities">
-                            <div class="catalog-controls-stack">
-                                <div class="field-col">
-                                    <label for="qualityTargetGroup">Hizmet Grubu Seçin</label>
-                                    <select class="select" id="qualityTargetGroup" onchange="renderCatalogManager()"></select>
-                                </div>
-                                <div class="catalog-add-row">
-                                    <input type="text" class="input" id="newQualityInput" placeholder="Yeni kalite sınıfı (Örn: Servis Orijinal)">
-                                    <button type="button" class="btn btn-primary btn-sm" onclick="addQualityTier()">Ekle</button>
-                                </div>
-                            </div>
-                            <div class="catalog-list" id="qualityManageList"></div>
-                        </div>
-                    </div>
-                </section>
             </main>
         </div>
 

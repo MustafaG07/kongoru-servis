@@ -62,8 +62,6 @@ let pricesState: PricesStateMap = {};
 let isCustomerMode = true;
 let activeBrandFilter = 'ALL';
 let activeServiceFilter = 'ALL';
-let activeCatalogTab: 'brands' | 'devices' | 'groups' | 'qualities' = 'devices';
-let isCatalogViewOpen = false;
 let selectedBrand = '';
 let selectedDevice = '';
 let searchQuery = '';
@@ -475,7 +473,6 @@ function applyModeUI(): void {
     byId('headerCustomerBtn').classList.toggle('hidden', isCustomerMode);
     byId('headerPassChangeBtn').classList.toggle('hidden', isCustomerMode);
     byId('openBackupBtn').classList.toggle('hidden', isCustomerMode);
-    byId('openCatalogBtn').classList.toggle('hidden', isCustomerMode);
     byId('adminFinanceStrip').classList.toggle('hidden', isCustomerMode);
     maybeById('adminQuickCatalogStrip')?.classList.toggle('hidden', isCustomerMode);
     byId('adminBackupStrip').classList.toggle('hidden', isCustomerMode);
@@ -490,8 +487,6 @@ function applyModeUI(): void {
     if (!isCustomerMode) {
         selectedQuoteItems.clear();
         renderCustomerQuoteBar();
-    } else {
-        closeCatalogModal();
     }
     applyTheme((document.documentElement.getAttribute('data-theme') || 'dark') as ThemeMode);
 }
@@ -580,40 +575,6 @@ async function submitPasswordChange(event: Event): Promise<void> {
     await saveAdminPassword(next.value);
     closePasswordModal();
     showToast('Yönetici şifresi güncellendi.');
-}
-
-function switchCatalogTab(tab: 'brands' | 'devices' | 'groups' | 'qualities'): void {
-    activeCatalogTab = tab;
-    document.querySelectorAll<HTMLElement>('#catalogTabs .catalog-tab-btn').forEach((btn) => {
-        btn.classList.toggle('active', btn.dataset.tab === tab);
-    });
-    document.querySelectorAll<HTMLElement>('.catalog-panel-wrap [data-catalog-panel]').forEach((panel) => {
-        panel.classList.toggle('hidden', panel.dataset.catalogPanel !== tab);
-    });
-}
-
-function openCatalogModal(): void {
-    if (isCustomerMode) return;
-    isCatalogViewOpen = true;
-    document.body.classList.add('catalog-fullscreen');
-    renderCatalogManager();
-    switchCatalogTab(activeCatalogTab);
-    byId('deviceWorkbenchView').classList.add('hidden');
-    byId('adminFinanceStrip').classList.add('hidden');
-    byId('catalogInlineView').classList.remove('hidden');
-    if (window.innerWidth <= 1160) {
-        setMobilePane('stage');
-    }
-    const centerPane = document.querySelector<HTMLElement>('.pane-center');
-    if (centerPane) centerPane.scrollTop = 0;
-}
-
-function closeCatalogModal(): void {
-    isCatalogViewOpen = false;
-    document.body.classList.remove('catalog-fullscreen');
-    byId('catalogInlineView').classList.add('hidden');
-    byId('deviceWorkbenchView').classList.remove('hidden');
-    byId('adminFinanceStrip').classList.toggle('hidden', isCustomerMode);
 }
 
 // --- Sol Panel Render & Filtreleme ---
@@ -712,9 +673,6 @@ function selectDevice(brand: string, device: string): void {
     }
     selectedBrand = brand;
     selectedDevice = device;
-    if (isCatalogViewOpen) {
-        closeCatalogModal();
-    }
     renderDeviceDirectory();
     renderCenterWorkbench();
     if (window.innerWidth <= 1160) {
@@ -1076,55 +1034,7 @@ function updateQuickCalc(): void {
     byId('quickCalcBreakdown').textContent = `Parça: ${formatTry(res.tlPart)} · KDV: ${formatTry(res.vatAmount)}`;
 }
 
-// --- Katalog Yöneticisi İşlemleri ---
-function renderCatalogManager(): void {
-    byId('catManageList').innerHTML = categories.map((cat, idx) => `
-    <div class="catalog-item">
-        <span>${escapeHtml(cat)}</span>
-        <div class="catalog-item-actions">
-            <button type="button" class="order-btn" title="Yukarı taşı" ${idx === 0 ? 'disabled' : ''} data-brand="${escapeHtml(cat)}" onclick="moveBrand(this.dataset.brand, -1)">↑</button>
-            <button type="button" class="order-btn" title="Aşağı taşı" ${idx === categories.length - 1 ? 'disabled' : ''} data-brand="${escapeHtml(cat)}" onclick="moveBrand(this.dataset.brand, 1)">↓</button>
-            <button type="button" class="btn btn-danger btn-sm" data-brand="${escapeHtml(cat)}" onclick="deleteBrand(this.dataset.brand)">Sil</button>
-        </div>
-    </div>`).join('');
-
-    const devBrandSel = byId<HTMLSelectElement>('deviceTargetBrand');
-    const prevDevBrand = devBrandSel.value || selectedBrand || categories[0] || '';
-    devBrandSel.innerHTML = categories.map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
-    if (categories.includes(prevDevBrand)) devBrandSel.value = prevDevBrand;
-    const targetBrand = devBrandSel.value;
-
-    const brandDevices = devicesMap[targetBrand] || [];
-    byId('deviceManageList').innerHTML = brandDevices.map((dev, idx) => `
-    <div class="catalog-item">
-        <span>${escapeHtml(dev)}</span>
-        <div class="catalog-item-actions">
-            <button type="button" class="order-btn" title="Yukarı taşı" ${idx === 0 ? 'disabled' : ''} data-brand="${escapeHtml(targetBrand)}" data-device="${escapeHtml(dev)}" onclick="moveDevice(this.dataset.brand, this.dataset.device, -1)">↑</button>
-            <button type="button" class="order-btn" title="Aşağı taşı" ${idx === brandDevices.length - 1 ? 'disabled' : ''} data-brand="${escapeHtml(targetBrand)}" data-device="${escapeHtml(dev)}" onclick="moveDevice(this.dataset.brand, this.dataset.device, 1)">↓</button>
-            <button type="button" class="btn btn-danger btn-sm" data-brand="${escapeHtml(targetBrand)}" data-device="${escapeHtml(dev)}" onclick="deleteDevice(this.dataset.brand, this.dataset.device)">Sil</button>
-        </div>
-    </div>`).join('');
-
-    const grpKeys = Object.keys(serviceGroups);
-    byId('groupManageList').innerHTML = grpKeys.map((g) => `
-    <div class="catalog-item">
-        <span>${escapeHtml(g)}</span>
-        <button type="button" class="btn btn-danger btn-sm" data-group="${escapeHtml(g)}" onclick="deleteServiceGroup(this.dataset.group)">Sil</button>
-    </div>`).join('');
-
-    const qualGrpSel = byId<HTMLSelectElement>('qualityTargetGroup');
-    const prevQualGrp = qualGrpSel.value || grpKeys[0] || '';
-    qualGrpSel.innerHTML = grpKeys.map((g) => `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join('');
-    if (grpKeys.includes(prevQualGrp)) qualGrpSel.value = prevQualGrp;
-    const targetGrp = qualGrpSel.value;
-
-    byId('qualityManageList').innerHTML = (serviceGroups[targetGrp] || []).map((q) => `
-    <div class="catalog-item">
-        <span>${escapeHtml(q)}</span>
-        <button type="button" class="btn btn-danger btn-sm" data-group="${escapeHtml(targetGrp)}" data-quality="${escapeHtml(q)}" onclick="deleteQualityTier(this.dataset.group, this.dataset.quality)">Sil</button>
-    </div>`).join('');
-}
-
+// --- Katalog Hızlı Ekleme & Sıralama İşlemleri ---
 function renderQuickCatalogBar(): void {
     const devBrandSel = maybeById<HTMLSelectElement>('quickDeviceTargetBrand');
     if (devBrandSel) {
@@ -1142,79 +1052,35 @@ function renderQuickCatalogBar(): void {
     }
 }
 
-function performAddBrand(name: string): boolean {
-    if (!name || categories.includes(name)) return false;
-    categories.push(name);
-    if (!devicesMap[name]) devicesMap[name] = [];
-    persistLocalData();
-    void saveAllChanges({ silent: true });
-    renderAll();
-    if (isCatalogViewOpen) renderCatalogManager();
-    showToast(`${name} markası eklendi.`);
-    return true;
-}
-
-function addBrand(): void {
-    const input = byId<HTMLInputElement>('newBrandInput');
-    if (performAddBrand(input.value.trim())) input.value = '';
-}
-
 function addBrandFromQuickBar(): void {
     const input = byId<HTMLInputElement>('quickNewBrandInput');
-    if (performAddBrand(input.value.trim())) input.value = '';
-}
-
-function deleteBrand(name: string): void {
-    categories = categories.filter((c) => c !== name);
-    delete devicesMap[name];
-    ensureInitialSelection();
+    const name = input.value.trim();
+    if (!name || categories.includes(name)) return;
+    categories.push(name);
+    if (!devicesMap[name]) devicesMap[name] = [];
+    input.value = '';
     persistLocalData();
     void saveAllChanges({ silent: true });
     renderAll();
-    renderCatalogManager();
-}
-
-function performAddDevice(brand: string, name: string): boolean {
-    if (!brand || !name) return false;
-    if (!devicesMap[brand]) devicesMap[brand] = [];
-    if (!devicesMap[brand].includes(name)) {
-        devicesMap[brand].unshift(name);
-    }
-    selectedBrand = brand;
-    selectedDevice = name;
-    persistLocalData();
-    void saveAllChanges({ silent: true });
-    renderAll();
-    if (isCatalogViewOpen) renderCatalogManager();
-    showToast(`${name} eklendi.`);
-    return true;
-}
-
-function addDevice(): void {
-    const brand = byId<HTMLSelectElement>('deviceTargetBrand').value;
-    const input = byId<HTMLInputElement>('newDeviceInput');
-    if (performAddDevice(brand, input.value.trim())) input.value = '';
+    showToast(`${name} markası eklendi.`);
 }
 
 function addDeviceFromQuickBar(): void {
     const brand = byId<HTMLSelectElement>('quickDeviceTargetBrand').value;
     const input = byId<HTMLInputElement>('quickNewDeviceInput');
-    if (performAddDevice(brand, input.value.trim())) input.value = '';
-}
-
-function moveBrand(brand: string, delta: -1 | 1): void {
-    const idx = categories.indexOf(brand);
-    const nextIdx = idx + delta;
-    if (idx < 0 || nextIdx < 0 || nextIdx >= categories.length) return;
-    const copy = [...categories];
-    const [item] = copy.splice(idx, 1);
-    copy.splice(nextIdx, 0, item);
-    categories = copy;
+    const name = input.value.trim();
+    if (!brand || !name) return;
+    if (!devicesMap[brand]) devicesMap[brand] = [];
+    if (!devicesMap[brand].includes(name)) {
+        devicesMap[brand].unshift(name);
+    }
+    input.value = '';
+    selectedBrand = brand;
+    selectedDevice = name;
     persistLocalData();
-    scheduleAutoCloudSave();
-    renderBrandChips();
-    renderDeviceDirectory();
-    renderCatalogManager();
+    void saveAllChanges({ silent: true });
+    renderAll();
+    showToast(`${name} eklendi.`);
 }
 
 function moveDevice(brand: string, dev: string, delta: -1 | 1): void {
@@ -1230,9 +1096,6 @@ function moveDevice(brand: string, dev: string, delta: -1 | 1): void {
     persistLocalData();
     scheduleAutoCloudSave();
     renderDeviceDirectory();
-    if (isCatalogViewOpen) {
-        renderCatalogManager();
-    }
 }
 
 function onMoveDeviceClick(event: Event, brand: string, dev: string, delta: -1 | 1): void {
@@ -1240,78 +1103,30 @@ function onMoveDeviceClick(event: Event, brand: string, dev: string, delta: -1 |
     moveDevice(brand, dev, delta);
 }
 
-function deleteDevice(brand: string, dev: string): void {
-    if (!devicesMap[brand]) return;
-    devicesMap[brand] = devicesMap[brand].filter((d) => d !== dev);
-    ensureInitialSelection();
-    persistLocalData();
-    void saveAllChanges({ silent: true });
-    renderAll();
-    renderCatalogManager();
-    showToast(`${dev} silindi.`);
-}
-
-function performAddServiceGroup(name: string): boolean {
-    if (!name || serviceGroups[name]) return false;
-    serviceGroups[name] = ['Orijinal', 'A Kalite'];
-    persistLocalData();
-    void saveAllChanges({ silent: true });
-    renderAll();
-    if (isCatalogViewOpen) renderCatalogManager();
-    showToast(`${name} hizmet grubu eklendi.`);
-    return true;
-}
-
-function addServiceGroup(): void {
-    const input = byId<HTMLInputElement>('newGroupInput');
-    if (performAddServiceGroup(input.value.trim())) input.value = '';
-}
-
 function addGroupFromQuickBar(): void {
     const input = byId<HTMLInputElement>('quickNewGroupInput');
-    if (performAddServiceGroup(input.value.trim())) input.value = '';
-}
-
-function deleteServiceGroup(grp: string): void {
-    delete serviceGroups[grp];
-    if (activeServiceFilter === grp) activeServiceFilter = 'ALL';
+    const name = input.value.trim();
+    if (!name || serviceGroups[name]) return;
+    serviceGroups[name] = ['Orijinal', 'A Kalite'];
+    input.value = '';
     persistLocalData();
     void saveAllChanges({ silent: true });
     renderAll();
-    renderCatalogManager();
-}
-
-function performAddQualityTier(grp: string, name: string): boolean {
-    if (!grp || !name) return false;
-    if (!serviceGroups[grp]) serviceGroups[grp] = [];
-    if (!serviceGroups[grp].includes(name)) serviceGroups[grp].push(name);
-    persistLocalData();
-    void saveAllChanges({ silent: true });
-    renderAll();
-    if (isCatalogViewOpen) renderCatalogManager();
-    showToast(`${name} kalite sınıfı eklendi.`);
-    return true;
-}
-
-function addQualityTier(): void {
-    const grp = byId<HTMLSelectElement>('qualityTargetGroup').value;
-    const input = byId<HTMLInputElement>('newQualityInput');
-    if (performAddQualityTier(grp, input.value.trim())) input.value = '';
+    showToast(`${name} hizmet grubu eklendi.`);
 }
 
 function addQualityFromQuickBar(): void {
     const grp = byId<HTMLSelectElement>('quickQualityTargetGroup').value;
     const input = byId<HTMLInputElement>('quickNewQualityInput');
-    if (performAddQualityTier(grp, input.value.trim())) input.value = '';
-}
-
-function deleteQualityTier(grp: string, qual: string): void {
-    if (!serviceGroups[grp]) return;
-    serviceGroups[grp] = serviceGroups[grp].filter((q) => q !== qual);
+    const name = input.value.trim();
+    if (!grp || !name) return;
+    if (!serviceGroups[grp]) serviceGroups[grp] = [];
+    if (!serviceGroups[grp].includes(name)) serviceGroups[grp].push(name);
+    input.value = '';
     persistLocalData();
     void saveAllChanges({ silent: true });
     renderAll();
-    renderCatalogManager();
+    showToast(`${name} kalite sınıfı eklendi.`);
 }
 
 // --- Günlük Değişiklik Odaklı CSV Yedekleme & Geri Yükleme ---
@@ -1988,33 +1803,23 @@ function renderAll(): void {
 
 // HTML satır içi olay yöneticileri için pencere bağlamaları
 Object.assign(window, {
-    addBrand,
     addBrandFromQuickBar,
-    addDevice,
     addDeviceFromQuickBar,
     addGroupFromQuickBar,
     addQualityFromQuickBar,
-    addQualityTier,
-    addServiceGroup,
     clearDeviceSearch,
     clearMobileQuickSearch,
     clearQuoteSelection,
     closeAuthModal,
     closeBackupModal,
-    closeCatalogModal,
     closePasswordModal,
     connectBackupFolder,
-    deleteBrand,
     deleteDailyBackup,
-    deleteDevice,
-    deleteQualityTier,
-    deleteServiceGroup,
     disconnectBackupFolder,
     downloadCurrentCsv,
     downloadDailyBackup,
     handleCostTableInput,
     handleCsvFileRestore,
-    moveBrand,
     moveDevice,
     onFinanceChange,
     onMobileQuickSearch,
@@ -2023,9 +1828,7 @@ Object.assign(window, {
     onSearchInput,
     openAuthModal,
     openBackupModal,
-    openCatalogModal,
     openPasswordModal,
-    renderCatalogManager,
     restoreDailyBackup,
     saveAllChanges,
     selectBrandFilter,
@@ -2035,7 +1838,6 @@ Object.assign(window, {
     setMobilePane,
     submitAdminLogin,
     submitPasswordChange,
-    switchCatalogTab,
     switchToCustomerMode,
     syncFromCloud,
     takeManualBackupNow,
@@ -2065,7 +1867,6 @@ document.addEventListener('keydown', (e: KeyboardEvent) => {
     } else if (e.key === 'Escape') {
         closeAuthModal();
         closePasswordModal();
-        closeCatalogModal();
         closeBackupModal();
     }
 });
