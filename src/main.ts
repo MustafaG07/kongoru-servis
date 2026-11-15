@@ -452,7 +452,14 @@ function applyTheme(theme: ThemeMode): void {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem(STORAGE_KEYS.theme, theme);
     const btn = maybeById('themeToggleBtn');
-    if (btn) btn.textContent = theme === 'dark' ? 'Açık Tema' : 'Koyu Tema';
+    if (!btn) return;
+    if (isCustomerMode) {
+        btn.innerHTML = theme === 'dark'
+            ? '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>'
+            : '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32 1.41-1.41"/></svg>';
+    } else {
+        btn.textContent = theme === 'dark' ? 'Açık Tema' : 'Koyu Tema';
+    }
 }
 
 function toggleTheme(): void {
@@ -463,6 +470,7 @@ function toggleTheme(): void {
 function applyModeUI(): void {
     document.body.setAttribute('data-mode', isCustomerMode ? 'customer' : 'admin');
     byId('headerAdminBtn').classList.toggle('hidden', !isCustomerMode);
+    maybeById('customerHeaderSep')?.classList.toggle('hidden', !isCustomerMode);
     byId('adminSessionGroup').classList.toggle('hidden', isCustomerMode);
     byId('headerCustomerBtn').classList.toggle('hidden', isCustomerMode);
     byId('headerPassChangeBtn').classList.toggle('hidden', isCustomerMode);
@@ -484,6 +492,7 @@ function applyModeUI(): void {
     } else {
         closeCatalogModal();
     }
+    applyTheme((document.documentElement.getAttribute('data-theme') || 'dark') as ThemeMode);
 }
 
 function switchToCustomerMode(): void {
@@ -934,6 +943,18 @@ function clearQuoteSelection(): void {
     renderCustomerQuoteBar();
 }
 
+function getShortServiceTabLabel(groupName: string): string {
+    if (!isCustomerMode) return groupName;
+    if (groupName === 'Ekran Değişimi') return 'Ekran';
+    if (groupName === 'Batarya Değişimi') return 'Batarya';
+    if (groupName === 'Kamera Değişimi') return 'Kamera';
+    if (groupName === 'Soket İşlemleri') return 'Soket';
+    if (groupName === 'Ahize Değişimi') return 'Ahize';
+    if (groupName === 'Ön Cam - Dokunmatik') return 'Ön Cam';
+    if (groupName === 'Diğer İşlemler') return 'Diğer';
+    return groupName;
+}
+
 function renderCenterWorkbench(): void {
     const cfg = getFinanceConfig();
     byId('statRateVat').textContent = `${cfg.rate} ₺ / %${cfg.vatRate}`;
@@ -953,7 +974,7 @@ function renderCenterWorkbench(): void {
     const groupNames = Object.keys(serviceGroups);
     let pillsHtml = `<button type="button" class="service-pill ${activeServiceFilter === 'ALL' ? 'active' : ''}" onclick="selectServiceFilter('ALL')">Tümü</button>`;
     for (const grp of groupNames) {
-        pillsHtml += `<button type="button" class="service-pill ${activeServiceFilter === grp ? 'active' : ''}" data-group="${escapeHtml(grp)}" onclick="selectServiceFilter(this.dataset.group)">${escapeHtml(grp)}</button>`;
+        pillsHtml += `<button type="button" class="service-pill ${activeServiceFilter === grp ? 'active' : ''}" data-group="${escapeHtml(grp)}" onclick="selectServiceFilter(this.dataset.group)">${escapeHtml(getShortServiceTabLabel(grp))}</button>`;
     }
     byId('serviceFilterPills').innerHTML = pillsHtml;
 

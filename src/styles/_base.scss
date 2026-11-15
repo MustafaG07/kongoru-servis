@@ -22,7 +22,15 @@
     flex-shrink: 0;
 }
 
+body[data-mode="customer"] .topbar {
+    background: var(--bg-canvas);
+    border-bottom: none;
+    min-height: 48px;
+    padding: 10px 16px 6px;
+}
+
 body[data-mode="customer"] .topbar-divider,
+body[data-mode="customer"] .brand-sub,
 body[data-mode="customer"] .sync-badge,
 body[data-mode="customer"] .mode-pill,
 body[data-mode="customer"] .device-banner-stats {
@@ -72,6 +80,35 @@ body[data-mode="customer"] .device-banner-stats {
     align-items: center;
     gap: 12px;
     flex-wrap: wrap;
+}
+
+.topbar-actions-sep {
+    width: 1px;
+    height: 18px;
+    background: var(--border-strong);
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+body[data-mode="admin"] .topbar-actions-sep {
+    display: none;
+}
+
+body[data-mode="customer"] .icon-header-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    padding: 6px;
+    border-radius: 8px;
+    min-height: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body[data-mode="customer"] .icon-header-btn:hover {
+    background: var(--bg-surface);
+    color: var(--text-primary);
 }
 
 .topbar-group {
