@@ -618,6 +618,76 @@ function clearDeviceSearch(): void {
     renderDeviceDirectory();
 }
 
+function renderMobileQuickResults(query: string): void {
+    const wrap = maybeById('mobileQuickSearchResults');
+    if (!wrap) return;
+    const q = query.trim().toLocaleLowerCase('tr-TR');
+    if (!q) {
+        wrap.innerHTML = '';
+        wrap.classList.add('hidden');
+        return;
+    }
+
+    const matches: Array<{ brand: string; device: string }> = [];
+    for (const brand of categories) {
+        for (const dev of (devicesMap[brand] || [])) {
+            if (dev.toLocaleLowerCase('tr-TR').includes(q) || brand.toLocaleLowerCase('tr-TR').includes(q)) {
+                matches.push({ brand, device: dev });
+            }
+        }
+    }
+
+    if (!matches.length) {
+        wrap.innerHTML = '<div class="mobile-quick-empty">Eşleşen telefon/model bulunamadı.</div>';
+        wrap.classList.remove('hidden');
+        return;
+    }
+
+    wrap.innerHTML = matches.slice(0, 12).map((m) => `
+        <button type="button" class="mobile-quick-item"
+            data-brand="${escapeHtml(m.brand)}" data-device="${escapeHtml(m.device)}"
+            onclick="selectMobileQuickResult(this.dataset.brand, this.dataset.device)">
+            <span class="mobile-quick-item-name">${escapeHtml(m.device)}</span>
+            <span class="brand-pill">${escapeHtml(m.brand)}</span>
+        </button>`).join('');
+    wrap.classList.remove('hidden');
+}
+
+function onMobileQuickSearch(): void {
+    const input = maybeById<HTMLInputElement>('mobileDeviceSearchInput');
+    const clearBtn = maybeById('clearMobileSearchBtn');
+    const q = input ? input.value : '';
+    if (clearBtn) clearBtn.classList.toggle('hidden', !q);
+    renderMobileQuickResults(q);
+}
+
+function clearMobileQuickSearch(): void {
+    const input = maybeById<HTMLInputElement>('mobileDeviceSearchInput');
+    const clearBtn = maybeById('clearMobileSearchBtn');
+    if (input) input.value = '';
+    if (clearBtn) clearBtn.classList.add('hidden');
+    renderMobileQuickResults('');
+}
+
+function selectMobileQuickResult(brand: string, device: string): void {
+    clearMobileQuickSearch();
+    const input = maybeById<HTMLInputElement>('mobileDeviceSearchInput');
+    if (input) input.blur();
+    selectDevice(brand, device);
+}
+
+function onMobileQuickSearchKey(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+        const firstBtn = document.querySelector<HTMLButtonElement>('#mobileQuickSearchResults .mobile-quick-item');
+        if (firstBtn) {
+            event.preventDefault();
+            selectMobileQuickResult(firstBtn.dataset.brand || '', firstBtn.dataset.device || '');
+        }
+    } else if (event.key === 'Escape') {
+        clearMobileQuickSearch();
+    }
+}
+
 function selectBrandFilter(brand: string): void {
     activeBrandFilter = brand;
     renderBrandChips();
@@ -1847,6 +1917,7 @@ Object.assign(window, {
     addQualityTier,
     addServiceGroup,
     clearDeviceSearch,
+    clearMobileQuickSearch,
     clearQuoteSelection,
     closeAuthModal,
     closeBackupModal,
@@ -1866,6 +1937,8 @@ Object.assign(window, {
     moveBrand,
     moveDevice,
     onFinanceChange,
+    onMobileQuickSearch,
+    onMobileQuickSearchKey,
     onMoveDeviceClick,
     onSearchInput,
     openAuthModal,
@@ -1877,6 +1950,7 @@ Object.assign(window, {
     saveAllChanges,
     selectBrandFilter,
     selectDevice,
+    selectMobileQuickResult,
     selectServiceFilter,
     setMobilePane,
     submitAdminLogin,
@@ -1889,6 +1963,16 @@ Object.assign(window, {
     toggleTheme,
     triggerCsvFileSelect,
     updateQuickCalc
+});
+
+document.addEventListener('click', (e: MouseEvent) => {
+    const searchWrap = maybeById('mobileQuickSearch');
+    const results = maybeById('mobileQuickSearchResults');
+    if (searchWrap && results && !results.classList.contains('hidden')) {
+        if (!searchWrap.contains(e.target as Node)) {
+            results.classList.add('hidden');
+        }
+    }
 });
 
 document.addEventListener('keydown', (e: KeyboardEvent) => {

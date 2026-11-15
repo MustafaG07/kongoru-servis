@@ -45,6 +45,19 @@
             </div>
         </header>
 
+        <!-- MOBİL EN ÜST HIZLI TELEFON ARAMA ÇUBUĞU -->
+        <div class="mobile-quick-search" id="mobileQuickSearch">
+            <div class="mobile-quick-search-box">
+                <span class="mobile-quick-search-icon" aria-hidden="true">🔍</span>
+                <input type="text" class="search-input mobile-quick-input" id="mobileDeviceSearchInput"
+                    placeholder="Hızlı telefon ara... (Örn: 15 Pro, S24)"
+                    oninput="onMobileQuickSearch()" onkeydown="onMobileQuickSearchKey(event)">
+                <button type="button" class="search-clear hidden" id="clearMobileSearchBtn"
+                    onclick="clearMobileQuickSearch()" title="Aramayı temizle">×</button>
+            </div>
+            <div class="mobile-quick-results hidden" id="mobileQuickSearchResults"></div>
+        </div>
+
         <!-- MOBİL BÖLÜM SEÇİCİ -->
         <div class="mobile-pane-bar">
             <button type="button" class="mobile-pane-btn" id="mobBtnDirectory"
