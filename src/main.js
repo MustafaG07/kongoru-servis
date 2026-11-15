@@ -599,16 +599,14 @@ function renderDeviceDirectory() {
         });
         if (!list.length) continue;
 
-        html += `<div class="device-group-label">${escapeHtml(brand)} (${list.length})</div>`;
+        html += `<div class="device-group-label">${escapeHtml(brand)}</div>`;
         for (const dev of list) {
             const isActive = brand === selectedBrand && dev === selectedDevice;
-            const counts = countPricedForDevice(brand, dev);
             html += `
             <button type="button" class="device-item ${isActive ? 'active' : ''}"
                 data-brand="${escapeHtml(brand)}" data-device="${escapeHtml(dev)}"
                 onclick="selectDevice(this.dataset.brand, this.dataset.device)">
                 <span class="device-item-name">${escapeHtml(dev)}</span>
-                <span class="device-item-badge ${counts.priced > 0 ? 'has-data' : ''}">${counts.priced}/${counts.total}</span>
             </button>`;
         }
     }
@@ -690,21 +688,6 @@ function handleCostTableInput(inputEl) {
     if (rawEl) rawEl.textContent = calc.hasPrice ? formatTry(calc.rawTotal) : '-';
     const vatEl = row.querySelector('[data-out="vat"]');
     if (vatEl) vatEl.textContent = calc.hasPrice ? formatTry(calc.vatAmount) : '-';
-
-    const card = row.closest('.service-card');
-    if (card) {
-        const tiles = [...card.querySelectorAll('.quality-tile[data-quality]')];
-        const pricedInGrp = tiles.filter((t) => {
-            const badge = t.querySelector('[data-out="final"]');
-            return badge && !badge.classList.contains('empty');
-        }).length;
-        const countEl = card.querySelector('.service-card-count');
-        if (countEl) countEl.textContent = `${pricedInGrp}/${tiles.length}`;
-    }
-
-    const counts = countPricedForDevice(brand, device);
-    document.getElementById('statPricedCount').textContent = `${counts.priced} / ${counts.total}`;
-    renderDeviceDirectory();
 }
 
 function renderCenterWorkbench() {
@@ -714,7 +697,6 @@ function renderCenterWorkbench() {
     if (!selectedDevice) {
         document.getElementById('activeBrandBadge').textContent = '-';
         document.getElementById('activeDeviceTitle').textContent = 'Cihaz Seçin';
-        document.getElementById('statPricedCount').textContent = '0 / 0';
         document.getElementById('serviceFilterPills').innerHTML = '';
         document.getElementById('workbenchContent').innerHTML = '<div class="quote-empty">Sol rehberden bir cihaz seçin.</div>';
         return;
@@ -722,11 +704,9 @@ function renderCenterWorkbench() {
 
     document.getElementById('activeBrandBadge').textContent = selectedBrand;
     document.getElementById('activeDeviceTitle').textContent = selectedDevice;
-    const counts = countPricedForDevice(selectedBrand, selectedDevice);
-    document.getElementById('statPricedCount').textContent = `${counts.priced} / ${counts.total}`;
 
     const groupNames = Object.keys(serviceGroups);
-    let pillsHtml = `<button type="button" class="service-pill ${activeServiceFilter === 'ALL' ? 'active' : ''}" onclick="selectServiceFilter('ALL')">Tüm Hizmetler (${groupNames.length})</button>`;
+    let pillsHtml = `<button type="button" class="service-pill ${activeServiceFilter === 'ALL' ? 'active' : ''}" onclick="selectServiceFilter('ALL')">Tüm Hizmetler</button>`;
     for (const grp of groupNames) {
         pillsHtml += `<button type="button" class="service-pill ${activeServiceFilter === grp ? 'active' : ''}" data-group="${escapeHtml(grp)}" onclick="selectServiceFilter(this.dataset.group)">${escapeHtml(grp)}</button>`;
     }
@@ -738,13 +718,11 @@ function renderCenterWorkbench() {
     let cardsHtml = '<div class="customer-groups-grid">';
     for (const grp of targetGroups) {
         const quals = serviceGroups[grp] || [];
-        let pricedInGrp = 0;
         let rowsHtml = '';
 
         for (const qual of quals) {
             const { usd, labor } = readItemPrice(selectedBrand, selectedDevice, grp, qual);
             const calc = calculatePrice(usd, labor, cfg.rate, cfg.vatRate, cfg.roundingMode);
-            if (calc.hasPrice) pricedInGrp++;
 
             if (isCustomerMode) {
                 rowsHtml += `
@@ -789,7 +767,6 @@ function renderCenterWorkbench() {
         <article class="service-card">
             <div class="service-card-head">
                 <span class="service-card-title">${escapeHtml(grp)}</span>
-                <span class="service-card-count">${pricedInGrp}/${quals.length}</span>
             </div>
             <div class="quality-list">${rowsHtml}</div>
         </article>`;

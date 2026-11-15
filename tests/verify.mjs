@@ -49,8 +49,12 @@ async function runTests() {
     assert.equal(/<style>/.test(v2Html), false, 'kongoru-v2.html içinde satır içi <style> kalmamalı');
     assert.equal(v2Html.includes('./src/styles/main.css'), true, 'CSS bağlantısı eksik');
     assert.equal(v2Html.includes('<script type="module" src="./src/main.js"></script>'), true, 'JS modül bağlantısı eksik');
+    assert.equal(v2Html.includes('statPricedCount'), false, 'statPricedCount sayaç alanı kaldırılmış olmalı');
+    assert.equal(v2Html.includes('Fiyatlı İşlem'), false, 'Fiyatlı İşlem başlığı kaldırılmış olmalı');
 
     const mainJs = readFileSync(join(ROOT, 'src/main.js'), 'utf8');
+    assert.equal(mainJs.includes('counts.priced'), false, 'Sol listede ve kartlarda priced sayaçları gösterilmemeli');
+    assert.equal(mainJs.includes('service-card-count'), false, 'Hizmet kartı sayaç rozeti kaldırılmış olmalı');
     const attrRegex = /\bon[a-z]+\s*=\s*["']([^"']+)["']/g;
     const htmlHandlers = new Set();
     for (const sourceText of [v2Html, mainJs]) {
