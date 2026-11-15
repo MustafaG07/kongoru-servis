@@ -15,6 +15,48 @@
     display: flex;
 }
 
+.modal-backdrop.auth-popover-backdrop {
+    background: transparent;
+    backdrop-filter: none;
+    padding: 0;
+}
+
+.modal-backdrop.auth-popover-backdrop.open {
+    display: block;
+}
+
+.auth-popover-card {
+    position: fixed;
+    width: 280px;
+    max-width: calc(100vw - 24px);
+    border-radius: 12px;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.32);
+    overflow: visible;
+}
+
+.auth-popover-card .modal-head {
+    padding: 10px 14px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.auth-popover-card .modal-body {
+    padding: 12px 14px;
+    gap: 10px;
+}
+
+.auth-popover-arrow {
+    position: absolute;
+    top: -6px;
+    width: 11px;
+    height: 11px;
+    background: var(--bg-surface);
+    border-left: 1px solid var(--border-strong);
+    border-top: 1px solid var(--border-strong);
+    transform: rotate(45deg);
+    pointer-events: none;
+}
+
 .modal-card {
     width: 100%;
     max-width: 440px;

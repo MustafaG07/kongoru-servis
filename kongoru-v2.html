@@ -18,7 +18,7 @@
         <!-- ÜST KOMUT ŞERİDİ -->
         <header class="topbar">
             <div class="topbar-left">
-                <div class="brand-lockup" ondblclick="openAuthModal()" title="Yönetici erişimi için çift tıklayın">
+                <div class="brand-lockup" ondblclick="openAuthModal(event)" title="Yönetici erişimi için çift tıklayın">
                     <div>
                         <div class="brand-title">KONGORU</div>
                         <div class="brand-sub" id="modeSubtitle">Servis Fiyat Listesi</div>
@@ -37,7 +37,7 @@
                         onclick="switchToCustomerMode()">Müşteri Görünümü</button>
                 </div>
                 <button type="button" class="btn btn-primary btn-sm icon-header-btn" id="headerAdminBtn"
-                    onclick="openAuthModal()" title="Yönetici Girişi" aria-label="Yönetici Girişi">
+                    onclick="openAuthModal(event)" title="Yönetici Girişi" aria-label="Yönetici Girişi">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
                 </button>
                 <span class="topbar-actions-sep" id="customerHeaderSep" aria-hidden="true"></span>
@@ -240,9 +240,10 @@
         </div>
     </div>
 
-    <!-- YÖNETİCİ GİRİŞ MODALI -->
-    <div class="modal-backdrop" id="authModal" onclick="if(event.target===this) closeAuthModal()">
-        <div class="modal-card">
+    <!-- YÖNETİCİ GİRİŞ BALONU -->
+    <div class="modal-backdrop auth-popover-backdrop" id="authModal" onclick="if(event.target===this) closeAuthModal()">
+        <div class="modal-card auth-popover-card" id="authPopoverCard">
+            <span class="auth-popover-arrow" id="authPopoverArrow" aria-hidden="true"></span>
             <div class="modal-head">
                 <h3>Yönetici Girişi</h3>
                 <button type="button" class="btn btn-ghost btn-sm" onclick="closeAuthModal()">×</button>

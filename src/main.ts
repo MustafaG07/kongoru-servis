@@ -517,11 +517,31 @@ function setMobilePane(pane: MobilePane): void {
 }
 
 // --- Modallar ---
-function openAuthModal(): void {
+function openAuthModal(event?: Event): void {
     if (!isCustomerMode) return;
     byId('authErrorMsg').textContent = '';
     byId<HTMLInputElement>('adminPasswordInput').value = '';
-    byId('authModal').classList.add('open');
+    const backdrop = byId('authModal');
+    const card = maybeById<HTMLElement>('authPopoverCard');
+    const arrow = maybeById<HTMLElement>('authPopoverArrow');
+    const trigger = (event?.currentTarget as HTMLElement | null) || maybeById('headerAdminBtn');
+
+    backdrop.classList.add('open');
+
+    if (card && trigger) {
+        const rect = trigger.getBoundingClientRect();
+        const cardWidth = Math.min(280, window.innerWidth - 24);
+        const top = Math.min(rect.bottom + 10, window.innerHeight - 220);
+        const left = Math.min(Math.max(12, rect.right - cardWidth), window.innerWidth - cardWidth - 12);
+        card.style.top = `${Math.max(12, top)}px`;
+        card.style.left = `${left}px`;
+        if (arrow) {
+            const centerX = rect.left + rect.width / 2 - left;
+            const clampedArrow = Math.min(Math.max(16, centerX - 5), cardWidth - 24);
+            arrow.style.left = `${clampedArrow}px`;
+        }
+    }
+
     setTimeout(() => byId<HTMLInputElement>('adminPasswordInput').focus(), 40);
 }
 
