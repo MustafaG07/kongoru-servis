@@ -204,10 +204,24 @@
                         <div class="device-banner">
                             <div class="device-banner-main">
                                 <div class="device-banner-badges">
-                                    <span class="brand-pill" id="activeBrandBadge">-</span>
+                                    <div class="banner-picker-wrap" id="bannerBrandWrap">
+                                        <button type="button" class="brand-pill banner-picker-btn" id="activeBrandTrigger"
+                                            onclick="toggleBannerPicker('brand', event)" aria-expanded="false" aria-controls="bannerBrandMenu">
+                                            <span id="activeBrandBadge">-</span>
+                                            <svg class="banner-picker-caret" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                                        </button>
+                                        <div class="banner-picker-menu hidden" id="bannerBrandMenu" role="listbox"></div>
+                                    </div>
                                     <span class="mode-pill" id="activeModeBadge">Müşteri Görünümü</span>
                                 </div>
-                                <h1 class="device-banner-title" id="activeDeviceTitle">Cihaz Seçin</h1>
+                                <div class="banner-picker-wrap" id="bannerDeviceWrap">
+                                    <button type="button" class="banner-title-btn" id="activeDeviceTrigger"
+                                        onclick="toggleBannerPicker('device', event)" aria-expanded="false" aria-controls="bannerDeviceMenu">
+                                        <h1 class="device-banner-title" id="activeDeviceTitle">Cihaz Seçin</h1>
+                                        <svg class="banner-picker-caret" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                                    </button>
+                                    <div class="banner-picker-menu hidden" id="bannerDeviceMenu" role="listbox"></div>
+                                </div>
                             </div>
                             <div class="device-banner-actions">
                                 <button type="button" class="btn btn-secondary btn-sm mobile-switch-device-btn"

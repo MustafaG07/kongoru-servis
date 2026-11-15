@@ -716,6 +716,69 @@ function selectBrandFilter(brand: string): void {
     renderDeviceDirectory();
 }
 
+function closeBannerPickers(): void {
+    maybeById('bannerBrandMenu')?.classList.add('hidden');
+    maybeById('bannerDeviceMenu')?.classList.add('hidden');
+    maybeById('activeBrandTrigger')?.setAttribute('aria-expanded', 'false');
+    maybeById('activeDeviceTrigger')?.setAttribute('aria-expanded', 'false');
+}
+
+function toggleBannerPicker(kind: 'brand' | 'device', event?: Event): void {
+    event?.stopPropagation();
+    const isBrand = kind === 'brand';
+    const menu = maybeById(isBrand ? 'bannerBrandMenu' : 'bannerDeviceMenu');
+    const trigger = maybeById(isBrand ? 'activeBrandTrigger' : 'activeDeviceTrigger');
+    const otherMenu = maybeById(isBrand ? 'bannerDeviceMenu' : 'bannerBrandMenu');
+    const otherTrigger = maybeById(isBrand ? 'activeDeviceTrigger' : 'activeBrandTrigger');
+    if (!menu || !trigger) return;
+
+    otherMenu?.classList.add('hidden');
+    otherTrigger?.setAttribute('aria-expanded', 'false');
+
+    const willOpen = menu.classList.contains('hidden');
+    if (willOpen) {
+        if (isBrand) {
+            menu.innerHTML = categories.map((cat) => `
+                <button type="button" class="banner-picker-option ${cat === selectedBrand ? 'active' : ''}"
+                    role="option" data-brand="${escapeHtml(cat)}"
+                    onclick="selectBrandFromBanner(this.dataset.brand)">${escapeHtml(cat)}</button>
+            `).join('');
+        } else {
+            const list = devicesMap[selectedBrand] || [];
+            menu.innerHTML = list.length > 0
+                ? list.map((dev) => `
+                    <button type="button" class="banner-picker-option ${dev === selectedDevice ? 'active' : ''}"
+                        role="option" data-device="${escapeHtml(dev)}"
+                        onclick="selectDeviceFromBanner(this.dataset.device)">${escapeHtml(dev)}</button>
+                `).join('')
+                : '<div class="banner-picker-empty">Bu markada cihaz yok</div>';
+        }
+        menu.classList.remove('hidden');
+        trigger.setAttribute('aria-expanded', 'true');
+    } else {
+        menu.classList.add('hidden');
+        trigger.setAttribute('aria-expanded', 'false');
+    }
+}
+
+function selectBrandFromBanner(brand: string): void {
+    closeBannerPickers();
+    if (!brand) return;
+    activeBrandFilter = brand;
+    if (selectedBrand !== brand) {
+        selectedBrand = brand;
+        selectedDevice = (devicesMap[brand] || [])[0] || '';
+        selectedQuoteItems.clear();
+    }
+    renderAll();
+}
+
+function selectDeviceFromBanner(device: string): void {
+    closeBannerPickers();
+    if (!selectedBrand || !device) return;
+    selectDevice(selectedBrand, device);
+}
+
 function selectDevice(brand: string, device: string): void {
     if (selectedBrand !== brand || selectedDevice !== device) {
         selectedQuoteItems.clear();
@@ -1897,7 +1960,9 @@ Object.assign(window, {
     restoreDailyBackup,
     saveAllChanges,
     selectBrandFilter,
+    selectBrandFromBanner,
     selectDevice,
+    selectDeviceFromBanner,
     selectMobileQuickResult,
     selectServiceFilter,
     setMobilePane,
@@ -1908,6 +1973,7 @@ Object.assign(window, {
     takeManualBackupNow,
     toggleQuoteItem,
     toggleAdminToolsMenu,
+    toggleBannerPicker,
     toggleBrandDropdown,
     toggleTheme,
     triggerCsvFileSelect,
@@ -1922,6 +1988,12 @@ document.addEventListener('click', (e: MouseEvent) => {
     const brandWrap = maybeById('brandChips');
     if (brandWrap && !brandWrap.contains(e.target as Node)) {
         closeBrandDropdown();
+    }
+    const bannerBrandWrap = maybeById('bannerBrandWrap');
+    const bannerDeviceWrap = maybeById('bannerDeviceWrap');
+    if ((!bannerBrandWrap || !bannerBrandWrap.contains(e.target as Node)) &&
+        (!bannerDeviceWrap || !bannerDeviceWrap.contains(e.target as Node))) {
+        closeBannerPickers();
     }
     const searchWrap = maybeById('mobileQuickSearch');
     const results = maybeById('mobileQuickSearchResults');
@@ -1941,6 +2013,7 @@ document.addEventListener('keydown', (e: KeyboardEvent) => {
         if (input) input.focus();
     } else if (e.key === 'Escape') {
         closeAdminToolsMenu();
+        closeBannerPickers();
         closeBrandDropdown();
         closeAuthModal();
         closePasswordModal();

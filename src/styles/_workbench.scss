@@ -226,6 +226,91 @@
     gap: 8px;
 }
 
+.banner-picker-wrap {
+    position: relative;
+    display: inline-flex;
+    max-width: 100%;
+}
+
+.banner-picker-btn {
+    cursor: pointer;
+    font-family: inherit;
+    gap: 5px;
+}
+
+.banner-title-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    max-width: 100%;
+}
+
+.banner-picker-caret {
+    color: var(--text-muted);
+    flex-shrink: 0;
+    transition: transform 0.14s ease;
+}
+
+.banner-picker-btn[aria-expanded="true"] .banner-picker-caret,
+.banner-title-btn[aria-expanded="true"] .banner-picker-caret {
+    transform: rotate(180deg);
+}
+
+.banner-picker-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 220px;
+    max-width: min(320px, calc(100vw - 32px));
+    max-height: 280px;
+    overflow-y: auto;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+    z-index: 65;
+}
+
+.banner-picker-option {
+    width: 100%;
+    text-align: left;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+.banner-picker-option:hover {
+    background: var(--bg-elevated);
+}
+
+.banner-picker-option.active {
+    background: var(--accent);
+    color: #FFFFFF;
+}
+
+.banner-picker-empty {
+    padding: 10px 12px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
 .device-banner-actions {
     display: flex;
     align-items: center;
