@@ -200,27 +200,29 @@
 
                 <!-- CİHAZ TAMİR MASASI -->
                 <div id="deviceWorkbenchView">
-                    <div class="device-banner">
-                        <div class="device-banner-main">
-                            <div class="device-banner-badges">
-                                <span class="brand-pill" id="activeBrandBadge">-</span>
-                                <span class="mode-pill" id="activeModeBadge">Müşteri Görünümü</span>
+                    <div class="device-header-card">
+                        <div class="device-banner">
+                            <div class="device-banner-main">
+                                <div class="device-banner-badges">
+                                    <span class="brand-pill" id="activeBrandBadge">-</span>
+                                    <span class="mode-pill" id="activeModeBadge">Müşteri Görünümü</span>
+                                </div>
+                                <h1 class="device-banner-title" id="activeDeviceTitle">Cihaz Seçin</h1>
                             </div>
-                            <h1 class="device-banner-title" id="activeDeviceTitle">Cihaz Seçin</h1>
-                        </div>
-                        <div class="device-banner-actions">
-                            <button type="button" class="btn btn-secondary btn-sm mobile-switch-device-btn"
-                                onclick="setMobilePane('directory')">Cihaz Değiştir ›</button>
-                            <div class="device-banner-stats">
-                                <div class="stat-box">
-                                    <span class="stat-label">Aktif Kur / KDV</span>
-                                    <span class="stat-value" id="statRateVat">-</span>
+                            <div class="device-banner-actions">
+                                <button type="button" class="btn btn-secondary btn-sm mobile-switch-device-btn"
+                                    onclick="setMobilePane('directory')">Cihaz Değiştir ›</button>
+                                <div class="device-banner-stats">
+                                    <div class="stat-box">
+                                        <span class="stat-label">Aktif Kur / KDV</span>
+                                        <span class="stat-value" id="statRateVat">-</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="service-pills" id="serviceFilterPills"></div>
+                        <div class="service-pills" id="serviceFilterPills"></div>
+                    </div>
                     <div id="workbenchContent"></div>
                 </div>
             </main>

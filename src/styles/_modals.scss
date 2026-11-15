@@ -773,6 +773,14 @@ body.catalog-fullscreen .pane-center {
         display: none;
     }
 
+    body[data-mode="customer"] .device-header-card {
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        padding: 0;
+        gap: 8px;
+    }
+
     body[data-mode="customer"] .device-banner {
         background: transparent;
         border: none;
@@ -829,6 +837,7 @@ body.catalog-fullscreen .pane-center {
         gap: 18px;
         padding: 0;
         margin: 0;
+        border-top: none;
         border-bottom: 1px solid var(--border);
         scrollbar-width: none;
     }
