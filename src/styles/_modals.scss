@@ -27,7 +27,7 @@
 
 .modal-card.auth-popover-card {
     position: fixed;
-    width: 280px;
+    width: 230px;
     max-width: calc(100vw - 24px);
     border-radius: 12px;
     box-shadow: 0 14px 34px rgba(0, 0, 0, 0.32);
@@ -41,8 +41,19 @@
 }
 
 .auth-popover-card .modal-body {
-    padding: 12px 14px;
+    padding: 12px 14px 14px;
     gap: 10px;
+}
+
+.auth-popover-card .modal-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 8px;
+}
+
+.auth-popover-card .modal-actions .btn {
+    width: 100%;
+    justify-content: center;
 }
 
 .auth-popover-arrow {
