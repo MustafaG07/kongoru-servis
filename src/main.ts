@@ -1038,7 +1038,7 @@ function renderCenterWorkbench(): void {
         }
 
         renderedCardCount += 1;
-        const isWideCard = renderedRowsCount >= 4;
+        const isWideCard = !isCustomerMode && renderedRowsCount >= 4;
         cardsHtml += `
         <article class="service-card ${isWideCard ? 'service-card-wide' : ''}">
             <div class="service-card-head">

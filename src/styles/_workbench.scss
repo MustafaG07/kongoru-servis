@@ -394,7 +394,15 @@
 
 @media (min-width: 900px) {
     body[data-mode="customer"] .customer-groups-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        display: block;
+        columns: 300px;
+        column-gap: 14px;
+    }
+
+    body[data-mode="customer"] .customer-groups-grid .service-card {
+        break-inside: avoid;
+        margin-bottom: 14px;
+        width: 100%;
     }
 
     .service-card-wide {
@@ -409,14 +417,6 @@
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
-    }
-
-    body[data-mode="customer"] .service-card-wide .quality-list {
-        gap: 0;
-    }
-
-    body[data-mode="customer"] .service-card-wide .quality-tile:nth-child(odd) {
-        border-right: 1px solid var(--border);
     }
 }
 
