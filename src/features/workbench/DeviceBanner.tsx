@@ -103,6 +103,10 @@ export function DeviceBanner({
     }
   }
 
+  const serviceTabClass = isCustomerMode
+    ? 'flex-none font-medium text-muted-foreground shadow-none outline-none transition-colors [-webkit-tap-highlight-color:transparent] focus-visible:!outline-none focus-visible:!ring-0 focus-visible:!border-transparent max-md:!h-auto max-md:shrink-0 max-md:select-none max-md:!rounded-none max-md:!border-0 max-md:!border-b-2 max-md:border-transparent max-md:!bg-transparent max-md:px-1 max-md:pt-2 max-md:pb-2.5 max-md:text-[13.5px] max-md:data-[state=active]:!border-transparent max-md:data-[state=active]:!border-b-foreground max-md:dark:data-[state=active]:!border-transparent max-md:dark:data-[state=active]:!border-b-foreground max-md:data-[state=active]:!bg-transparent max-md:dark:data-[state=active]:!bg-transparent max-md:data-[state=active]:text-foreground md:h-8.5 md:rounded-lg md:border md:border-border md:bg-[var(--bg-surface)] md:px-3 md:text-xs md:data-[state=active]:border-primary md:data-[state=active]:bg-primary md:data-[state=active]:text-primary-foreground md:dark:data-[state=active]:border-primary md:dark:data-[state=active]:bg-primary md:dark:data-[state=active]:text-primary-foreground'
+    : 'h-8.5 flex-none rounded-lg border border-border bg-[var(--bg-surface)] px-3 text-xs font-medium text-muted-foreground shadow-none outline-none [-webkit-tap-highlight-color:transparent] focus-visible:!outline-none focus-visible:!ring-0 data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:border-primary dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground max-md:h-9 max-md:w-full max-md:justify-center';
+
   return (
     <Card
       className={cn(
@@ -283,26 +287,12 @@ export function DeviceBanner({
             >
               <TabsTrigger
                 value="ALL"
-                className={cn(
-                  'h-8.5 flex-none rounded-lg border border-border bg-[var(--bg-surface)] px-3 text-xs font-medium text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground',
-                  isCustomerMode
-                    ? 'max-md:!h-auto max-md:shrink-0 max-md:!rounded-none max-md:!border-0 max-md:!border-b-2 max-md:border-transparent max-md:!bg-transparent max-md:px-0.5 max-md:pt-2 max-md:pb-2.5 max-md:text-[13px] max-md:shadow-none max-md:data-[state=active]:!border-b-foreground max-md:data-[state=active]:!bg-transparent max-md:data-[state=active]:text-foreground'
-                    : 'max-md:col-span-2 max-md:h-9 max-md:w-full max-md:justify-center',
-                )}
+                className={cn(serviceTabClass, !isCustomerMode && 'max-md:col-span-2')}
               >
                 Tümü
               </TabsTrigger>
               {serviceGroupNames.map((grp) => (
-                <TabsTrigger
-                  key={grp}
-                  value={grp}
-                  className={cn(
-                    'h-8.5 flex-none rounded-lg border border-border bg-[var(--bg-surface)] px-3 text-xs font-medium text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground',
-                    isCustomerMode
-                      ? 'max-md:!h-auto max-md:shrink-0 max-md:!rounded-none max-md:!border-0 max-md:!border-b-2 max-md:border-transparent max-md:!bg-transparent max-md:px-0.5 max-md:pt-2 max-md:pb-2.5 max-md:text-[13px] max-md:shadow-none max-md:data-[state=active]:!border-b-foreground max-md:data-[state=active]:!bg-transparent max-md:data-[state=active]:text-foreground'
-                      : 'max-md:h-9 max-md:w-full max-md:justify-center',
-                  )}
-                >
+                <TabsTrigger key={grp} value={grp} className={serviceTabClass}>
                   {getShortServiceTabLabel(grp, isCustomerMode)}
                 </TabsTrigger>
               ))}
