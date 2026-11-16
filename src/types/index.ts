@@ -1,4 +1,4 @@
-// KONGORU Teknik Servis alan modeli ve uygulama tipleri
+// KONGORU Teknik Servis alan modeli ve uygulama tipleri (V2 ile %100 uyumlu)
 
 export type ThemeMode = 'dark' | 'light';
 export type MobilePane = 'directory' | 'stage';
@@ -10,103 +10,126 @@ export type ServiceGroupsMap = Record<string, string[]>;
 export type DevicesByBrand = Record<string, string[]>;
 
 export interface SerializedDeviceEntry {
-    name: string;
-    category: string;
+  name: string;
+  category: string;
 }
 
 export interface ItemPricePair {
-    usd: string;
-    labor: string;
+  usd: string;
+  labor: string;
 }
 
 export interface LegacyStructuredPriceItem {
-    cost?: string | number;
-    usd?: string | number;
-    usdCost?: string | number;
-    labor?: string | number;
-    laborCost?: string | number;
+  cost?: string | number;
+  usd?: string | number;
+  usdCost?: string | number;
+  labor?: string | number;
+  laborCost?: string | number;
 }
 
 export type PriceMapValue = string | number | boolean | LegacyStructuredPriceItem | undefined;
 export type PricesStateMap = Record<string, PriceMapValue>;
 
 export interface FinanceConfig {
-    rate: number;
-    vatRate: number;
-    roundingMode: RoundingMode;
+  rate: number;
+  vatRate: number;
+  roundingMode: RoundingMode;
 }
 
 export interface PriceCalculation {
-    hasPrice: boolean;
-    tlPart: number;
-    rawTotal: number;
-    vatAmount: number;
-    withTax: number;
-    finalPrice: number;
+  hasPrice: boolean;
+  tlPart: number;
+  rawTotal: number;
+  vatAmount: number;
+  withTax: number;
+  finalPrice: number;
 }
 
 export interface DeviceSortScore {
-    familyRank: number;
-    genScore: number;
-    tierScore: number;
-    subScore: number;
+  familyRank: number;
+  genScore: number;
+  tierScore: number;
+  subScore: number;
 }
 
 export interface DailyBackupEntry {
-    date: string;
-    updatedAt: string;
-    fileName: string;
-    hash?: string;
-    pricedCount: number;
-    csv: string;
+  date: string;
+  updatedAt: string;
+  fileName: string;
+  hash?: string;
+  pricedCount: number;
+  csv: string;
 }
 
 export type DailyBackupsMap = Record<string, DailyBackupEntry>;
 
 export interface GithubDbPayload {
-    version?: number;
-    updatedAt?: string;
-    catList?: string[];
-    categories?: string[];
-    serviceGroups?: ServiceGroupsMap;
-    deviceList?: SerializedDeviceEntry[] | DevicesByBrand;
-    devices?: DevicesByBrand;
-    prices?: PricesStateMap;
-    adminPassword?: string;
-    dailyCsvBackups?: DailyBackupsMap;
+  version?: number;
+  updatedAt?: string;
+  catList?: string[];
+  categories?: string[];
+  serviceGroups?: ServiceGroupsMap;
+  deviceList?: SerializedDeviceEntry[] | DevicesByBrand;
+  devices?: DevicesByBrand;
+  prices?: PricesStateMap;
+  adminPassword?: string;
+  dailyCsvBackups?: DailyBackupsMap;
 }
 
 export interface StorageKeysMap {
-    categories: string;
-    groups: string;
-    devices: string;
-    prices: string;
-    password: string;
-    theme: string;
-    dailyBackups: string;
-    lastBackupHash: string;
-    pendingSync: string;
-    uiMode: string;
+  categories: string;
+  groups: string;
+  devices: string;
+  prices: string;
+  password: string;
+  theme: string;
+  dailyBackups: string;
+  lastBackupHash: string;
+  pendingSync: string;
+  uiMode: string;
 }
 
 export interface GithubDbConfig {
-    gistId: string;
-    fileName: string;
-    tokenParts: readonly string[];
+  gistId: string;
+  fileName: string;
+  tokenParts: readonly string[];
 }
 
 export interface BackupWritableStream {
-    write(data: string): Promise<void>;
-    close(): Promise<void>;
+  write(data: string): Promise<void>;
+  close(): Promise<void>;
 }
 
 export interface BackupFileHandle {
-    createWritable(): Promise<BackupWritableStream>;
+  createWritable(): Promise<BackupWritableStream>;
 }
 
 export interface BackupDirectoryHandle {
-    name?: string;
-    queryPermission?(descriptor?: { mode?: 'read' | 'readwrite' }): Promise<PermissionState>;
-    removeEntry?(name: string): Promise<void>;
-    getFileHandle(name: string, options?: { create?: boolean }): Promise<BackupFileHandle>;
+  name?: string;
+  queryPermission?(descriptor?: { mode?: 'read' | 'readwrite' }): Promise<PermissionState>;
+  removeEntry?(name: string): Promise<void>;
+  getFileHandle(name: string, options?: { create?: boolean }): Promise<BackupFileHandle>;
+}
+
+export interface AdminSummarySelection {
+  brand: string;
+  device: string;
+  group: string;
+  quality: string;
+}
+
+export interface QuoteSelectionItem {
+  key: string;
+  brand: string;
+  device: string;
+  group: string;
+  quality: string;
+  price: number;
+}
+
+export interface CatalogState {
+  categories: string[];
+  serviceGroups: ServiceGroupsMap;
+  devicesMap: DevicesByBrand;
+  pricesState: PricesStateMap;
 }

@@ -1,4 +1,4 @@
-name: Deploy Kongoru V2 to GitHub Pages
+name: Deploy Kongoru V3 to GitHub Pages
 
 on:
   push:
