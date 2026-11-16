@@ -299,7 +299,7 @@ body[data-mode="admin"] .topbar-actions-sep {
 
 .btn-primary {
     background: var(--accent);
-    color: #FFFFFF;
+    color: var(--accent-contrast);
     border-color: var(--accent);
 }
 

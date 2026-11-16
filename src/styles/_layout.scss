@@ -159,7 +159,7 @@
 
 .brand-dropdown-option.active {
     background: var(--accent);
-    color: #FFFFFF;
+    color: var(--accent-contrast);
 }
 
 .device-list {

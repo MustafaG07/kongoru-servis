@@ -624,7 +624,7 @@ body.catalog-fullscreen .pane-center {
 
 .mobile-pane-btn.active {
     background: var(--accent);
-    color: #FFFFFF;
+    color: var(--accent-contrast);
     border-color: var(--accent);
 }
 
