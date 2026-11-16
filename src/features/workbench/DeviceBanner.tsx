@@ -13,7 +13,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -64,15 +63,9 @@ export function DeviceBanner({
 }: DeviceBannerProps) {
   const [brandMenuOpen, setBrandMenuOpen] = useState(false);
   const [deviceMenuOpen, setDeviceMenuOpen] = useState(false);
-  const [devicePickerFilter, setDevicePickerFilter] = useState('');
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
   const brandDevices = devicesMap[selectedBrand] || [];
-  const filteredBannerDevices = devicePickerFilter.trim()
-    ? brandDevices.filter((d) =>
-        d.toLocaleLowerCase('tr-TR').includes(devicePickerFilter.trim().toLocaleLowerCase('tr-TR')),
-      )
-    : brandDevices;
 
   const serviceGroupNames = Object.keys(serviceGroups);
 
@@ -142,7 +135,7 @@ export function DeviceBanner({
                 </button>
               </PopoverTrigger>
               <PopoverContent align="start" className="w-56 overflow-hidden p-1.5">
-                <ScrollArea className="max-h-64 pr-1">
+                <ScrollArea className="max-h-[55dvh] pr-1 overscroll-contain">
                   <div className="flex flex-col gap-0.5">
                     {categories.map((cat) => {
                       const active = cat === selectedBrand;
@@ -155,7 +148,7 @@ export function DeviceBanner({
                             onSelectBrandFromBanner(cat);
                           }}
                           className={cn(
-                            'flex w-full items-center justify-between rounded-md px-2.5 py-2 text-left text-xs font-medium transition-colors',
+                            'flex min-h-[40px] w-full items-center justify-between rounded-md px-2.5 py-2 text-left text-sm font-medium transition-colors sm:min-h-0 sm:text-xs',
                             active
                               ? 'bg-primary text-primary-foreground'
                               : 'text-foreground hover:bg-[var(--bg-elevated)]',
@@ -192,13 +185,7 @@ export function DeviceBanner({
             )}
           </div>
 
-          <Popover
-            open={deviceMenuOpen}
-            onOpenChange={(next) => {
-              setDeviceMenuOpen(next);
-              if (!next) setDevicePickerFilter('');
-            }}
-          >
+          <Popover open={deviceMenuOpen} onOpenChange={setDeviceMenuOpen}>
             <PopoverTrigger asChild>
               <button
                 type="button"
@@ -215,25 +202,15 @@ export function DeviceBanner({
                 />
               </button>
             </PopoverTrigger>
-            <PopoverContent align="start" className="w-72 overflow-hidden p-2">
-              {brandDevices.length > 6 && (
-                <div className="mb-2">
-                  <Input
-                    value={devicePickerFilter}
-                    onChange={(e) => setDevicePickerFilter(e.target.value)}
-                    placeholder={`${selectedBrand} içinde ara...`}
-                    className="h-8 text-base sm:text-xs"
-                  />
-                </div>
-              )}
-              <ScrollArea className="max-h-64 pr-1">
-                {filteredBannerDevices.length === 0 ? (
+            <PopoverContent align="start" className="w-72 overflow-hidden p-1.5">
+              <ScrollArea className="max-h-[55dvh] pr-1 overscroll-contain">
+                {brandDevices.length === 0 ? (
                   <div className="px-2.5 py-4 text-center text-xs text-muted-foreground">
                     Bu markada cihaz bulunamadı
                   </div>
                 ) : (
                   <div className="flex flex-col gap-0.5">
-                    {filteredBannerDevices.map((dev) => {
+                    {brandDevices.map((dev) => {
                       const active = dev === selectedDevice;
                       return (
                         <button
@@ -241,11 +218,10 @@ export function DeviceBanner({
                           type="button"
                           onClick={() => {
                             setDeviceMenuOpen(false);
-                            setDevicePickerFilter('');
                             onSelectDeviceFromBanner(selectedBrand, dev);
                           }}
                           className={cn(
-                            'flex w-full items-center justify-between gap-2 rounded-md px-2.5 py-2 text-left text-xs font-medium transition-colors',
+                            'flex min-h-[40px] w-full items-center justify-between gap-2 rounded-md px-2.5 py-2 text-left text-sm font-medium transition-colors sm:min-h-0 sm:text-xs',
                             active
                               ? 'bg-primary text-primary-foreground'
                               : 'text-foreground hover:bg-[var(--bg-elevated)]',
@@ -299,18 +275,18 @@ export function DeviceBanner({
           <Tabs value={activeServiceFilter} onValueChange={onSelectServiceFilter}>
             <TabsList
               className={cn(
-                'h-auto w-full flex-wrap justify-start gap-2 bg-transparent p-0',
+                '!h-auto w-full flex-wrap justify-start gap-2 rounded-none bg-transparent p-0 group-data-[orientation=horizontal]/tabs:!h-auto',
                 isCustomerMode
-                  ? 'max-md:no-scrollbar max-md:flex-nowrap max-md:gap-4.5 max-md:overflow-x-auto max-md:border-b max-md:border-border max-md:pb-0'
+                  ? 'max-md:no-scrollbar max-md:flex-nowrap max-md:gap-4.5 max-md:overflow-x-auto max-md:overflow-y-hidden max-md:touch-pan-x max-md:overscroll-x-contain max-md:border-b max-md:border-border max-md:pb-0'
                   : 'max-md:grid max-md:grid-cols-2 max-md:gap-1.5',
               )}
             >
               <TabsTrigger
                 value="ALL"
                 className={cn(
-                  'h-8.5 flex-none rounded-lg border border-border bg-[var(--bg-surface)] px-3 text-xs font-medium text-muted-foreground data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground',
+                  'h-8.5 flex-none rounded-lg border border-border bg-[var(--bg-surface)] px-3 text-xs font-medium text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground',
                   isCustomerMode
-                    ? 'max-md:h-auto max-md:shrink-0 max-md:rounded-none max-md:border-0 max-md:border-b-2 max-md:border-transparent max-md:bg-transparent max-md:px-0.5 max-md:pt-2 max-md:pb-2.5 max-md:text-[13px] max-md:data-[state=active]:border-b-primary max-md:data-[state=active]:bg-transparent max-md:data-[state=active]:text-foreground'
+                    ? 'max-md:!h-auto max-md:shrink-0 max-md:!rounded-none max-md:!border-0 max-md:!border-b-2 max-md:border-transparent max-md:!bg-transparent max-md:px-0.5 max-md:pt-2 max-md:pb-2.5 max-md:text-[13px] max-md:shadow-none max-md:data-[state=active]:!border-b-foreground max-md:data-[state=active]:!bg-transparent max-md:data-[state=active]:text-foreground'
                     : 'max-md:col-span-2 max-md:h-9 max-md:w-full max-md:justify-center',
                 )}
               >
@@ -321,9 +297,9 @@ export function DeviceBanner({
                   key={grp}
                   value={grp}
                   className={cn(
-                    'h-8.5 flex-none rounded-lg border border-border bg-[var(--bg-surface)] px-3 text-xs font-medium text-muted-foreground data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground',
+                    'h-8.5 flex-none rounded-lg border border-border bg-[var(--bg-surface)] px-3 text-xs font-medium text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground',
                     isCustomerMode
-                      ? 'max-md:h-auto max-md:shrink-0 max-md:rounded-none max-md:border-0 max-md:border-b-2 max-md:border-transparent max-md:bg-transparent max-md:px-0.5 max-md:pt-2 max-md:pb-2.5 max-md:text-[13px] max-md:data-[state=active]:border-b-primary max-md:data-[state=active]:bg-transparent max-md:data-[state=active]:text-foreground'
+                      ? 'max-md:!h-auto max-md:shrink-0 max-md:!rounded-none max-md:!border-0 max-md:!border-b-2 max-md:border-transparent max-md:!bg-transparent max-md:px-0.5 max-md:pt-2 max-md:pb-2.5 max-md:text-[13px] max-md:shadow-none max-md:data-[state=active]:!border-b-foreground max-md:data-[state=active]:!bg-transparent max-md:data-[state=active]:text-foreground'
                       : 'max-md:h-9 max-md:w-full max-md:justify-center',
                   )}
                 >
