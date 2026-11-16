@@ -1051,3 +1051,25 @@ body.has-quote-bar .pane-center {
     color: var(--accent);
     border-color: transparent;
 }
+
+/* --- Akıllı Arama Hedef Vurgusu --- */
+@keyframes searchFlashPulse {
+    0% {
+        box-shadow: 0 0 0 3px var(--accent), 0 0 0 6px var(--accent-soft);
+        background-color: var(--accent-soft);
+    }
+    70% {
+        box-shadow: 0 0 0 2px var(--accent), 0 0 0 5px var(--accent-soft);
+    }
+    100% {
+        box-shadow: none;
+    }
+}
+
+.device-header-card.search-flash,
+.service-card.search-flash,
+.quality-tile.search-flash {
+    position: relative;
+    z-index: 2;
+    animation: searchFlashPulse 2.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}

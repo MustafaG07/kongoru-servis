@@ -16,6 +16,13 @@ import {
     formatTry,
     escapeHtml
 } from './services/pricing.ts';
+import {
+    buildSearchIndex,
+    searchCatalog,
+    highlightMatchedText,
+    type SearchDocument,
+    type SearchResultMatch
+} from './services/search.ts';
 import { fetchGithubDb, pushGithubDb } from './services/db.ts';
 import type {
     BackupDirectoryHandle,
@@ -85,6 +92,12 @@ let localMutationVersion = 0;
 let toastTimer: ReturnType<typeof setTimeout> | null = null;
 const tileSaveHideTimers = new WeakMap<HTMLElement, ReturnType<typeof setTimeout>>();
 const selectedQuoteItems = new Map<string, number>();
+
+let cachedSearchIndex: SearchDocument[] | null = null;
+let globalSearchMatches: SearchResultMatch[] = [];
+let mobileQuickMatches: SearchResultMatch[] = [];
+let globalSearchActiveIdx = 0;
+let searchFlashTimer: ReturnType<typeof setTimeout> | null = null;
 
 // --- Küresel Çökme Koruması ---
 window.addEventListener('error', (event: ErrorEvent) => {
@@ -202,9 +215,11 @@ function loadAllLocalData(): void {
 
     ensureDefaultsInPricesState();
     ensureInitialSelection();
+    invalidateSearchIndex();
 }
 
 function persistLocalData(skipAutoBackup = false): void {
+    invalidateSearchIndex();
     try {
         localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(categories));
         localStorage.setItem(STORAGE_KEYS.groups, JSON.stringify(serviceGroups));
@@ -644,38 +659,330 @@ function clearDeviceSearch(): void {
     renderDeviceDirectory();
 }
 
+function invalidateSearchIndex(): void {
+    cachedSearchIndex = null;
+}
+
+function getSearchIndex(): SearchDocument[] {
+    if (!cachedSearchIndex) {
+        cachedSearchIndex = buildSearchIndex({
+            categories,
+            devicesMap,
+            serviceGroups,
+            financeConfig: getFinanceConfig(),
+            readItemPrice
+        });
+    }
+    return cachedSearchIndex;
+}
+
+function clearSearchFlashElements(): void {
+    document.querySelectorAll('.search-flash').forEach((el) => {
+        el.classList.remove('search-flash');
+    });
+}
+
+function flashTargetElement(targetEl: HTMLElement | null): void {
+    if (!targetEl) return;
+    clearSearchFlashElements();
+    if (searchFlashTimer) clearTimeout(searchFlashTimer);
+    void targetEl.offsetWidth;
+    targetEl.classList.add('search-flash');
+    searchFlashTimer = setTimeout(() => {
+        targetEl.classList.remove('search-flash');
+    }, 2200);
+}
+
+function jumpToSearchDocument(doc: SearchDocument): void {
+    closeGlobalSearch();
+    clearMobileQuickSearch();
+
+    if (activeServiceFilter !== 'ALL') {
+        activeServiceFilter = 'ALL';
+    }
+    if (activeBrandFilter !== 'ALL' && activeBrandFilter !== doc.brand) {
+        activeBrandFilter = 'ALL';
+        renderBrandChips();
+    }
+
+    selectDevice(doc.brand, doc.device);
+
+    requestAnimationFrame(() => {
+        const centerPane = document.querySelector<HTMLElement>('.pane-center');
+        if (doc.kind === 'device') {
+            if (centerPane) centerPane.scrollTop = 0;
+            const bannerCard = document.querySelector<HTMLElement>('.device-header-card');
+            bannerCard?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            flashTargetElement(bannerCard);
+            return;
+        }
+
+        if (doc.kind === 'group') {
+            const cards = Array.from(document.querySelectorAll<HTMLElement>('.service-card[data-group]'));
+            const cardEl = cards.find((el) => el.dataset.group === doc.group) || null;
+            if (cardEl) {
+                cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                flashTargetElement(cardEl);
+            } else {
+                if (centerPane) centerPane.scrollTop = 0;
+                const bannerCard = document.querySelector<HTMLElement>('.device-header-card');
+                bannerCard?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                flashTargetElement(bannerCard);
+                showToast(`${doc.device} · ${doc.group} için henüz fiyat girilmemiş.`);
+            }
+            return;
+        }
+
+        const tiles = Array.from(document.querySelectorAll<HTMLElement>('.quality-tile[data-group][data-quality]'));
+        const tileEl = tiles.find(
+            (el) => el.dataset.group === doc.group && el.dataset.quality === doc.quality
+        ) || null;
+        if (tileEl) {
+            tileEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            flashTargetElement(tileEl);
+            if (!isCustomerMode) {
+                selectAdminTileSummary(tileEl);
+                if (window.innerWidth > 1160) {
+                    const usdInput = tileEl.querySelector<HTMLInputElement>('input[data-field="usd"]');
+                    usdInput?.focus({ preventScroll: true });
+                }
+            }
+        } else {
+            const cards = Array.from(document.querySelectorAll<HTMLElement>('.service-card[data-group]'));
+            const parentCard = cards.find((el) => el.dataset.group === doc.group) || null;
+            const fallbackEl = parentCard || document.querySelector<HTMLElement>('.device-header-card');
+            fallbackEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            flashTargetElement(fallbackEl);
+            showToast(`${doc.device} · ${doc.group} (${doc.quality}) için henüz fiyat girilmemiş.`);
+        }
+    });
+}
+
+function renderSearchResultRowHtml(
+    match: SearchResultMatch,
+    index: number,
+    query: string,
+    isActive: boolean,
+    variant: 'global' | 'mobile'
+): string {
+    const { doc } = match;
+    const isGlobal = variant === 'global';
+    const itemCls = isGlobal
+        ? `global-search-item ${isActive ? 'active' : ''}`
+        : 'mobile-quick-item';
+    const clickFn = isGlobal ? `selectGlobalSearchResult(${index})` : `selectMobileQuickResult(${index})`;
+
+    let kindBadge = '<span class="search-kind-badge kind-device">Cihaz</span>';
+    let titleHtml = highlightMatchedText(doc.device, query, escapeHtml);
+    let subHtml = escapeHtml(doc.brand);
+    let rightHtml = `<span class="brand-pill">${escapeHtml(doc.brand)}</span>`;
+
+    if (doc.kind === 'group') {
+        kindBadge = '<span class="search-kind-badge kind-group">Hizmet</span>';
+        titleHtml = highlightMatchedText(doc.group, query, escapeHtml);
+        subHtml = `${highlightMatchedText(doc.brand, query, escapeHtml)} › ${highlightMatchedText(doc.device, query, escapeHtml)}`;
+        rightHtml = doc.hasPrice
+            ? `<span class="search-price-chip">${formatTry(doc.finalPrice)} +</span>`
+            : '<span class="search-empty-chip">Fiyat girilmemiş</span>';
+    } else if (doc.kind === 'item') {
+        kindBadge = '<span class="search-kind-badge kind-item">İşlem</span>';
+        titleHtml = highlightMatchedText(doc.quality, query, escapeHtml);
+        subHtml = `${highlightMatchedText(doc.device, query, escapeHtml)} › ${highlightMatchedText(doc.group, query, escapeHtml)}`;
+        rightHtml = doc.hasPrice
+            ? `<span class="search-price-chip">${formatTry(doc.finalPrice)}</span>`
+            : '<span class="search-empty-chip">Fiyat girilmemiş</span>';
+    }
+
+    return `
+        <button type="button" class="${itemCls}" role="option" aria-selected="${isActive}"
+            data-idx="${index}" onclick="${clickFn}">
+            <div class="search-result-main">
+                <div class="search-result-top">
+                    ${kindBadge}
+                    <span class="search-result-title">${titleHtml}</span>
+                </div>
+                <div class="search-result-sub">${subHtml}</div>
+            </div>
+            <div class="search-result-right">${rightHtml}</div>
+        </button>`;
+}
+
+function renderGlobalSearchResults(query: string): void {
+    const wrap = maybeById('globalSearchResults');
+    if (!wrap) return;
+
+    const clean = query.trim();
+    if (!clean) {
+        globalSearchMatches = [];
+        globalSearchActiveIdx = 0;
+
+        const hintQueries = [
+            '17 pro max filmli ahize',
+            'ekran orijinal',
+            'batarya',
+            'arka kapak',
+            'ön cam',
+            'soket'
+        ];
+        const hintsHtml = hintQueries
+            .map((h) => `<button type="button" class="search-hint-chip" data-query="${escapeHtml(h)}" onclick="runGlobalSearchHint(this.dataset.query)">${escapeHtml(h)}</button>`)
+            .join('');
+
+        const deviceMatches: SearchResultMatch[] = getSearchIndex()
+            .filter((d) => d.kind === 'device')
+            .slice(0, 6)
+            .map((doc) => ({ doc, score: 1, matchedTokens: [] }));
+        globalSearchMatches = deviceMatches;
+
+        const devicesHtml = deviceMatches
+            .map((m, idx) => renderSearchResultRowHtml(m, idx, '', idx === globalSearchActiveIdx, 'global'))
+            .join('');
+
+        wrap.innerHTML = `
+            <div class="global-search-section-label">Örnek akıllı aramalar</div>
+            <div class="global-search-hints">${hintsHtml}</div>
+            ${devicesHtml ? '<div class="global-search-section-label">Popüler modeller</div>' + devicesHtml : ''}`;
+        return;
+    }
+
+    globalSearchMatches = searchCatalog({
+        query: clean,
+        index: getSearchIndex(),
+        includeUnpriced: true,
+        activeBrand: selectedBrand,
+        activeDevice: selectedDevice,
+        limit: 36
+    });
+    globalSearchActiveIdx = 0;
+
+    if (!globalSearchMatches.length) {
+        wrap.innerHTML = '<div class="global-search-empty">Eşleşen cihaz, hizmet veya parça bulunamadı.</div>';
+        return;
+    }
+
+    wrap.innerHTML = globalSearchMatches
+        .map((m, idx) => renderSearchResultRowHtml(m, idx, clean, idx === 0, 'global'))
+        .join('');
+}
+
+function openGlobalSearch(initialQuery?: string): void {
+    closeAllFloatingMenus();
+    const modal = maybeById('globalSearchModal');
+    const input = maybeById<HTMLInputElement>('globalSearchInput');
+    const clearBtn = maybeById('clearGlobalSearchBtn');
+    if (!modal || !input) return;
+
+    if (typeof initialQuery === 'string') {
+        input.value = initialQuery;
+    }
+    if (clearBtn) clearBtn.classList.toggle('hidden', !input.value);
+    modal.classList.add('open');
+    renderGlobalSearchResults(input.value);
+    setTimeout(() => {
+        input.focus();
+        input.select();
+    }, 30);
+}
+
+function closeGlobalSearch(): void {
+    maybeById('globalSearchModal')?.classList.remove('open');
+}
+
+function clearGlobalSearchInput(): void {
+    const input = maybeById<HTMLInputElement>('globalSearchInput');
+    const clearBtn = maybeById('clearGlobalSearchBtn');
+    if (input) {
+        input.value = '';
+        input.focus();
+    }
+    if (clearBtn) clearBtn.classList.add('hidden');
+    renderGlobalSearchResults('');
+}
+
+function onGlobalSearchInput(): void {
+    const input = maybeById<HTMLInputElement>('globalSearchInput');
+    const clearBtn = maybeById('clearGlobalSearchBtn');
+    const q = input ? input.value : '';
+    if (clearBtn) clearBtn.classList.toggle('hidden', !q);
+    renderGlobalSearchResults(q);
+}
+
+function runGlobalSearchHint(queryText: string): void {
+    const input = maybeById<HTMLInputElement>('globalSearchInput');
+    const clearBtn = maybeById('clearGlobalSearchBtn');
+    if (!input) return;
+    input.value = queryText || '';
+    if (clearBtn) clearBtn.classList.toggle('hidden', !input.value);
+    renderGlobalSearchResults(input.value);
+    input.focus();
+}
+
+function selectGlobalSearchResult(idx: number): void {
+    const match = globalSearchMatches[idx];
+    if (!match) return;
+    jumpToSearchDocument(match.doc);
+}
+
+function updateGlobalSearchActiveRow(): void {
+    const rows = document.querySelectorAll<HTMLElement>('#globalSearchResults .global-search-item');
+    rows.forEach((row, i) => {
+        const active = i === globalSearchActiveIdx;
+        row.classList.toggle('active', active);
+        row.setAttribute('aria-selected', String(active));
+        if (active) row.scrollIntoView({ block: 'nearest' });
+    });
+}
+
+function onGlobalSearchKey(event: KeyboardEvent): void {
+    if (event.key === 'ArrowDown') {
+        if (!globalSearchMatches.length) return;
+        event.preventDefault();
+        globalSearchActiveIdx = (globalSearchActiveIdx + 1) % globalSearchMatches.length;
+        updateGlobalSearchActiveRow();
+    } else if (event.key === 'ArrowUp') {
+        if (!globalSearchMatches.length) return;
+        event.preventDefault();
+        globalSearchActiveIdx = (globalSearchActiveIdx - 1 + globalSearchMatches.length) % globalSearchMatches.length;
+        updateGlobalSearchActiveRow();
+    } else if (event.key === 'Enter') {
+        if (!globalSearchMatches.length) return;
+        event.preventDefault();
+        selectGlobalSearchResult(globalSearchActiveIdx);
+    } else if (event.key === 'Escape') {
+        event.preventDefault();
+        closeGlobalSearch();
+    }
+}
+
 function renderMobileQuickResults(query: string): void {
     const wrap = maybeById('mobileQuickSearchResults');
     if (!wrap) return;
-    const q = query.trim().toLocaleLowerCase('tr-TR');
-    if (!q) {
+    const clean = query.trim();
+    if (!clean) {
+        mobileQuickMatches = [];
         wrap.innerHTML = '';
         wrap.classList.add('hidden');
         return;
     }
 
-    const matches: Array<{ brand: string; device: string }> = [];
-    for (const brand of categories) {
-        for (const dev of (devicesMap[brand] || [])) {
-            if (dev.toLocaleLowerCase('tr-TR').includes(q) || brand.toLocaleLowerCase('tr-TR').includes(q)) {
-                matches.push({ brand, device: dev });
-            }
-        }
-    }
+    mobileQuickMatches = searchCatalog({
+        query: clean,
+        index: getSearchIndex(),
+        includeUnpriced: true,
+        activeBrand: selectedBrand,
+        activeDevice: selectedDevice,
+        limit: 28
+    });
 
-    if (!matches.length) {
-        wrap.innerHTML = '<div class="mobile-quick-empty">Eşleşen telefon/model bulunamadı.</div>';
+    if (!mobileQuickMatches.length) {
+        wrap.innerHTML = '<div class="mobile-quick-empty">Eşleşen model, hizmet veya parça bulunamadı.</div>';
         wrap.classList.remove('hidden');
         return;
     }
 
-    wrap.innerHTML = matches.slice(0, 40).map((m) => `
-        <button type="button" class="mobile-quick-item"
-            data-brand="${escapeHtml(m.brand)}" data-device="${escapeHtml(m.device)}"
-            onclick="selectMobileQuickResult(this.dataset.brand, this.dataset.device)">
-            <span class="mobile-quick-item-name">${escapeHtml(m.device)}</span>
-            <span class="brand-pill">${escapeHtml(m.brand)}</span>
-        </button>`).join('');
+    wrap.innerHTML = mobileQuickMatches
+        .map((m, idx) => renderSearchResultRowHtml(m, idx, clean, idx === 0, 'mobile'))
+        .join('');
     wrap.classList.remove('hidden');
 }
 
@@ -695,19 +1002,19 @@ function clearMobileQuickSearch(): void {
     renderMobileQuickResults('');
 }
 
-function selectMobileQuickResult(brand: string, device: string): void {
-    clearMobileQuickSearch();
+function selectMobileQuickResult(idx: number): void {
+    const match = mobileQuickMatches[idx];
+    if (!match) return;
     const input = maybeById<HTMLInputElement>('mobileDeviceSearchInput');
     if (input) input.blur();
-    selectDevice(brand, device);
+    jumpToSearchDocument(match.doc);
 }
 
 function onMobileQuickSearchKey(event: KeyboardEvent): void {
     if (event.key === 'Enter') {
-        const firstBtn = document.querySelector<HTMLButtonElement>('#mobileQuickSearchResults .mobile-quick-item');
-        if (firstBtn) {
+        if (mobileQuickMatches.length > 0) {
             event.preventDefault();
-            selectMobileQuickResult(firstBtn.dataset.brand || '', firstBtn.dataset.device || '');
+            selectMobileQuickResult(0);
         }
     } else if (event.key === 'Escape') {
         clearMobileQuickSearch();
@@ -1119,6 +1426,7 @@ function renderCenterWorkbench(): void {
                 rowsHtml += `
                 <button type="button" class="quality-tile customer-tile ${isSelected ? 'selected' : ''}"
                     data-quote-key="${escapeHtml(quoteKey)}" data-price="${calc.finalPrice}"
+                    data-group="${escapeHtml(grp)}" data-quality="${escapeHtml(qual)}"
                     onclick="toggleQuoteItem(this)">
                     <div class="quality-tile-left">
                         <span class="quality-name">${escapeHtml(qual)}</span>
@@ -1181,7 +1489,7 @@ function renderCenterWorkbench(): void {
             rowsCount: renderedRowsCount,
             order,
             html: `
-        <article class="service-card" data-rows="${renderedRowsCount}" data-order="${order}">
+        <article class="service-card" data-rows="${renderedRowsCount}" data-order="${order}" data-group="${escapeHtml(grp)}">
             <div class="service-card-head">
                 <div class="service-card-head-left">
                     <span class="service-icon-badge ${iconMeta.colorClass}" aria-hidden="true">${iconMeta.svg}</span>
@@ -2119,12 +2427,14 @@ Object.assign(window, {
     addGroupFromQuickBar,
     addQualityFromQuickBar,
     clearDeviceSearch,
+    clearGlobalSearchInput,
     clearMobileQuickSearch,
     clearQuoteSelection,
     closeAdminToolsMenu,
     clearAdminSummarySelection,
     closeAuthModal,
     closeBackupModal,
+    closeGlobalSearch,
     closePasswordModal,
     connectBackupFolder,
     deleteDailyBackup,
@@ -2137,20 +2447,25 @@ Object.assign(window, {
     onDeleteGroupClick,
     onDeleteQualityClick,
     onFinanceChange,
+    onGlobalSearchInput,
+    onGlobalSearchKey,
     onMobileQuickSearch,
     onMobileQuickSearchKey,
     onMoveDeviceClick,
     onSearchInput,
     openAuthModal,
     openBackupModal,
+    openGlobalSearch,
     openPasswordModal,
     restoreDailyBackup,
+    runGlobalSearchHint,
     saveAllChanges,
     selectAdminTileSummary,
     selectBrandFilter,
     selectBrandFromBanner,
     selectDevice,
     selectDeviceFromBanner,
+    selectGlobalSearchResult,
     selectMobileQuickResult,
     selectServiceFilter,
     setMobilePane,
@@ -2193,12 +2508,18 @@ document.addEventListener('click', (e: MouseEvent) => {
 
 document.addEventListener('keydown', (e: KeyboardEvent) => {
     const activeTag = document.activeElement ? document.activeElement.tagName : '';
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        openGlobalSearch();
+        return;
+    }
     if (e.key === '/' && activeTag !== 'INPUT' && activeTag !== 'TEXTAREA') {
         e.preventDefault();
         if (window.innerWidth <= 1160) setMobilePane('directory');
         const input = maybeById<HTMLInputElement>('deviceSearchInput');
         if (input) input.focus();
     } else if (e.key === 'Escape') {
+        closeGlobalSearch();
         closeAdminToolsMenu();
         closeBannerPickers();
         closeBrandDropdown();

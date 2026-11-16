@@ -31,6 +31,14 @@
                 </span>
             </div>
 
+            <button type="button" class="global-search-trigger" id="globalSearchTrigger"
+                onclick="openGlobalSearch()" title="Genel Akıllı Arama (Ctrl+K / Cmd+K)" aria-label="Genel akıllı arama aç">
+                <svg class="global-search-trigger-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <span class="global-search-trigger-text">Model, hizmet veya parça ara...</span>
+                <span class="global-search-trigger-short">Ara</span>
+                <kbd class="global-search-kbd">⌘K</kbd>
+            </button>
+
             <div class="topbar-actions">
                 <div class="topbar-group hidden" id="adminSessionGroup">
                     <button type="button" class="btn btn-ghost btn-sm hidden" id="headerCustomerBtn"
@@ -71,7 +79,7 @@
         <div class="mobile-quick-search" id="mobileQuickSearch">
             <div class="mobile-quick-search-box">
                 <input type="text" class="search-input mobile-quick-input" id="mobileDeviceSearchInput"
-                    placeholder="Model ara... (Örn: 13, 15 Pro, S24)"
+                    placeholder="Model, hizmet veya parça ara..."
                     oninput="onMobileQuickSearch()" onfocus="onMobileQuickSearch()" onkeydown="onMobileQuickSearchKey(event)">
                 <button type="button" class="search-clear hidden" id="clearMobileSearchBtn"
                     onclick="clearMobileQuickSearch()" title="Aramayı temizle">×</button>
@@ -340,6 +348,28 @@
                         tekrar değişiklik yapılırsa o günün mevcut yedeği silinip yenisi yazılır.</div>
                     <div class="backup-history-list" id="dailyBackupList"></div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GENEL AKILLI ARAMA PALETİ -->
+    <div class="modal-backdrop global-search-backdrop" id="globalSearchModal" onclick="if(event.target===this) closeGlobalSearch()">
+        <div class="modal-card global-search-card" role="dialog" aria-modal="true" aria-label="Genel akıllı arama">
+            <div class="global-search-input-row">
+                <svg class="global-search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input type="text" class="global-search-input" id="globalSearchInput"
+                    placeholder="Model, işlem veya parça ara (Örn: iphone 17 pro max filmli ahize)"
+                    autocomplete="off" spellcheck="false"
+                    oninput="onGlobalSearchInput()" onkeydown="onGlobalSearchKey(event)">
+                <button type="button" class="global-search-clear hidden" id="clearGlobalSearchBtn"
+                    onclick="clearGlobalSearchInput()" title="Aramayı temizle" aria-label="Aramayı temizle">×</button>
+                <button type="button" class="btn btn-ghost btn-sm global-search-esc" onclick="closeGlobalSearch()">ESC</button>
+            </div>
+            <div class="global-search-results" id="globalSearchResults" role="listbox"></div>
+            <div class="global-search-foot">
+                <span><kbd>↑</kbd> <kbd>↓</kbd> Gezin</span>
+                <span><kbd>Enter</kbd> Hedefe Git</span>
+                <span class="global-search-foot-note">Yazım hatası toleranslı akıllı arama</span>
             </div>
         </div>
     </div>

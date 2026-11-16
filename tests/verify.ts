@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 import { sortDevicesForBrand } from '../src/services/sorting.ts';
 import { calculatePrice, makeSlug, getSlugItemBase, formatTry, escapeHtml } from '../src/services/pricing.ts';
+import { buildSearchIndex, searchCatalog, highlightMatchedText } from '../src/services/search.ts';
 import { fetchGithubDb, pushGithubDb } from '../src/services/db.ts';
 import { GITHUB_DB, getGithubToken } from '../src/config/defaults.ts';
 
@@ -44,6 +45,7 @@ async function runTests(): Promise<void> {
         'src/config/defaults.ts',
         'src/services/sorting.ts',
         'src/services/pricing.ts',
+        'src/services/search.ts',
         'src/services/db.ts',
         'src/main.ts'
     ];
@@ -215,6 +217,95 @@ async function runTests(): Promise<void> {
     assert.equal(getSlugItemBase('iPhone 16', 'Ekran', 'Orijinal'), 'iPhone-16-Ekran_Orijinal');
     assert.ok(formatTry(1250).endsWith('₺'));
     assert.equal(escapeHtml('<script>"test"</script>'), '&lt;script&gt;&quot;test&quot;&lt;/script&gt;');
+
+    // 6b. Smart global catalog search engine (fuzzy, multi-field, synonyms, model precision)
+    const testPrices: Record<string, { usd: string; labor: string }> = {
+        'iPhone 17 Pro Max|Ekran Değişimi|Orijinal': { usd: '385', labor: '5000' },
+        'iPhone 17 Pro Max|Ahize Değişimi|Filmli Ahize': { usd: '15', labor: '1500' },
+        'iPhone 16 Pro|Batarya Değişimi|Orijinal': { usd: '40', labor: '1000' }
+    };
+    const searchIdx = buildSearchIndex({
+        categories: ['iPhone', 'Samsung'],
+        devicesMap: {
+            iPhone: ['iPhone 18 Pro Max', 'iPhone 17 Pro Max', 'iPhone 16 Pro'],
+            Samsung: ['Galaxy S24 Ultra']
+        },
+        serviceGroups: {
+            'Ekran Değişimi': ['Orijinal', 'Revize'],
+            'Ahize Değişimi': ['Ahize', 'Filmli Ahize'],
+            'Batarya Değişimi': ['Orijinal', 'A Kalite Yükseltilmiş'],
+            'Ön Cam - Dokunmatik': ['Orijinal']
+        },
+        financeConfig: { rate: 50, vatRate: 18, roundingMode: 'ceil100' },
+        readItemPrice: (_b, d, g, q) => testPrices[`${d}|${g}|${q}`] || { usd: '', labor: '' }
+    });
+
+    // Typo + combined model/group/quality search: "iohone 17 pro max ahize değişimi filmi ahize"
+    const typoCombined = searchCatalog({
+        query: 'iohone 17 pro max ahize değişimi filmi ahize',
+        index: searchIdx,
+        includeUnpriced: false
+    });
+    assert.ok(typoCombined.length > 0, 'Yazım hatalı birleşik arama sonuç döndürmeli');
+    assert.equal(typoCombined[0].doc.kind, 'item');
+    assert.equal(typoCombined[0].doc.device, 'iPhone 17 Pro Max');
+    assert.equal(typoCombined[0].doc.group, 'Ahize Değişimi');
+    assert.equal(typoCombined[0].doc.quality, 'Filmli Ahize');
+    assert.equal(typoCombined[0].doc.finalPrice, 2700);
+
+    // Pure device search puts device entry #1 cleanly
+    const pureDevice = searchCatalog({
+        query: 'iphone 17 pro max',
+        index: searchIdx,
+        includeUnpriced: true
+    });
+    assert.ok(pureDevice.length > 0);
+    assert.equal(pureDevice[0].doc.kind, 'device');
+    assert.equal(pureDevice[0].doc.device, 'iPhone 17 Pro Max');
+
+    // Numeric safety: "iphone 17" must never bleed into iPhone 18 or iPhone 16
+    const numScoped = searchCatalog({
+        query: 'iphone 17',
+        index: searchIdx,
+        includeUnpriced: true
+    });
+    assert.ok(numScoped.every((m) => m.doc.device === 'iPhone 17 Pro Max'));
+
+    // Compound shorthand + synonym: "17pm orj ekran"
+    const shorthandRes = searchCatalog({
+        query: '17pm orj ekran',
+        index: searchIdx,
+        includeUnpriced: false
+    });
+    assert.ok(shorthandRes.length > 0);
+    assert.equal(shorthandRes[0].doc.device, 'iPhone 17 Pro Max');
+    assert.equal(shorthandRes[0].doc.group, 'Ekran Değişimi');
+    assert.equal(shorthandRes[0].doc.quality, 'Orijinal');
+
+    // Synonym ("pil" -> "Batarya") + Turkish ASCII ("degisimi")
+    const pilRes = searchCatalog({
+        query: '16 pro pil degisimi',
+        index: searchIdx,
+        includeUnpriced: false
+    });
+    assert.ok(pilRes.length > 0);
+    assert.equal(pilRes[0].doc.device, 'iPhone 16 Pro');
+    assert.equal(pilRes[0].doc.group, 'Batarya Değişimi');
+
+    // Unpriced items are also searchable (marked hasPrice=false for "Fiyat girilmemiş" display)
+    const unpricedSearch = searchCatalog({
+        query: '17 pro max revize',
+        index: searchIdx,
+        includeUnpriced: true
+    });
+    assert.ok(unpricedSearch.length > 0);
+    assert.equal(unpricedSearch[0].doc.device, 'iPhone 17 Pro Max');
+    assert.equal(unpricedSearch[0].doc.quality, 'Revize');
+    assert.equal(unpricedSearch[0].doc.hasPrice, false);
+
+    // Highlight safety
+    const hl = highlightMatchedText('Ahize Değişimi', 'degisim', escapeHtml);
+    assert.ok(hl.includes('<mark class="search-hit-mark">Değişim</mark>'));
 
     // 7. Network retry & GitHub Gist DB mocked round-trip
     const originalFetch = globalThis.fetch;

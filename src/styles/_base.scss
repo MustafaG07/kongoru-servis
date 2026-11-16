@@ -90,6 +90,63 @@ body[data-mode="customer"] .device-banner-stats {
     flex-wrap: wrap;
 }
 
+.global-search-trigger {
+    flex: 0 1 360px;
+    min-width: 180px;
+    height: 36px;
+    padding: 0 10px 0 12px;
+    border-radius: 9px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-elevated);
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: border-color 0.14s ease, background-color 0.14s ease, color 0.14s ease, box-shadow 0.14s ease;
+}
+
+.global-search-trigger:hover {
+    background: var(--bg-surface);
+    border-color: var(--accent);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.global-search-trigger-icon {
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+.global-search-trigger-text {
+    flex: 1 1 auto;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.global-search-trigger-short {
+    display: none;
+    white-space: nowrap;
+}
+
+.global-search-kbd {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 2px 6px;
+    line-height: 1.1;
+    flex-shrink: 0;
+}
+
 .topbar-actions-sep {
     width: 1px;
     height: 18px;
