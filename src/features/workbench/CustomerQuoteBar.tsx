@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { ChevronUp, Copy, Printer, Trash2, X } from 'lucide-react';
-import { toast } from 'sonner';
+import { ChevronUp, Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
@@ -33,24 +32,10 @@ export function CustomerQuoteBar({
   const list = Array.from(items.values());
   const total = list.reduce((acc, item) => acc + item.price, 0);
 
-  const handleCopyQuote = async () => {
-    const lines = [
-      `KONGORU Teknik Servis Teklif Özeti (${list[0]?.device || ''})`,
-      ...list.map((it) => `• ${it.group} (${it.quality}): ${formatTry(it.price)}`),
-      `Toplam (KDV Dahil): ${formatTry(total)}`,
-    ];
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      toast.success('Teklif özeti panoya kopyalandı.');
-    } catch {
-      toast.error('Panoya kopyalanamadı.');
-    }
-  };
-
   return (
     <div
       aria-live="polite"
-      className="no-print fixed bottom-3.5 left-1/2 z-45 flex w-[min(540px,calc(100vw-24px))] -translate-x-1/2 items-center justify-between gap-3 rounded-xl border border-[var(--border-strong)] bg-[var(--bg-surface)] px-3.5 py-2.5 shadow-xl xl:hidden"
+      className="no-print fixed bottom-3.5 left-1/2 z-45 flex w-[min(520px,calc(100vw-24px))] -translate-x-1/2 items-center justify-between gap-3 rounded-xl border border-[var(--border-strong)] bg-[var(--bg-surface)] px-3.5 py-2.5 shadow-xl"
     >
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetTrigger asChild>
@@ -60,7 +45,7 @@ export function CustomerQuoteBar({
             </span>
             <div className="min-w-0">
               <div className="flex items-center gap-1 text-[11.5px] font-medium text-muted-foreground">
-                <span>Teklifi İncele</span>
+                <span>Seçili İşlem Toplamı</span>
                 <ChevronUp className="size-3.5" />
               </div>
               <div className="mono-nums text-base font-semibold text-foreground">
@@ -72,7 +57,7 @@ export function CustomerQuoteBar({
 
         <SheetContent side="bottom" className="mx-auto max-w-lg rounded-t-2xl">
           <SheetHeader>
-            <SheetTitle>Servis Teklifi</SheetTitle>
+            <SheetTitle>Seçili İşlemler</SheetTitle>
             <SheetDescription>
               {list[0]?.device} · {list.length} seçili işlem (KDV Dahil)
             </SheetDescription>
@@ -109,31 +94,11 @@ export function CustomerQuoteBar({
           </ScrollArea>
 
           <SheetFooter className="border-t pt-3">
-            <div className="mb-2 flex items-baseline justify-between">
+            <div className="flex items-baseline justify-between">
               <span className="text-sm font-medium text-muted-foreground">Toplam (KDV Dahil)</span>
               <span className="mono-nums text-lg font-semibold text-[var(--price-text)]">
                 {formatTry(total)}
               </span>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => void handleCopyQuote()}
-                className="gap-1.5"
-              >
-                <Copy className="size-4" />
-                Kopyala
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => window.print()}
-                className="gap-1.5"
-              >
-                <Printer className="size-4" />
-                Yazdır
-              </Button>
             </div>
           </SheetFooter>
         </SheetContent>

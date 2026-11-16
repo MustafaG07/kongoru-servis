@@ -13,7 +13,6 @@ import { MobileQuickSearch } from '@/features/search/MobileQuickSearch';
 import { AdminControlPanel } from '@/features/workbench/AdminControlPanel';
 import { AdminServiceGrid } from '@/features/workbench/AdminServiceGrid';
 import { CustomerQuoteBar } from '@/features/workbench/CustomerQuoteBar';
-import { CustomerQuotePanel } from '@/features/workbench/CustomerQuotePanel';
 import { CustomerServiceGrid } from '@/features/workbench/CustomerServiceGrid';
 import { DeviceBanner } from '@/features/workbench/DeviceBanner';
 import { useKongoruCatalog } from '@/hooks/useKongoruCatalog';
@@ -283,7 +282,7 @@ export function App() {
               'min-h-0 flex-col gap-3 overflow-y-auto bg-[var(--bg-canvas)] px-3 py-3 sm:px-4 sm:py-3 print:overflow-visible print:bg-white',
               isCustomerMode && 'max-md:gap-2.5 max-md:px-2.5 max-md:py-2',
               isCustomerMode || mobilePane === 'stage' ? 'flex' : 'hidden lg:flex',
-              isCustomerMode && selectedQuoteItems.size > 0 ? 'pb-24 xl:pb-8' : 'pb-7',
+              isCustomerMode && selectedQuoteItems.size > 0 ? 'pb-24' : 'pb-7',
             )}
           >
             {!isCustomerMode && syncError && (
@@ -373,16 +372,6 @@ export function App() {
                   />
                 )}
               </div>
-
-              {isCustomerMode && (
-                <CustomerQuotePanel
-                  items={selectedQuoteItems}
-                  selectedBrand={selectedBrand}
-                  selectedDevice={selectedDevice}
-                  onRemoveItem={removeQuoteItem}
-                  onClearAll={clearQuoteSelection}
-                />
-              )}
             </div>
           </main>
         </div>
