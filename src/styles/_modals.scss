@@ -629,6 +629,10 @@ body.catalog-fullscreen .pane-center {
 }
 
 @media (max-width: 1160px) {
+    .global-search-trigger {
+        display: none;
+    }
+
     .mobile-quick-search {
         display: block;
     }
@@ -727,25 +731,6 @@ body.catalog-fullscreen .pane-center {
     .topbar-actions {
         width: 100%;
         gap: 6px;
-    }
-
-    .global-search-trigger {
-        flex: 0 0 auto;
-        min-width: 0;
-        height: 34px;
-        padding: 0 10px;
-        gap: 5px;
-        font-size: 0.8rem;
-        color: var(--text-primary);
-    }
-
-    .global-search-trigger-text,
-    .global-search-kbd {
-        display: none;
-    }
-
-    .global-search-trigger-short {
-        display: inline;
     }
 
     body[data-mode="admin"] .topbar-actions {
