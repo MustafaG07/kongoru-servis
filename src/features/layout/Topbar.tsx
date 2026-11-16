@@ -88,7 +88,13 @@ export function Topbar({
         : 'bg-muted-foreground';
 
   return (
-    <header className="flex min-h-[58px] shrink-0 items-center justify-between gap-3 border-b bg-[var(--bg-surface)] px-4 py-2 lg:px-5">
+    <header
+      className={cn(
+        'flex min-h-[58px] shrink-0 items-center justify-between gap-3 border-b bg-[var(--bg-surface)] px-4 py-2 lg:px-5',
+        isCustomerMode &&
+          'max-md:min-h-[48px] max-md:border-b-0 max-md:bg-[var(--bg-canvas)] max-md:px-4 max-md:pt-2.5 max-md:pb-1.5',
+      )}
+    >
       <div className="flex min-w-0 items-center gap-0">
         <div
           onDoubleClick={() => handleOpenAuth(true)}
@@ -99,7 +105,7 @@ export function Topbar({
             <div className="text-[15px] font-semibold tracking-tight text-foreground leading-tight">
               KONGORU
             </div>
-            <div className="hidden truncate text-[11.5px] font-normal text-muted-foreground sm:block">
+            <div className="hidden truncate text-[11.5px] font-normal text-muted-foreground md:block">
               {isCustomerMode
                 ? 'Servis Fiyat Listesi'
                 : 'Yönetici Modu — Kur, KDV ve Maliyet Kontrolü'}

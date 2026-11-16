@@ -224,34 +224,38 @@ export function App() {
           />
         </div>
 
-        {/* Mobil Bölüm Seçici */}
-        <div className="no-print grid shrink-0 grid-cols-2 gap-2 border-b bg-[var(--bg-surface)] px-3 py-2 lg:hidden">
-          <Button
-            type="button"
-            variant={mobilePane === 'directory' ? 'default' : 'secondary'}
-            size="sm"
-            onClick={() => setMobilePane('directory')}
-            className="h-9 text-xs font-medium"
-          >
-            Cihazlar
-          </Button>
-          <Button
-            type="button"
-            variant={mobilePane === 'stage' ? 'default' : 'secondary'}
-            size="sm"
-            onClick={() => setMobilePane('stage')}
-            className="h-9 text-xs font-medium"
-          >
-            Tamir Masası
-          </Button>
-        </div>
+        {/* Mobil Bölüm Seçici (Sadece Yönetici Modunda) */}
+        {!isCustomerMode && (
+          <div className="no-print grid shrink-0 grid-cols-2 gap-2 border-b bg-[var(--bg-surface)] px-3 py-2 lg:hidden">
+            <Button
+              type="button"
+              variant={mobilePane === 'directory' ? 'default' : 'secondary'}
+              size="sm"
+              onClick={() => setMobilePane('directory')}
+              className="h-9 text-xs font-medium"
+            >
+              Cihazlar
+            </Button>
+            <Button
+              type="button"
+              variant={mobilePane === 'stage' ? 'default' : 'secondary'}
+              size="sm"
+              onClick={() => setMobilePane('stage')}
+              className="h-9 text-xs font-medium"
+            >
+              Tamir Masası
+            </Button>
+          </div>
+        )}
 
         {/* 2 Sütunlu Çalışma Alanı */}
         <div className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden lg:grid-cols-[280px_minmax(0,1fr)] print:block print:overflow-visible">
           <div
             className={cn(
               'no-print min-h-0 overflow-hidden',
-              mobilePane === 'directory' ? 'flex flex-col' : 'hidden lg:flex lg:flex-col',
+              !isCustomerMode && mobilePane === 'directory'
+                ? 'flex flex-col'
+                : 'hidden lg:flex lg:flex-col',
             )}
           >
             <DeviceSidebar
@@ -277,7 +281,8 @@ export function App() {
             ref={centerPaneRef}
             className={cn(
               'min-h-0 flex-col gap-3 overflow-y-auto bg-[var(--bg-canvas)] px-3 py-3 sm:px-4 sm:py-3 print:overflow-visible print:bg-white',
-              mobilePane === 'stage' ? 'flex' : 'hidden lg:flex',
+              isCustomerMode && 'max-md:gap-2.5 max-md:px-2.5 max-md:py-2',
+              isCustomerMode || mobilePane === 'stage' ? 'flex' : 'hidden lg:flex',
               isCustomerMode && selectedQuoteItems.size > 0 ? 'pb-24 xl:pb-8' : 'pb-7',
             )}
           >

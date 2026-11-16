@@ -111,7 +111,13 @@ export function DeviceBanner({
   }
 
   return (
-    <Card className="gap-3 rounded-xl border bg-[var(--bg-surface)] px-4.5 py-3.5 shadow-none">
+    <Card
+      className={cn(
+        'gap-3 rounded-xl border bg-[var(--bg-surface)] px-4.5 py-3.5 shadow-none',
+        isCustomerMode &&
+          'max-md:gap-2 max-md:rounded-none max-md:border-0 max-md:bg-transparent max-md:px-0.5 max-md:py-1',
+      )}
+    >
       {/* Ana Cihaz Başlık ve Metrik Alanı */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 space-y-1.5">
@@ -120,7 +126,11 @@ export function DeviceBanner({
               <PopoverTrigger asChild>
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1 rounded-md border border-[var(--brand-pill-border)] bg-[var(--brand-pill-bg)] px-2.5 py-0.5 text-xs font-medium text-[var(--brand-pill-text)] transition-colors hover:border-[var(--border-strong)]"
+                  className={cn(
+                    'inline-flex items-center gap-1 rounded-md border border-[var(--brand-pill-border)] bg-[var(--brand-pill-bg)] px-2.5 py-0.5 text-xs font-medium text-[var(--brand-pill-text)] transition-colors hover:border-[var(--border-strong)]',
+                    isCustomerMode &&
+                      'max-md:border-0 max-md:bg-transparent max-md:p-0 max-md:text-[13px] max-md:text-muted-foreground',
+                  )}
                 >
                   <span>{selectedBrand || '-'}</span>
                   <ChevronDown
@@ -161,17 +171,19 @@ export function DeviceBanner({
               </PopoverContent>
             </Popover>
             {selectedDevice && isCustomerMode && (
-              pricedOptions > 0 ? (
-                <span className="mono-nums">
-                  {pricedGroups} hizmet · {pricedOptions} seçenek ·{' '}
-                  <span className="font-medium text-[var(--price-text)]">
-                    {formatTry(minFinalPrice)}
+              <span className="max-md:hidden">
+                {pricedOptions > 0 ? (
+                  <span className="mono-nums">
+                    {pricedGroups} hizmet · {pricedOptions} seçenek ·{' '}
+                    <span className="font-medium text-[var(--price-text)]">
+                      {formatTry(minFinalPrice)}
+                    </span>
+                    &apos;den başlayan
                   </span>
-                  &apos;den başlayan
-                </span>
-              ) : (
-                <span>Henüz fiyat girilmemiş</span>
-              )
+                ) : (
+                  <span>Henüz fiyat girilmemiş</span>
+                )}
+              </span>
             )}
             {!isCustomerMode && (
               <Badge variant="secondary" className="rounded-md text-[11px] font-medium">
@@ -192,7 +204,7 @@ export function DeviceBanner({
                 type="button"
                 className="group inline-flex max-w-full items-center gap-2 text-left"
               >
-                <h1 className="break-words text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+                <h1 className="break-words text-xl font-semibold tracking-tight text-foreground max-md:text-[1.36rem] sm:text-2xl">
                   {selectedDevice || 'Cihaz Seçin'}
                 </h1>
                 <ChevronDown
@@ -252,7 +264,7 @@ export function DeviceBanner({
         </div>
 
         {!isCustomerMode && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 max-md:w-full max-md:justify-between">
             {selectedDevice && (
               <Button
                 type="button"
@@ -278,12 +290,29 @@ export function DeviceBanner({
       </div>
 
       {selectedDevice && serviceGroupNames.length > 0 && (
-        <div className="border-t pt-2.5">
+        <div
+          className={cn(
+            'border-t pt-2.5',
+            isCustomerMode && 'max-md:border-t-0 max-md:pt-0',
+          )}
+        >
           <Tabs value={activeServiceFilter} onValueChange={onSelectServiceFilter}>
-            <TabsList className="h-auto w-full flex-wrap justify-start gap-2 bg-transparent p-0">
+            <TabsList
+              className={cn(
+                'h-auto w-full flex-wrap justify-start gap-2 bg-transparent p-0',
+                isCustomerMode
+                  ? 'max-md:no-scrollbar max-md:flex-nowrap max-md:gap-4.5 max-md:overflow-x-auto max-md:border-b max-md:border-border max-md:pb-0'
+                  : 'max-md:grid max-md:grid-cols-2 max-md:gap-1.5',
+              )}
+            >
               <TabsTrigger
                 value="ALL"
-                className="h-8.5 flex-none rounded-lg border border-border bg-[var(--bg-surface)] px-3 text-xs font-medium text-muted-foreground data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                className={cn(
+                  'h-8.5 flex-none rounded-lg border border-border bg-[var(--bg-surface)] px-3 text-xs font-medium text-muted-foreground data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground',
+                  isCustomerMode
+                    ? 'max-md:h-auto max-md:shrink-0 max-md:rounded-none max-md:border-0 max-md:border-b-2 max-md:border-transparent max-md:bg-transparent max-md:px-0.5 max-md:pt-2 max-md:pb-2.5 max-md:text-[13px] max-md:data-[state=active]:border-b-primary max-md:data-[state=active]:bg-transparent max-md:data-[state=active]:text-foreground'
+                    : 'max-md:col-span-2 max-md:h-9 max-md:w-full max-md:justify-center',
+                )}
               >
                 Tümü
               </TabsTrigger>
@@ -291,7 +320,12 @@ export function DeviceBanner({
                 <TabsTrigger
                   key={grp}
                   value={grp}
-                  className="h-8.5 flex-none rounded-lg border border-border bg-[var(--bg-surface)] px-3 text-xs font-medium text-muted-foreground data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  className={cn(
+                    'h-8.5 flex-none rounded-lg border border-border bg-[var(--bg-surface)] px-3 text-xs font-medium text-muted-foreground data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground',
+                    isCustomerMode
+                      ? 'max-md:h-auto max-md:shrink-0 max-md:rounded-none max-md:border-0 max-md:border-b-2 max-md:border-transparent max-md:bg-transparent max-md:px-0.5 max-md:pt-2 max-md:pb-2.5 max-md:text-[13px] max-md:data-[state=active]:border-b-primary max-md:data-[state=active]:bg-transparent max-md:data-[state=active]:text-foreground'
+                      : 'max-md:h-9 max-md:w-full max-md:justify-center',
+                  )}
                 >
                   {getShortServiceTabLabel(grp, isCustomerMode)}
                 </TabsTrigger>

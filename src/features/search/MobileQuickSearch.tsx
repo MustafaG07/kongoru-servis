@@ -51,7 +51,7 @@ export function MobileQuickSearch({
   };
 
   return (
-    <div ref={containerRef} className="relative z-40 shrink-0 px-3.5 pt-2 pb-2 lg:hidden">
+    <div ref={containerRef} className="relative z-40 shrink-0 px-3.5 pt-1 pb-2.5 lg:hidden">
       <div className="relative flex items-center">
         <Search className="pointer-events-none absolute left-3 size-4 text-muted-foreground" />
         <Input
