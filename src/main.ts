@@ -53,6 +53,16 @@ function maybeById<T extends HTMLElement = HTMLElement>(id: string): T | null {
     return document.getElementById(id) as T | null;
 }
 
+function renderBreakdownHtml(calc: ReturnType<typeof calculatePrice>, vatRate: number): string {
+    if (!calc.hasPrice) return '';
+    const items = [
+        `Parça: ${formatTry(calc.tlPart)}`,
+        `Ham: ${formatTry(calc.rawTotal)}`,
+        `KDV %${vatRate}: ${formatTry(calc.vatAmount)}`
+    ];
+    return items.map((item) => `<span class="breakdown-item">${escapeHtml(item)}</span>`).join('');
+}
+
 // --- Uygulama Durumu ---
 let categories: string[] = [];
 let serviceGroups: ServiceGroupsMap = {};
@@ -927,6 +937,7 @@ function handleCostTableInput(inputEl: HTMLInputElement): void {
 
     const cfg = getFinanceConfig();
     const calc = calculatePrice(usdEl.value, laborEl.value, cfg.rate, cfg.vatRate, cfg.roundingMode);
+    row.classList.toggle('has-price', calc.hasPrice);
     const finalEl = row.querySelector<HTMLElement>('[data-out="final"]');
     if (finalEl) {
         finalEl.textContent = calc.hasPrice ? formatTry(calc.finalPrice) : '-';
@@ -935,9 +946,8 @@ function handleCostTableInput(inputEl: HTMLInputElement): void {
 
     const bdEl = row.querySelector<HTMLElement>('[data-out="breakdown"]');
     if (bdEl) {
-        bdEl.textContent = calc.hasPrice
-            ? `Parça: ${formatTry(calc.tlPart)} · Ham: ${formatTry(calc.rawTotal)} · KDV (%${cfg.vatRate}): ${formatTry(calc.vatAmount)}`
-            : 'Maliyet veya işçilik girin';
+        bdEl.classList.toggle('is-empty', !calc.hasPrice);
+        bdEl.innerHTML = renderBreakdownHtml(calc, cfg.vatRate);
     }
 
     const rawEl = row.querySelector<HTMLElement>('[data-out="raw"]');
@@ -1128,11 +1138,9 @@ function renderCenterWorkbench(): void {
                     selectedAdminSummary.group === grp &&
                     selectedAdminSummary.quality === qual
                 );
-                const breakdownText = calc.hasPrice
-                    ? `Parça: ${formatTry(calc.tlPart)} · Ham: ${formatTry(calc.rawTotal)} · KDV (%${cfg.vatRate}): ${formatTry(calc.vatAmount)}`
-                    : 'Maliyet veya işçilik girin';
+                const breakdownHtml = renderBreakdownHtml(calc, cfg.vatRate);
                 rowsHtml += `
-                <div class="quality-tile admin-tile ${isSummarySelected ? 'summary-selected' : ''}" data-brand="${escapeHtml(selectedBrand)}" data-device="${escapeHtml(selectedDevice)}" data-group="${escapeHtml(grp)}" data-quality="${escapeHtml(qual)}" onclick="selectAdminTileSummary(this, event)">
+                <div class="quality-tile admin-tile ${calc.hasPrice ? 'has-price' : ''} ${isSummarySelected ? 'summary-selected' : ''}" data-brand="${escapeHtml(selectedBrand)}" data-device="${escapeHtml(selectedDevice)}" data-group="${escapeHtml(grp)}" data-quality="${escapeHtml(qual)}" onclick="selectAdminTileSummary(this, event)">
                     <div class="admin-tile-head">
                         <span class="quality-name">${escapeHtml(qual)}</span>
                         <div class="admin-tile-head-actions">
@@ -1143,18 +1151,18 @@ function renderCenterWorkbench(): void {
                     <div class="admin-tile-inputs">
                         <div class="admin-input-box">
                             <label>Maliyet ($)</label>
-                            <input type="number" step="0.5" min="0" class="table-input" data-field="usd" placeholder="$" value="${escapeHtml(usd)}" oninput="handleCostTableInput(this)">
+                            <input type="number" step="0.5" min="0" inputmode="decimal" class="table-input" data-field="usd" placeholder="$" value="${escapeHtml(usd)}" oninput="handleCostTableInput(this)">
                         </div>
                         <div class="admin-input-box">
                             <label>İşçilik (₺)</label>
-                            <input type="number" step="10" min="0" class="table-input" data-field="labor" placeholder="₺" value="${escapeHtml(labor)}" oninput="handleCostTableInput(this)">
+                            <input type="number" step="10" min="0" inputmode="decimal" class="table-input" data-field="labor" placeholder="₺" value="${escapeHtml(labor)}" oninput="handleCostTableInput(this)">
                         </div>
                         <div class="admin-input-box">
                             <label>Satış Fiyatı</label>
                             <span class="price-badge ${calc.hasPrice ? '' : 'empty'}" data-out="final">${calc.hasPrice ? formatTry(calc.finalPrice) : '-'}</span>
                         </div>
                     </div>
-                    <div class="admin-tile-breakdown" data-out="breakdown">${escapeHtml(breakdownText)}</div>
+                    <div class="admin-tile-breakdown ${calc.hasPrice ? '' : 'is-empty'}" data-out="breakdown">${breakdownHtml}</div>
                 </div>`;
             }
         }
@@ -1198,8 +1206,8 @@ function renderCenterWorkbench(): void {
 function getMasonryColumnCount(container: HTMLElement, cardCount: number): number {
     if (window.innerWidth < 900 || cardCount <= 1) return 1;
     const width = container.clientWidth || Math.max(320, window.innerWidth - 320);
-    const minColWidth = isCustomerMode ? 280 : 275;
-    return Math.max(1, Math.min(cardCount, Math.floor((width + 10) / (minColWidth + 10))));
+    const minColWidth = isCustomerMode ? 280 : 300;
+    return Math.max(1, Math.min(cardCount, Math.floor((width + 12) / (minColWidth + 12))));
 }
 
 function distributeMasonryItems<T extends { rowsCount: number; order: number }>(items: T[], colCount: number): T[][] {

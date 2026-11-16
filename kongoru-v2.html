@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="./src/styles/main.scss">
 </head>
@@ -152,37 +152,37 @@
                             </div>
                             <div class="field-col">
                                 <label for="quickNewDeviceInput">Cihaz Adı</label>
-                                <input type="text" class="input" id="quickNewDeviceInput" placeholder="Örn: iPhone 16 Pro">
+                                <input type="text" class="input" id="quickNewDeviceInput" placeholder="iPhone 16">
                             </div>
                             <button type="button" class="btn btn-primary btn-sm" onclick="addDeviceFromQuickBar()">+ Cihaz</button>
                         </div>
 
                         <div class="quick-cat-group">
                             <div class="field-col">
-                                <label for="quickQualityTargetGroup">Hangi Ana Grup?</label>
+                                <label for="quickQualityTargetGroup">Ana Grup</label>
                                 <select class="select" id="quickQualityTargetGroup"></select>
                             </div>
                             <div class="field-col">
-                                <label for="quickNewQualityInput">Yeni Kalite / Alt İşlem</label>
-                                <input type="text" class="input" id="quickNewQualityInput" placeholder="Örn: Revize">
+                                <label for="quickNewQualityInput">Kalite Adı</label>
+                                <input type="text" class="input" id="quickNewQualityInput" placeholder="Revize">
                             </div>
-                            <button type="button" class="btn btn-emerald btn-sm" onclick="addQualityFromQuickBar()">+ Kalite Ekle</button>
+                            <button type="button" class="btn btn-emerald btn-sm" onclick="addQualityFromQuickBar()">+ Kalite</button>
                         </div>
 
                         <div class="quick-cat-group">
                             <div class="field-col">
-                                <label for="quickNewGroupInput">Yeni Hizmet Ekle</label>
-                                <input type="text" class="input" id="quickNewGroupInput" placeholder="Örn: Flex İşlemi">
+                                <label for="quickNewGroupInput">Yeni Hizmet</label>
+                                <input type="text" class="input" id="quickNewGroupInput" placeholder="Flex İşlemi">
                             </div>
-                            <button type="button" class="btn btn-purple btn-sm" onclick="addGroupFromQuickBar()">+ Hizmet Ekle</button>
+                            <button type="button" class="btn btn-purple btn-sm" onclick="addGroupFromQuickBar()">+ Hizmet</button>
                         </div>
 
                         <div class="quick-cat-group">
                             <div class="field-col">
-                                <label for="quickNewBrandInput">Yeni Cihaz Sınıfı</label>
-                                <input type="text" class="input" id="quickNewBrandInput" placeholder="Örn: Huawei">
+                                <label for="quickNewBrandInput">Yeni Sınıf</label>
+                                <input type="text" class="input" id="quickNewBrandInput" placeholder="Huawei">
                             </div>
-                            <button type="button" class="btn btn-amber btn-sm" onclick="addBrandFromQuickBar()">+ Sınıf Ekle</button>
+                            <button type="button" class="btn btn-amber btn-sm" onclick="addBrandFromQuickBar()">+ Sınıf</button>
                         </div>
                     </div>
                 </section>

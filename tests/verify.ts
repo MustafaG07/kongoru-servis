@@ -111,7 +111,7 @@ async function runTests(): Promise<void> {
         const weights = [...scss.matchAll(/font-weight\s*:\s*([^;}\s]+)/gi)].map((m) => m[1]);
         for (const w of weights) {
             weightRuleCount += 1;
-            assert.equal(w, '400', `${scssPath} içinde font-weight 400 dışında değer içeriyor: ${w}`);
+            assert.ok(w === '400' || w === '500' || w === '600', `${scssPath} içinde font-weight 400/500/600 dışında değer içeriyor: ${w}`);
         }
     }
     assert.ok(weightRuleCount > 0, 'SCSS dosyalarında font-weight kuralı bulunamadı');
