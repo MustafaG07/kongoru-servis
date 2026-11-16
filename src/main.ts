@@ -781,9 +781,7 @@ function renderSearchResultRowHtml(
         kindBadge = '<span class="search-kind-badge kind-group">Hizmet</span>';
         titleHtml = highlightMatchedText(doc.group, query, escapeHtml);
         subHtml = `${highlightMatchedText(doc.brand, query, escapeHtml)} › ${highlightMatchedText(doc.device, query, escapeHtml)}`;
-        rightHtml = doc.hasPrice
-            ? `<span class="search-price-chip">${formatTry(doc.finalPrice)} +</span>`
-            : '<span class="search-empty-chip">Fiyat girilmemiş</span>';
+        rightHtml = `<span class="brand-pill">${escapeHtml(doc.brand)}</span>`;
     } else if (doc.kind === 'item') {
         kindBadge = '<span class="search-kind-badge kind-item">İşlem</span>';
         titleHtml = highlightMatchedText(doc.quality, query, escapeHtml);
