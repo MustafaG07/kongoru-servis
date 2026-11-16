@@ -82,6 +82,8 @@ export const DEFAULT_DEVICES_LIST: DefaultDeviceEntry[] = [
   { category: 'Samsung', name: 'Galaxy M34 M345' },
   { category: 'Samsung', name: 'Galaxy M52' },
   { category: 'TECHNO', name: 'Camon 40 Pro' },
+  { category: 'iPhone', name: 'iPhone 18 Pro Max' },
+  { category: 'iPhone', name: 'iPhone 18 Pro' },
   { category: 'iPhone', name: 'iPhone 18' },
   { category: 'Samsung', name: 'Samsung A04 A045F' },
   { category: 'Samsung', name: 'S24 Ultra S928B' },

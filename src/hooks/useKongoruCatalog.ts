@@ -53,6 +53,33 @@ declare global {
   }
 }
 
+function countNonZeroPriceEntriesInRawPrices(rawPrices: GithubDbPayload['prices']): number {
+  if (!rawPrices || typeof rawPrices !== 'object') return 0;
+  let count = 0;
+  for (const [key, val] of Object.entries(rawPrices)) {
+    if (
+      key === 'dollarRate' ||
+      key === 'vatRate' ||
+      key === 'roundingMode' ||
+      key === '__dollarRate' ||
+      key === '__vatRate' ||
+      key === '__roundingMode' ||
+      key === '__adminPassword'
+    ) {
+      continue;
+    }
+    if (val && typeof val === 'object') {
+      const usd = parseFloat(String(val.usd ?? val.usdCost ?? '')) || 0;
+      const labor = parseFloat(String(val.labor ?? val.laborCost ?? '')) || 0;
+      if (usd > 0 || labor > 0) count += 1;
+    } else {
+      const num = parseFloat(String(val ?? '')) || 0;
+      if (num > 0) count += 1;
+    }
+  }
+  return count;
+}
+
 export function useKongoruCatalog() {
   const initialCatalog = useMemo(() => loadLocalCatalog(), []);
   const initialSelection = useMemo(
@@ -100,6 +127,8 @@ export function useKongoruCatalog() {
   const folderWriteQueueRef = useRef<Promise<void>>(Promise.resolve());
   const autoCloudSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const localMutationVersionRef = useRef<number>(0);
+  const hasSyncedFromCloudRef = useRef<boolean>(false);
+  const lastCloudPricedCountRef = useRef<number>(0);
 
   const financeConfig = useMemo(
     () => getFinanceConfigFromState(catalog.pricesState),
@@ -205,6 +234,26 @@ export function useKongoruCatalog() {
       setDbSaveStatus({ mode: 'saving', text: 'Kaydediliyor...' });
 
       try {
+        const localPricedCount = countAllPricedItems(targetCatalog);
+        if (silent && lastCloudPricedCountRef.current >= 10 && localPricedCount === 0) {
+          setSyncStatus('local');
+          setSyncText('Koruma Aktif');
+          setDbSaveStatus({ mode: 'idle', text: '' });
+          return false;
+        }
+        if (!hasSyncedFromCloudRef.current && localPricedCount === 0) {
+          const remote = await fetchGithubDb().catch(() => null);
+          if (remote && countNonZeroPriceEntriesInRawPrices(remote.prices) > 0) {
+            if (saveVersion === localMutationVersionRef.current) {
+              localStorage.removeItem(STORAGE_KEYS.pendingSync);
+            }
+            setSyncStatus('local');
+            setSyncText('Bulut Korundu');
+            setDbSaveStatus({ mode: 'idle', text: '' });
+            return false;
+          }
+        }
+
         const payload: GithubDbPayload = {
           version: 2,
           updatedAt: new Date().toISOString(),
@@ -220,6 +269,8 @@ export function useKongoruCatalog() {
           localStorage.removeItem(STORAGE_KEYS.pendingSync);
         }
         if (ok) {
+          hasSyncedFromCloudRef.current = true;
+          lastCloudPricedCountRef.current = localPricedCount;
           setSyncStatus('online');
           setSyncText('GitHub Aktif');
           setSyncError(null);
@@ -345,6 +396,8 @@ export function useKongoruCatalog() {
 
         setCatalog(finalized);
         catalogRef.current = finalized;
+        hasSyncedFromCloudRef.current = true;
+        lastCloudPricedCountRef.current = countAllPricedItems(finalized);
         persistLocalState(finalized, true);
         localStorage.setItem(STORAGE_KEYS.lastBackupHash, computeDataFingerprint(finalized));
 
